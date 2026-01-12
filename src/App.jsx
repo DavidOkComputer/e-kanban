@@ -1,16 +1,23 @@
-<<<<<<< HEAD
-import EKanban from './Ekanban'
+import React, { useState, useCallback } from 'react';
+import EKanban from './Ekanban';
+import AdminDieRegistration from './adminDieRegistration';
  
-function App() {
-  return <EKanban />
-}
+const App = () => {
+  const [currentView, setCurrentView] = useState('dashboard');
  
-=======
-import EKanban from './EKanban'
+  const navigateToAdmin = useCallback(() => {
+    setCurrentView('admin');
+  }, []);
+ 
+  const navigateToDashboard = useCallback(() => {
+    setCurrentView('dashboard');
+  }, []);
+ 
+  if (currentView === 'admin') {
+    return <AdminDieRegistration onNavigateBack={navigateToDashboard} />;
+  }
+ 
+  return <AdminDieRegistration />;
+};
 
-function App() {
-  return <EKanban />
-}
-
->>>>>>> 7ab2742be43702efea67d09e14df2246a28ae5f6
-export default App
+export default App;

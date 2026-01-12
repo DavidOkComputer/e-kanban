@@ -15,10 +15,13 @@ CREATE TABLE IF NOT EXISTS tbl_troqueles (
     capacidad_golpes VARCHAR(50) DEFAULT '-',
     rectificaciones VARCHAR(100) DEFAULT '0',
     url_imagen VARCHAR(255),
-    num_pieza_1 varchar(50),
-    num_pieza_2 varchar(50),
-    num_pieza_3 varchar(50),
-    num_pieza_4 varchar(50),
+    num_pieza_1 varchar(50) DEFAULT NULL,
+    num_pieza_2 varchar(50) DEFAULT NULL,
+    num_pieza_3 varchar(50) DEFAULT NULL,
+    num_pieza_4 varchar(50) DEFAULT NULL,
+    num_pieza_5 varchar(50) DEFAULT NULL,
+    num_pieza_5 varchar(50) DEFAULT NULL,
+    acero_np varchar(50) DEFAULT NULL,
     creado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     actualizado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -39,7 +42,7 @@ CREATE TABLE IF NOT EXISTS tbl_prioridad_reparacion (
     prioridad INT NOT NULL UNIQUE,
     id_troquel VARCHAR(10) NOT NULL,
     creado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    actualizado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    actualizado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- tabla de resumen de troqueles
@@ -72,9 +75,7 @@ CREATE TABLE IF NOT EXISTS tbl_historial (
     motivo VARCHAR(100),
     comentarios_supervisor TEXT,
     id_usuario INT,
-    creado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (troquel_id) REFERENCES troqueles(id) ON DELETE CASCADE,
-    FOREIGN KEY (falla_id) REFERENCES fallas_catalog(id)
+    creado_el TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Indices

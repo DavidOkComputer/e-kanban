@@ -1,17 +1,5 @@
-<<<<<<< HEAD
-*{
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-html, body, #root{
-  height: 100%;
-  width: 100%;
-=======
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
->>>>>>> 7ab2742be43702efea67d09e14df2246a28ae5f6
 }
