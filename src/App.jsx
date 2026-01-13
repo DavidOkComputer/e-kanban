@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import EKanban from './Ekanban';
-import AdminDieRegistration from './adminDieRegistration';
+import EKanban from './components/EKanban';
+import AdminDieRegistration from './components/adminDieRegistration';
  
 const App = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -17,7 +17,7 @@ const App = () => {
     return <AdminDieRegistration onNavigateBack={navigateToDashboard} />;
   }
  
-  return <AdminDieRegistration />;
+  return <EKanban/>;
 };
 
 export default App;
