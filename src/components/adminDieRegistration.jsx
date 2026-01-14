@@ -741,699 +741,359 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
               </div> 
 
               {/*seccion de imagen*/} 
-
               <div style={styles.formSection}> 
-
                 <h2 style={styles.sectionTitle}> 
-
                   Imagen del Troquel 
-
                 </h2> 
-
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}> 
-
                   <div style={styles.inputGroup}> 
-
                     <label style={styles.label}>URL de la Imagen</label> 
-
                     <input 
-
                       type="text" 
-
                       name="image_url" 
-
                       value={formData.image_url} 
-
                       onChange={handleImageUrlChange} 
-
                       onFocus={() => setFocusedField('image_url')} 
-
                       onBlur={() => setFocusedField(null)} 
-
                       style={getInputStyle('image_url')} 
-
                       placeholder="https://ejemplo.com/imagen.jpg" 
-
                     /> 
-
                   </div> 
-
- 
 
                   <div style={styles.inputGroup}> 
-
                     {imagePreview ? ( 
-
                       <div style={styles.imagePreview}> 
-
                         <img 
-
                           src={imagePreview} 
-
                           alt="Preview" 
-
                           style={styles.imagePreviewImg} 
-
                           onError={() => setImagePreview(null)} 
-
                         /> 
-
                         <button 
-
                           type="button" 
-
                           style={styles.imageRemoveBtn} 
-
                           onClick={removeImage} 
-
                         > 
-
                           ✕ 
-
                         </button> 
-
                       </div> 
-
                     ) : ( 
-
                       <label 
-
                         style={styles.imageUploadArea} 
-
                         onMouseEnter={(e) => { 
-
                           e.currentTarget.style.borderColor = '#00ff88'; 
-
                           e.currentTarget.style.background = 'rgba(0, 255, 136, 0.05)'; 
-
                         }} 
-
                         onMouseLeave={(e) => { 
-
                           e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.25)'; 
-
                           e.currentTarget.style.background = 'rgba(0, 0, 0, 0.2)'; 
-
                         }} 
-
                       > 
-
                         <input 
-
                           type="file" 
-
                           accept="image/*" 
-
                           onChange={handleImageUpload} 
-
                           style={{ display: 'none' }} 
-
                         /> 
-
                         <p style={styles.imageUploadText}>Click para subir imagen</p> 
-
                         <p style={styles.imageUploadHint}>O ingrese una URL</p> 
-
                       </label> 
-
                     )} 
-
                   </div> 
-
                 </div> 
-
               </div> 
-
- 
 
               {/* Notes Section */} 
-
               <div style={styles.formSection}> 
-
                 <h2 style={styles.sectionTitle}> 
-
                   Observaciones 
-
                 </h2> 
-
                 <div style={styles.inputGroup}> 
-
                   <label style={styles.label}>Notas Adicionales (Opcional)</label> 
-
                   <textarea 
-
                     name="notes" 
-
                     value={formData.notes} 
-
                     onChange={handleInputChange} 
-
                     onFocus={() => setFocusedField('notes')} 
-
                     onBlur={() => setFocusedField(null)} 
-
                     style={{ 
-
                       ...styles.textarea, 
-
                       ...(focusedField === 'notes' ? styles.inputFocus : {}), 
-
                     }} 
-
                     placeholder="Ingrese cualquier observación adicional sobre el troquel..." 
-
                   /> 
-
                 </div> 
-
               </div> 
 
- 
-
               {/* Action Buttons */} 
-
               <div style={styles.buttonGroup}> 
-
                 <button 
-
                   type="button" 
-
                   style={styles.btnSecondary} 
-
                   onClick={handleReset} 
-
                   onMouseEnter={(e) => { 
-
                     e.target.style.borderColor = '#888'; 
-
                     e.target.style.color = '#fff'; 
-
                   }} 
 
                   onMouseLeave={(e) => { 
-
                     e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
-
                     e.target.style.color = '#aaa'; 
-
                   }} 
-
                 > 
-
                   {editingDie ? 'Cancelar Edición' : 'Limpiar Formulario'} 
-
                 </button> 
-
                 <button 
-
                   type="submit" 
-
                   style={{ 
-
                     ...styles.btnPrimary, 
-
                     opacity: isSubmitting ? 0.7 : 1, 
-
                     cursor: isSubmitting ? 'not-allowed' : 'pointer', 
-
                   }} 
 
                   disabled={isSubmitting} 
-
                   onMouseEnter={(e) => { 
-
                     if (!isSubmitting) { 
-
                       e.target.style.transform = 'translateY(-2px)'; 
-
                       e.target.style.boxShadow = '0 8px 30px rgba(0, 255, 136, 0.4)'; 
-
                     } 
-
                   }} 
 
                   onMouseLeave={(e) => { 
-
                     e.target.style.transform = 'translateY(0)'; 
-
                     e.target.style.boxShadow = '0 4px 20px rgba(0, 255, 136, 0.25)'; 
-
                   }} 
-
                 > 
 
                   {isSubmitting ? ( 
-
                     <> 
-
                       <span style={styles.loadingSpinner} /> 
-
                       Procesando... 
-
                     </> 
 
                   ) : ( 
-
                     <> 
-
                       ✓ {editingDie ? 'Actualizar Troquel' : 'Registrar Troquel'} 
-
                     </> 
-
                   )} 
-
                 </button> 
-
               </div> 
-
             </div> 
-
           </form> 
-
         )} 
 
- 
-
-        {/* MANAGE TAB */} 
-
+        {/*pestaña de administracion*/} 
         {activeTab === 'manage' && ( 
-
           <> 
-
-            {/* Stats Row */} 
-
+            {/*fila de estadisticas*/} 
             <div style={styles.statsRow}> 
-
               <div style={styles.statCard}> 
-
                 <div> 
-
                   <div style={styles.statValue}>{stats.total}</div> 
-
                   <div style={styles.statLabel}>Total Troqueles</div> 
-
                 </div> 
-
               </div> 
-
               <div style={styles.statCard}> 
-
                 <div> 
-
                   <div style={{ ...styles.statValue, color: '#64ff64' }}>{stats.activos}</div> 
-
                   <div style={styles.statLabel}>Activos</div> 
-
                 </div> 
-
               </div> 
-
               <div style={styles.statCard}> 
-
                 <div> 
-
                   <div style={{ ...styles.statValue, color: '#ffc800' }}>{stats.reparando}</div> 
-
                   <div style={styles.statLabel}>En Reparación</div> 
-
                 </div> 
-
               </div> 
-
               <div style={styles.statCard}> 
-
                 <div> 
-
                   <div style={{ ...styles.statValue, color: '#ff6b6b' }}>{stats.pendientes}</div> 
-
                   <div style={styles.statLabel}>Pendientes</div> 
-
                 </div> 
-
               </div> 
-
             </div> 
 
- 
-
-            {/* Table */} 
-
+            {/*tabla*/} 
             <div style={styles.tableContainer}> 
-
               <div style={styles.tableHeader}> 
-
                 <div style={styles.tableTitle}> 
-
                   Lista de Troqueles Registrados 
-
                 </div> 
-
                 <div style={styles.tableControls}> 
-
                   <select 
-
                     value={filterYear} 
-
                     onChange={(e) => setFilterYear(e.target.value)} 
-
                     style={{ ...styles.tableFilter, width: '130px' }} 
-
                   > 
-
                     <option value="">Todos los años</option> 
-
                     {years.slice(0, 10).map(year => ( 
-
                       <option key={year} value={year}>{year}</option> 
-
                     ))} 
-
                   </select> 
-
                   <select 
-
                     value={filterStatus} 
-
                     onChange={(e) => setFilterStatus(e.target.value)} 
-
                     style={{ ...styles.tableFilter, width: '150px' }} 
-
                   > 
-
                     <option value="">Todos los estados</option> 
-
                     <option value="En prensa">En Prensa</option> 
-
                     <option value="Listo">Listo</option> 
-
                     <option value="Listo-BackUp">Listo - BackUp</option> 
-
                     <option value="Reparando">Reparando</option> 
-
                     <option value="Pendiente">Pendiente</option> 
-
                     <option value="Baja">Baja</option> 
-
                   </select> 
-
                   <input 
-
                     type="text" 
-
                     placeholder="Buscar troquel..." 
-
                     value={searchTerm} 
-
                     onChange={(e) => setSearchTerm(e.target.value)} 
-
                     style={styles.tableSearch} 
-
                   /> 
 
                   <button 
-
                     style={{ ...styles.btnPrimary, padding: '10px 20px', fontSize: '13px' }} 
-
                     onClick={fetchDies} 
-
                   > 
-
                     Actualizar 
-
                   </button> 
-
                 </div> 
-
               </div> 
 
- 
-
               {isLoading ? ( 
-
                 <div style={{ textAlign: 'center', padding: '60px' }}> 
-
                   <div style={{ ...styles.loadingSpinner, width: '40px', height: '40px', borderWidth: '3px', margin: '0 auto 16px' }} /> 
-
                   <p style={{ color: '#888' }}>Cargando troqueles...</p> 
-
                 </div> 
-
               ) : filteredDies.length === 0 ? ( 
-
                 <div style={styles.emptyState}> 
-
                   <div style={styles.emptyIcon}></div> 
-
                   <p style={styles.emptyText}>No se encontraron troqueles</p> 
-
                   <p style={{ fontSize: '12px', color: '#666' }}> 
-
                     {searchTerm ? 'Intente con otra búsqueda' : 'Registre un nuevo troquel para comenzar'} 
-
                   </p> 
-
                 </div> 
-
               ) : ( 
-
                 <> 
-
                   <div style={{ overflowX: 'auto' }}> 
-
                     <table style={styles.table}> 
-
                       <thead> 
-
                         <tr> 
-
                           <th style={styles.th}>ID</th> 
-
                           <th style={styles.th}>Nombre</th> 
-
                           <th style={styles.th}>Año</th> 
-
                           <th style={styles.th}>Modelo</th> 
-
                           <th style={styles.th}>Estado</th> 
-
                           <th style={styles.th}>Golpes Acum.</th> 
-
                           <th style={styles.th}>Acciones</th> 
-
                         </tr> 
-
                       </thead> 
-
                       <tbody> 
 
                         {filteredDies.map((die) => ( 
-
                           <tr 
-
                             key={die.id} 
-
                             style={styles.tableRow} 
-
                             onMouseEnter={(e) => { 
-
                               e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)'; 
-
                             }} 
 
                             onMouseLeave={(e) => { 
-
                               e.currentTarget.style.background = 'transparent'; 
-
                             }} 
-
                           > 
 
                             <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>{die.id}</td> 
-
                             <td style={styles.td}>{die.name}</td> 
-
                             <td style={styles.td}>{die.year}</td> 
-
                             <td style={styles.td}>{die.model || '-'}</td> 
-
                             <td style={styles.td}> 
-
                               <span style={{ ...styles.statusBadge, ...getStatusStyle(die.status) }}> 
-
                                 {die.status} 
-
                               </span> 
-
                             </td> 
-
                             <td style={styles.td}>{die.golpes_acum || '-'}</td> 
-
                             <td style={styles.td}> 
-
                               <button 
-
                                 style={styles.actionBtn} 
-
                                 onClick={() => handleEdit(die)} 
-
                                 onMouseEnter={(e) => { 
-
                                   e.target.style.borderColor = '#00ff88'; 
-
                                   e.target.style.color = '#00ff88'; 
-
                                 }} 
-
                                 onMouseLeave={(e) => { 
-
                                   e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
-
                                   e.target.style.color = '#aaa'; 
-
                                 }} 
-
                               > 
-
-                                ✏️ Editar 
-
+                              Editar 
                               </button> 
-
                               <button 
-
                                 style={{ ...styles.actionBtn, color: '#ff6b6b' }} 
-
                                 onClick={() => handleDeleteClick(die)} 
-
                                 onMouseEnter={(e) => { 
-
                                   e.target.style.borderColor = '#ff6b6b'; 
-
                                   e.target.style.background = 'rgba(255, 107, 107, 0.1)'; 
-
                                 }} 
 
                                 onMouseLeave={(e) => { 
-
                                   e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
-
                                   e.target.style.background = 'transparent'; 
-
                                 }} 
-
                               > 
-
-                                🗑️ Eliminar 
-
+                                Eliminar 
                               </button> 
-
                             </td> 
-
                           </tr> 
-
                         ))} 
-
                       </tbody> 
-
                     </table> 
-
                   </div> 
-
                   <div style={styles.pagination}> 
-
                     <span style={styles.pageInfo}> 
-
                       Mostrando {filteredDies.length} de {dies.length} troqueles 
-
                     </span> 
-
                   </div> 
-
                 </> 
-
               )} 
-
             </div> 
-
           </> 
-
         )} 
-
       </main> 
 
- 
-
-      {/* Delete Confirmation Modal */} 
-
+      {/*modal de confirmar eliminar*/} 
       {showDeleteModal && ( 
-
         <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}> 
-
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}> 
-
             <h2 style={styles.modalTitle}> 
-
-              <span>⚠️</span> 
-
               Confirmar Eliminación 
-
             </h2> 
-
             <p style={styles.modalText}> 
-
               ¿Está seguro de que desea eliminar el troquel <strong style={{ color: '#00ff88' }}>{dieToDelete?.id}</strong> ({dieToDelete?.name})? 
-
               <br /><br /> 
-
               Esta acción no se puede deshacer. 
-
             </p> 
-
             <div style={styles.modalButtons}> 
-
               <button 
-
                 style={styles.btnSecondary} 
-
                 onClick={() => setShowDeleteModal(false)} 
-
               > 
-
                 Cancelar 
-
               </button> 
-
               <button 
-
                 style={styles.btnDanger} 
-
                 onClick={handleDeleteConfirm} 
-
               > 
-
                 Eliminar Troquel 
-
               </button> 
-
             </div> 
-
           </div> 
-
         </div> 
-
       )} 
 
- 
-
-      {/* CSS Animations */} 
-
+      {/*animacion de css*/} 
       <style>{cssAnimations}</style> 
-
     </div> 
-
   ); 
-
 }; 
-
- 
-
 export default AdminDieRegistration; 

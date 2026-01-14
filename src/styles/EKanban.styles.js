@@ -426,795 +426,399 @@ export const styles = {
   }, 
 
   statusColor: (color) => ({ 
-
     width: 16, 
-
     height: 16, 
-
     background: color, 
-
     borderRadius: 3, 
-
     boxShadow: `0 0 6px ${color}80`, 
-
     flexShrink: 0, 
-
   }), 
-
- 
 
   statusName: { 
-
     fontSize: 9, 
-
     fontWeight: 500, 
-
     color: '#ccc', 
-
     whiteSpace: 'nowrap', 
-
   }, 
-
- 
 
   // Modal 
-
   modalOverlay: { 
-
     position: 'fixed', 
-
     inset: 0, 
-
     background: 'rgba(0,0,0,0.85)', 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     justifyContent: 'center', 
-
     zIndex: 1000, 
-
     backdropFilter: 'blur(8px)', 
-
   }, 
-
- 
 
   modal: { 
-
     background: 'rgba(10,20,15,0.98)', 
-
     borderRadius: 14, 
-
     width: 1000, 
-
     height: 620, 
-
     maxWidth: '96vw', 
-
     maxHeight: '94vh', 
-
     boxShadow: '0 0 50px rgba(0,255,136,0.25), 0 20px 60px rgba(0,0,0,0.5)', 
-
     animation: 'modalIn 0.25s ease-out', 
-
     border: '1px solid rgba(0,255,136,0.3)', 
-
     display: 'flex', 
-
     flexDirection: 'column', 
-
   }, 
-
- 
 
   modalHeader: { 
-
     display: 'flex', 
-
     justifyContent: 'space-between', 
-
     alignItems: 'center', 
-
     padding: '12px 20px', 
-
     borderBottom: '2px solid rgba(0,255,136,0.3)', 
-
     background: 'rgba(0,255,136,0.05)', 
-
     flexShrink: 0, 
-
   }, 
-
- 
 
   modalStatusLabel: { 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     gap: 10, 
-
   }, 
-
  
-
   modalStatusText: { 
-
     fontSize: 16, 
-
     fontWeight: 700, 
-
     color: '#fff', 
-
   }, 
-
- 
 
   modalStatusValue: (color) => ({ 
-
     fontSize: 16, 
-
     fontWeight: 700, 
-
     color: color, 
-
     textShadow: `0 0 12px ${color}80`, 
-
   }), 
-
- 
 
   modalCloseButton: { 
-
     background: 'transparent', 
-
     border: '2px solid rgba(255,255,255,0.3)', 
-
     color: '#fff', 
-
     fontSize: 20, 
-
     cursor: 'pointer', 
-
     padding: '2px 10px', 
-
     borderRadius: 6, 
-
     lineHeight: 1, 
-
   }, 
-
- 
 
   modalContent: { 
-
     display: 'flex', 
-
     flex: 1, 
-
     overflow: 'hidden', 
-
   }, 
 
- 
-
-  // Modal Left Panel 
-
+  // panel izquierdo
   modalLeftPanel: { 
-
     width: 260, 
-
     borderRight: '1px solid rgba(0,255,136,0.2)', 
-
     padding: 16, 
-
     display: 'flex', 
-
     flexDirection: 'column', 
-
     gap: 12, 
-
     overflowY: 'auto', 
-
     flexShrink: 0, 
-
   }, 
-
- 
 
   modalImage: { 
-
     width: '100%', 
-
     height: 120, 
-
     background: 'rgba(0,255,136,0.05)', 
-
     borderRadius: 8, 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     justifyContent: 'center', 
-
     border: '2px solid rgba(0,255,136,0.2)', 
-
   }, 
-
  
-
   modalImagePlaceholder: { 
-
     color: 'rgba(0,255,136,0.4)', 
-
     fontSize: 11, 
-
   }, 
-
  
-
   modalItemInfo: { 
-
     textAlign: 'center', 
-
   }, 
-
- 
 
   modalItemId: { 
-
     fontSize: 26, 
-
     fontWeight: 800, 
-
     color: '#fff', 
-
     textShadow: '0 0 16px rgba(0,255,136,0.4)', 
-
   }, 
-
- 
 
   modalItemModel: { 
-
     fontSize: 13, 
-
     color: '#00ff88', 
-
     marginTop: 2, 
-
   }, 
-
- 
 
   modalInfoBox: { 
-
     background: 'rgba(0,255,136,0.05)', 
-
     borderRadius: 6, 
-
     overflow: 'hidden', 
-
     border: '1px solid rgba(0,255,136,0.2)', 
-
   }, 
-
- 
 
   modalInfoBoxHeader: { 
-
     background: 'rgba(0,255,136,0.15)', 
-
     padding: '6px 10px', 
-
     fontSize: 10, 
-
     fontWeight: 700, 
-
     color: '#00ff88', 
-
     textTransform: 'uppercase', 
-
     textAlign: 'center', 
-
   }, 
-
- 
 
   modalInfoBoxContent: { 
-
     padding: '8px 10px', 
-
   }, 
-
- 
 
   modalInfoRow: (isLast) => ({ 
-
     display: 'flex', 
-
     justifyContent: 'space-between', 
-
     padding: '4px 0', 
-
     borderBottom: isLast ? 'none' : '1px solid rgba(0,255,136,0.1)', 
-
   }), 
-
- 
 
   modalInfoLabel: { 
-
     fontSize: 10, 
-
     color: '#aaa', 
-
   }, 
-
- 
 
   modalInfoValue: { 
-
     fontSize: 10, 
-
     color: '#fff', 
-
     fontWeight: 600, 
-
   }, 
 
- 
-
-  // Modal Right Panel 
-
+  //panel derecho del modal 
   modalRightPanel: { 
-
     flex: 1, 
-
     display: 'flex', 
-
     flexDirection: 'column', 
-
     overflow: 'hidden', 
-
   }, 
 
- 
-
-  // Modal Tabs 
-
+  //pestañas del modal 
   modalTabs: { 
-
     display: 'flex', 
-
     borderBottom: '1px solid rgba(0,255,136,0.2)', 
-
     flexShrink: 0, 
-
   }, 
-
  
-
   modalTab: (isActive) => ({ 
-
     flex: 1, 
-
     padding: '12px 16px', 
-
     background: isActive ? 'rgba(0,255,136,0.15)' : 'transparent', 
-
     border: 'none', 
-
     borderBottom: isActive ? '3px solid #00ff88' : '3px solid transparent', 
-
     color: isActive ? '#00ff88' : '#888', 
-
     fontSize: 12, 
-
     fontWeight: 600, 
-
     cursor: 'pointer', 
-
     transition: 'all 0.15s', 
-
     textTransform: 'capitalize', 
-
   }), 
-
- 
 
   modalTabContent: { 
-
     flex: 1, 
-
     padding: 16, 
-
     overflowY: 'auto', 
-
   }, 
 
- 
-
-  // Modal Actions Form 
-
+  //moda del form de aciones 
   actionsForm: { 
-
     display: 'flex', 
-
     gap: 20, 
-
   }, 
-
  
-
   actionsColumn: { 
-
     flex: 1, 
-
   }, 
-
- 
 
   actionHeader: { 
-
     background: 'rgba(0,155,74,0.3)', 
-
     padding: '8px 14px', 
-
     borderRadius: 6, 
-
     marginBottom: 12, 
-
     border: '1px solid rgba(0,255,136,0.3)', 
-
   }, 
-
- 
 
   actionHeaderText: { 
-
     fontSize: 11, 
-
     fontWeight: 600, 
-
     color: '#fff', 
-
   }, 
-
- 
 
   actionOption: (isSelected) => ({ 
-
     display: 'flex', 
-
     flexDirection: 'column', 
-
     gap: 6, 
-
     padding: '6px 10px', 
-
     borderRadius: 6, 
-
     cursor: 'pointer', 
-
     background: isSelected ? 'rgba(0,255,136,0.08)' : 'transparent', 
-
     marginBottom: 8, 
-
   }), 
 
- 
-
   actionRadioRow: { 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     gap: 8, 
-
   }, 
-
- 
 
   actionLabel: { 
-
     fontSize: 12, 
-
     color: '#fff', 
-
   }, 
-
- 
 
   formSelect: { 
-
     width: '100%', 
-
     padding: '6px 10px', 
-
     background: 'rgba(0,0,0,0.3)', 
-
     border: '1px solid rgba(0,255,136,0.3)', 
-
     borderRadius: 6, 
-
     color: '#fff', 
-
     fontSize: 11, 
-
     marginLeft: 20, 
-
   }, 
-
- 
 
   formSelectLabel: { 
-
     fontSize: 11, 
-
     color: '#aaa', 
-
     display: 'block', 
-
     marginBottom: 4, 
-
   }, 
-
- 
 
   formTextarea: { 
-
     width: '100%', 
-
     padding: '8px 10px', 
-
     background: 'rgba(0,0,0,0.3)', 
-
     border: '1px solid rgba(0,255,136,0.3)', 
-
     borderRadius: 6, 
-
     color: '#fff', 
-
     fontSize: 11, 
-
     resize: 'none', 
-
   }, 
-
- 
 
   submitButton: { 
-
     marginTop: 16, 
-
     width: '100%', 
-
     padding: '10px', 
-
     background: '#00ff88', 
-
     border: 'none', 
-
     borderRadius: 6, 
-
     color: '#000', 
-
     fontSize: 12, 
-
     fontWeight: 700, 
-
     cursor: 'pointer', 
-
     boxShadow: '0 0 15px rgba(0,255,136,0.4)', 
-
   }, 
 
- 
-
-  // History Tab 
-
+  //pestaña de historial 
   historyContainer: { 
-
     height: '100%', 
-
   }, 
-
  
-
   historyLoading: { 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     justifyContent: 'center', 
-
     height: '100%', 
-
     color: '#00ff88', 
-
   }, 
-
- 
 
   historyList: { 
-
     display: 'flex', 
-
     flexDirection: 'column', 
-
     gap: 8, 
-
   }, 
-
  
-
   historyItem: { 
-
     background: 'rgba(0,255,136,0.05)', 
-
     borderRadius: 6, 
-
     padding: 12, 
-
     border: '1px solid rgba(0,255,136,0.15)', 
-
   }, 
-
  
-
   historyItemHeader: { 
-
     display: 'flex', 
-
     justifyContent: 'space-between', 
-
     marginBottom: 6, 
-
   }, 
-
- 
 
   historyItemType: { 
-
     color: '#00ff88', 
-
     fontWeight: 600, 
-
     fontSize: 12, 
-
   }, 
-
- 
 
   historyItemDate: { 
-
     color: '#888', 
-
     fontSize: 10, 
-
   }, 
-
- 
 
   historyItemFalla: { 
-
     color: '#fff', 
-
     fontSize: 11, 
-
   }, 
-
- 
 
   historyItemComment: { 
-
     color: '#ccc', 
-
     fontSize: 11, 
-
     marginTop: 4, 
-
   }, 
-
  
-
   historyEmpty: { 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     justifyContent: 'center', 
-
     height: '100%', 
-
     color: 'rgba(0,255,136,0.4)', 
-
     fontSize: 13, 
-
     fontStyle: 'italic', 
-
   }, 
 
- 
-
-  // Modal Footer 
-
+  //modal de footr 
   modalFooter: { 
-
     display: 'flex', 
-
     justifyContent: 'space-between', 
-
     alignItems: 'center', 
-
     padding: '10px 20px', 
-
     borderTop: '1px solid rgba(0,255,136,0.2)', 
-
     background: 'rgba(0,0,0,0.2)', 
-
     flexShrink: 0, 
-
   }, 
-
  
-
   modalFooterIcon: { 
-
     width: 28, 
-
     height: 28, 
-
     borderRadius: '50%', 
-
     background: '#00ff88', 
-
     display: 'flex', 
-
     alignItems: 'center', 
-
     justifyContent: 'center', 
-
     boxShadow: '0 0 10px rgba(0,255,136,0.4)', 
-
   }, 
-
- 
 
   modalCloseBtn: { 
-
     background: '#ff4466', 
-
     border: 'none', 
-
     color: '#fff', 
-
     padding: '8px 20px', 
-
     borderRadius: 6, 
-
     fontSize: 12, 
-
     fontWeight: 600, 
-
     cursor: 'pointer', 
-
     transition: 'all 0.15s', 
-
     boxShadow: '0 0 12px rgba(255,68,102,0.4)', 
-
   }, 
-
 }; 
-
- 
 
 export default styles; 
