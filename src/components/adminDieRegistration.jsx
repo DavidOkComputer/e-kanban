@@ -11,14 +11,14 @@ import createStyles, {
 
 const API_BASE = 'http://localhost:3001/api'; 
 
-const AdminDieRegistration = ({ onNavigateBack }) => { 
+const AdminDieRegistration = ({ onNavigateBack, user }) => { 
   const styles = useMemo(() => createStyles(), []); 
   const years = useMemo(() => generateYears(), []); 
 
-  //pestaña de estado 
+  // Tab state 
   const [activeTab, setActiveTab] = useState('register'); 
 
-   //estado del form
+  // Form state
   const [formData, setFormData] = useState({ 
     id: '', 
     name: '', 
@@ -31,7 +31,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
     rectificaciones: '0', 
     image_url: '', 
     notes: '', 
-    //campos adicionales 
+    // Additional fields 
     cliente: '', 
     prensa_asignada: '', 
     tipo_troquel: 'progresivo', 
@@ -51,19 +51,19 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
   const [message, setMessage] = useState({ type: '', text: '' }); 
   const [imagePreview, setImagePreview] = useState(null); 
 
-  //estado de lista 
+  // List state 
   const [dies, setDies] = useState([]); 
   const [isLoading, setIsLoading] = useState(false); 
   const [searchTerm, setSearchTerm] = useState(''); 
   const [filterYear, setFilterYear] = useState(''); 
   const [filterStatus, setFilterStatus] = useState(''); 
 
-  //estado del modal
+  // Modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false); 
   const [dieToDelete, setDieToDelete] = useState(null); 
   const [editingDie, setEditingDie] = useState(null); 
 
-  //estadisticas 
+  // Statistics 
   const [stats, setStats] = useState({ 
     total: 0, 
     activos: 0, 
@@ -71,7 +71,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
     pendientes: 0, 
   }); 
 
-  //obtener troqueles al cambiar a pestaña de manejo
+  // Fetch dies when switching to manage tab
   useEffect(() => { 
     if (activeTab === 'manage') { 
       fetchDies(); 
@@ -93,7 +93,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
         const data = await response.json(); 
         setDies(Array.isArray(data) ? data : []); 
 
-        //calcular estadisticas 
+        // Calculate statistics 
         const allDies = Array.isArray(data) ? data : []; 
 
         setStats({ 
@@ -188,11 +188,11 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
       const actionText = isEditing ? 'actualizado' : 'registrado'; 
       setMessage({ type: 'success', text: `¡Troquel ${formData.id} ${actionText} exitosamente!` }); 
 
-      //reiniciar el form 
+      // Reset form 
       handleReset(); 
       setEditingDie(null); 
 
-      //refrescar la lista si se esta el la pestaña de administracion
+      // Refresh list if on manage tab
       if (activeTab === 'manage') { 
         fetchDies(); 
       } 
@@ -296,7 +296,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
     } 
   }, [dieToDelete]); 
 
-  //troqueles filtrados
+  // Filtered dies
   const filteredDies = useMemo(() => { 
     return dies.filter(die => { 
       const matchesSearch = !searchTerm || 
@@ -307,7 +307,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
     }); 
   }, [dies, searchTerm]); 
 
-  //helper para el estilo del input 
+  // Input style helper 
   const getInputStyle = useCallback((fieldName, disabled = false) => ({ 
     ...styles.input, 
     ...(focusedField === fieldName ? styles.inputFocus : {}), 
@@ -335,6 +335,16 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
           </div> 
         </div> 
         <div style={styles.headerRight}> 
+          {user && (
+            <span style={{
+              ...styles.adminBadge,
+              background: 'rgba(0, 255, 136, 0.15)',
+              borderColor: '#00ff88',
+              color: '#00ff88',
+            }}>
+              👤 {user.username}
+            </span>
+          )}
           <span style={styles.adminBadge}> 
             Modo Administrador 
           </span> 
@@ -357,9 +367,9 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
         </div> 
       </header> 
 
-      {/*contenido principal*/} 
+      {/* Main Content */} 
       <main style={styles.mainContent}> 
-        {/*Header de la pagina*/} 
+        {/* Page Header */} 
         <div style={styles.pageHeader}> 
           <h1 style={styles.pageTitle}> 
             <span></span> 
@@ -370,7 +380,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
           </p> 
         </div> 
 
-        {/*navegacion entre paginas*/} 
+        {/* Tab Navigation */} 
         <div style={styles.tabsContainer}> 
           <button 
             style={{ ...styles.tab, ...(activeTab === 'register' ? styles.tabActive : {}) }} 
@@ -386,7 +396,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
           </button> 
         </div> 
 
-        {/*mensajes*/} 
+        {/* Messages */} 
         {message.type === 'success' && ( 
           <div style={styles.successMessage}> 
             <div style={{ ...styles.messageIcon, background: 'rgba(0, 255, 136, 0.15)' }}>✓</div> 
@@ -405,11 +415,11 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
           </div> 
         )} 
 
-        {/*pestaña de registrar*/} 
+        {/* Register Tab */} 
         {activeTab === 'register' && ( 
           <form onSubmit={handleSubmit}> 
             <div style={styles.formContainer}> 
-              {/*informacion basica*/} 
+              {/* Basic Information */} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Información Básica 
@@ -459,7 +469,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                       onBlur={() => setFocusedField(null)} 
                       style={getSelectStyle('year')} 
                     > 
-
                       {years.map(year => ( 
                         <option key={year} value={year}>{year}</option> 
                       ))} 
@@ -523,7 +532,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                       onBlur={() => setFocusedField(null)} 
                       style={getSelectStyle('cliente')} 
                     > 
-
                       {CLIENT_OPTIONS.map(opt => ( 
                         <option key={opt.value} value={opt.value}>{opt.label}</option> 
                       ))} 
@@ -532,7 +540,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                 </div> 
               </div> 
 
-              {/*metricas de produccion*/} 
+              {/* Production Metrics */} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Métricas de Producción 
@@ -650,7 +658,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                 </div> 
               </div> 
 
-              {/*detalles tecnicos*/} 
+              {/* Technical Details */} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Detalles Técnicos 
@@ -740,7 +748,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                 </div> 
               </div> 
 
-              {/*seccion de imagen*/} 
+              {/* Image Section */} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Imagen del Troquel 
@@ -835,7 +843,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                     e.target.style.borderColor = '#888'; 
                     e.target.style.color = '#fff'; 
                   }} 
-
                   onMouseLeave={(e) => { 
                     e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
                     e.target.style.color = '#aaa'; 
@@ -850,7 +857,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                     opacity: isSubmitting ? 0.7 : 1, 
                     cursor: isSubmitting ? 'not-allowed' : 'pointer', 
                   }} 
-
                   disabled={isSubmitting} 
                   onMouseEnter={(e) => { 
                     if (!isSubmitting) { 
@@ -858,19 +864,16 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                       e.target.style.boxShadow = '0 8px 30px rgba(0, 255, 136, 0.4)'; 
                     } 
                   }} 
-
                   onMouseLeave={(e) => { 
                     e.target.style.transform = 'translateY(0)'; 
                     e.target.style.boxShadow = '0 4px 20px rgba(0, 255, 136, 0.25)'; 
                   }} 
                 > 
-
                   {isSubmitting ? ( 
                     <> 
                       <span style={styles.loadingSpinner} /> 
                       Procesando... 
                     </> 
-
                   ) : ( 
                     <> 
                       ✓ {editingDie ? 'Actualizar Troquel' : 'Registrar Troquel'} 
@@ -882,10 +885,10 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
           </form> 
         )} 
 
-        {/*pestaña de administracion*/} 
+        {/* Manage Tab */} 
         {activeTab === 'manage' && ( 
           <> 
-            {/*fila de estadisticas*/} 
+            {/* Stats Row */} 
             <div style={styles.statsRow}> 
               <div style={styles.statCard}> 
                 <div> 
@@ -913,7 +916,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
               </div> 
             </div> 
 
-            {/*tabla*/} 
+            {/* Table */} 
             <div style={styles.tableContainer}> 
               <div style={styles.tableHeader}> 
                 <div style={styles.tableTitle}> 
@@ -950,7 +953,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                     onChange={(e) => setSearchTerm(e.target.value)} 
                     style={styles.tableSearch} 
                   /> 
-
                   <button 
                     style={{ ...styles.btnPrimary, padding: '10px 20px', fontSize: '13px' }} 
                     onClick={fetchDies} 
@@ -989,7 +991,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                         </tr> 
                       </thead> 
                       <tbody> 
-
                         {filteredDies.map((die) => ( 
                           <tr 
                             key={die.id} 
@@ -997,12 +998,10 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                             onMouseEnter={(e) => { 
                               e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)'; 
                             }} 
-
                             onMouseLeave={(e) => { 
                               e.currentTarget.style.background = 'transparent'; 
                             }} 
                           > 
-
                             <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>{die.id}</td> 
                             <td style={styles.td}>{die.name}</td> 
                             <td style={styles.td}>{die.year}</td> 
@@ -1035,7 +1034,6 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
                                   e.target.style.borderColor = '#ff6b6b'; 
                                   e.target.style.background = 'rgba(255, 107, 107, 0.1)'; 
                                 }} 
-
                                 onMouseLeave={(e) => { 
                                   e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
                                   e.target.style.background = 'transparent'; 
@@ -1061,7 +1059,7 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
         )} 
       </main> 
 
-      {/*modal de confirmar eliminar*/} 
+      {/* Delete Confirmation Modal */} 
       {showDeleteModal && ( 
         <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}> 
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}> 
@@ -1091,9 +1089,10 @@ const AdminDieRegistration = ({ onNavigateBack }) => {
         </div> 
       )} 
 
-      {/*animacion de css*/} 
+      {/* CSS Animations */} 
       <style>{cssAnimations}</style> 
     </div> 
   ); 
 }; 
-export default AdminDieRegistration; 
+
+export default AdminDieRegistration;
