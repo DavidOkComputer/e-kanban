@@ -308,16 +308,41 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
   }, [dies, searchTerm]); 
 
   // Input style helper 
-  const getInputStyle = useCallback((fieldName, disabled = false) => ({ 
-    ...styles.input, 
-    ...(focusedField === fieldName ? styles.inputFocus : {}), 
-    ...(disabled ? styles.inputDisabled : {}), 
-  }), [focusedField, styles]); 
-
-  const getSelectStyle = useCallback((fieldName) => ({ 
-    ...styles.select, 
-    ...(focusedField === fieldName ? styles.inputFocus : {}), 
-  }), [focusedField, styles]); 
+const getInputStyle = useCallback((fieldName, disabled = false) => {
+  const baseStyle = {
+    ...styles.input,
+    ...(disabled ? styles.inputDisabled : {}),
+  };
+  
+  // If focused, override border properties individually
+  if (focusedField === fieldName) {
+    return {
+      ...baseStyle,
+      borderColor: '#00ff88', // Use specific property
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
+    };
+  }
+  
+  return baseStyle;
+}, [focusedField, styles]);
+ 
+const getSelectStyle = useCallback((fieldName) => {
+  const baseStyle = styles.select;
+  
+  if (focusedField === fieldName) {
+    return {
+      ...baseStyle,
+      borderColor: '#00ff88', //usar propiedades especificas
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
+    };
+  }
+  
+  return baseStyle;
+}, [focusedField, styles]);
 
   return ( 
     <div style={styles.container}> 
@@ -342,12 +367,9 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
               borderColor: '#00ff88',
               color: '#00ff88',
             }}>
-              👤 {user.username}
+              {user.username}
             </span>
-          )}
-          <span style={styles.adminBadge}> 
-            Modo Administrador 
-          </span> 
+          )} 
           {onNavigateBack && ( 
             <button 
               style={styles.backButton} 
@@ -380,7 +402,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
           </p> 
         </div> 
 
-        {/* Tab Navigation */} 
+        {/*navegacion entre pestanias*/} 
         <div style={styles.tabsContainer}> 
           <button 
             style={{ ...styles.tab, ...(activeTab === 'register' ? styles.tabActive : {}) }} 
@@ -396,7 +418,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
           </button> 
         </div> 
 
-        {/* Messages */} 
+        {/*mensajes*/} 
         {message.type === 'success' && ( 
           <div style={styles.successMessage}> 
             <div style={{ ...styles.messageIcon, background: 'rgba(0, 255, 136, 0.15)' }}>✓</div> 
@@ -415,11 +437,11 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
           </div> 
         )} 
 
-        {/* Register Tab */} 
+        {/*pestanias para registrar*/} 
         {activeTab === 'register' && ( 
           <form onSubmit={handleSubmit}> 
             <div style={styles.formContainer}> 
-              {/* Basic Information */} 
+              {/*informacion basica*/} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Información Básica 
@@ -540,7 +562,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
                 </div> 
               </div> 
 
-              {/* Production Metrics */} 
+              {/* metricas de produccion*/} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Métricas de Producción 
@@ -658,7 +680,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
                 </div> 
               </div> 
 
-              {/* Technical Details */} 
+              {/*detalles tecnicos*/} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Detalles Técnicos 
@@ -748,7 +770,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
                 </div> 
               </div> 
 
-              {/* Image Section */} 
+              {/*seccion para la imagen*/} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Imagen del Troquel 
@@ -811,7 +833,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
                 </div> 
               </div> 
 
-              {/* Notes Section */} 
+              {/*seccion de notas*/} 
               <div style={styles.formSection}> 
                 <h2 style={styles.sectionTitle}> 
                   Observaciones 
@@ -833,7 +855,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
                 </div> 
               </div> 
 
-              {/* Action Buttons */} 
+              {/*botones de accion*/} 
               <div style={styles.buttonGroup}> 
                 <button 
                   type="button" 
@@ -885,10 +907,10 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
           </form> 
         )} 
 
-        {/* Manage Tab */} 
+        {/*pagina de administracion*/} 
         {activeTab === 'manage' && ( 
           <> 
-            {/* Stats Row */} 
+            {/*fila con estadisticas*/} 
             <div style={styles.statsRow}> 
               <div style={styles.statCard}> 
                 <div> 
@@ -916,7 +938,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
               </div> 
             </div> 
 
-            {/* Table */} 
+            {/* Tabla */} 
             <div style={styles.tableContainer}> 
               <div style={styles.tableHeader}> 
                 <div style={styles.tableTitle}> 
@@ -1059,7 +1081,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
         )} 
       </main> 
 
-      {/* Delete Confirmation Modal */} 
+      {/*eliminar modal de confirmacion*/} 
       {showDeleteModal && ( 
         <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}> 
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}> 
@@ -1089,7 +1111,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
         </div> 
       )} 
 
-      {/* CSS Animations */} 
+      {/*animacion css*/} 
       <style>{cssAnimations}</style> 
     </div> 
   ); 

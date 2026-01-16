@@ -97,7 +97,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </div>
             <div style={styles.logoText}>
               <span style={styles.logoTitle}>E-KANBAN</span>
-              <span style={styles.logoSubtitle}>Tool Room Management</span>
+              <span style={styles.logoSubtitle}>Administracion Tool Room</span>
             </div>
           </div>
 
@@ -119,7 +119,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <span style={styles.labelIcon}>👤</span>
+                <span style={styles.labelIcon}></span>
                 Usuario
               </label>
               <input
@@ -138,7 +138,6 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
 
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                <span style={styles.labelIcon}>🔒</span>
                 Contraseña
               </label>
               <div style={styles.passwordWrapper}>
@@ -191,7 +190,6 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
                 </>
               ) : (
                 <>
-                  <span>🔓</span>
                   Iniciar Sesión
                 </>
               )}
@@ -200,14 +198,12 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
 
           {/* Demo credentials hint */}
           <div style={styles.demoHint}>
-            <span style={styles.demoHintIcon}>💡</span>
             <span>Demo: admin / admin123</span>
           </div>
 
           {/* Footer */}
           <div style={styles.footer}>
             <div style={styles.securityBadge}>
-              <span>🔐</span>
               Conexión Segura
             </div>
           </div>

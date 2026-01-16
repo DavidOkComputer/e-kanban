@@ -548,7 +548,7 @@ const EKanban = ({ onLogoClick }) => {
               whiteSpace: 'nowrap',
               animation: 'fadeIn 0.2s ease',
             }}>
-              🔐 Panel de Administración
+              Panel de Administración
               <div style={{
                 position: 'absolute',
                 top: -6,
