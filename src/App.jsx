@@ -17,7 +17,7 @@ const App = () => {
     return <AdminDieRegistration onNavigateBack={navigateToDashboard} />;
   }
  
-  return <EKanban/>;
+  return <AdminDieRegistration/>;
 };
 
 export default App;
