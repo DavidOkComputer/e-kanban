@@ -1,6 +1,6 @@
 // EKanban.styles.js 
 
-// mapeo de colores por estado 
+// Status color mapping 
 export const statusColors = { 
   'En prensa': '#009b4a', 
   'Listo-BackUp': '#00d4ff', 
@@ -9,7 +9,7 @@ export const statusColors = {
   'Pendiente': '#ffaa00', 
 }; 
 
-//opciones de estado con colorews
+// Status options with colors
 export const statuses = [ 
   { name: 'En prensa', color: '#009b4a' }, 
   { name: 'Listo-BackUp', color: '#009b4a' }, 
@@ -50,10 +50,10 @@ export const injectStyles = () => {
   document.head.appendChild(style); 
 }; 
 
-// componente de estilos 
+// Component styles 
 export const styles = { 
 
-  //contenedor principal 
+  // Main container 
   container: { 
     height: '100vh', 
     background: 'linear-gradient(135deg, #0a0f0d 0%, #0d1a14 50%, #081210 100%)', 
@@ -107,7 +107,7 @@ export const styles = {
     textShadow: '0 1px 2px rgba(0,0,0,0.2)', 
   }, 
 
-  //Titulo 
+  // Title 
   title: { 
     fontSize: 26, 
     fontWeight: 800, 
@@ -122,7 +122,7 @@ export const styles = {
     color: '#00ff88', 
   }, 
 
-  //contenedor de busqueda 
+  // Search container 
   searchContainer: { 
     display: 'flex', 
     justifyContent: 'flex-end', 
@@ -154,7 +154,7 @@ export const styles = {
     color: '#fff', 
   }, 
 
-  //mensaje de error 
+  // Error banner 
   errorBanner: { 
     background: 'rgba(255,68,102,0.2)', 
     color: '#ff4466', 
@@ -163,7 +163,7 @@ export const styles = {
     textAlign: 'center', 
   }, 
 
-  //area de scroll del kanban 
+  // Kanban scroll area 
   kanbanScroll: { 
     padding: '20px 24px', 
     overflowX: 'auto', 
@@ -178,7 +178,7 @@ export const styles = {
     minWidth: 'fit-content', 
   }, 
 
-  //estado de carga 
+  // Loading state 
   loadingContainer: { 
     display: 'flex', 
     alignItems: 'center', 
@@ -188,7 +188,7 @@ export const styles = {
     fontSize: 16, 
   }, 
 
-  //panelees inferiores 
+  // Bottom panels 
   bottomPanels: { 
     padding: '0 24px 16px', 
     display: 'flex', 
@@ -199,7 +199,7 @@ export const styles = {
     alignItems: 'flex-start', 
   }, 
 
-  //items del kanban 
+  // Kanban items 
   kanbanItem: { 
     background: 'rgba(0,40,20,0.85)', 
     color: '#00ff88', 
@@ -256,7 +256,7 @@ export const styles = {
     textShadow: '0 0 8px rgba(0,255,136,0.7)', 
   }, 
 
-  //columna del kanban 
+  // Kanban column 
   column: { 
     background: 'rgba(10,20,15,0.85)', 
     borderRadius: 12, 
@@ -318,7 +318,7 @@ export const styles = {
     border: '1px solid rgba(0,255,136,0.3)', 
   }, 
 
-  //base del panel 
+  // Panel base 
   panel: { 
     background: 'rgba(10,20,15,0.85)', 
     borderRadius: 10, 
@@ -339,7 +339,7 @@ export const styles = {
     letterSpacing: 0.5, 
   }, 
 
-  //Tabla de troqueles 
+  // Troqueles table 
   tableHeader: { 
     padding: '4px 8px', 
     fontWeight: 600, 
@@ -354,7 +354,7 @@ export const styles = {
     fontSize: 10, 
   }, 
 
-  //prioridades de reparacion 
+  // Priority repairs 
   priorityPanel: { 
     flex: 1, 
   }, 
@@ -412,7 +412,7 @@ export const styles = {
     color: '#fff', 
   }, 
 
-  //leyenda de estatus 
+  // Status legend 
   statusGrid: { 
     display: 'grid', 
     gridTemplateColumns: '1fr 1fr', 
@@ -513,7 +513,7 @@ export const styles = {
     overflow: 'hidden', 
   }, 
 
-  // panel izquierdo
+  // Modal left panel
   modalLeftPanel: { 
     width: 260, 
     borderRight: '1px solid rgba(0,255,136,0.2)', 
@@ -597,7 +597,7 @@ export const styles = {
     fontWeight: 600, 
   }, 
 
-  //panel derecho del modal 
+  // Modal right panel 
   modalRightPanel: { 
     flex: 1, 
     display: 'flex', 
@@ -605,7 +605,7 @@ export const styles = {
     overflow: 'hidden', 
   }, 
 
-  //pestañas del modal 
+  // Modal tabs 
   modalTabs: { 
     display: 'flex', 
     borderBottom: '1px solid rgba(0,255,136,0.2)', 
@@ -632,7 +632,7 @@ export const styles = {
     overflowY: 'auto', 
   }, 
 
-  //moda del form de aciones 
+  // Actions form 
   actionsForm: { 
     display: 'flex', 
     gap: 20, 
@@ -721,7 +721,7 @@ export const styles = {
     boxShadow: '0 0 15px rgba(0,255,136,0.4)', 
   }, 
 
-  //pestaña de historial 
+  // History tab 
   historyContainer: { 
     height: '100%', 
   }, 
@@ -785,7 +785,7 @@ export const styles = {
     fontStyle: 'italic', 
   }, 
 
-  //modal de footr 
+  // Modal footer 
   modalFooter: { 
     display: 'flex', 
     justifyContent: 'space-between', 
@@ -821,4 +821,4 @@ export const styles = {
   }, 
 }; 
 
-export default styles; 
+export default styles;

@@ -1,4 +1,3 @@
-
 // AdminDieRegistration.styles.js estilos para el componente de registro de troqueles
 // Status color mapping 
 
@@ -14,7 +13,7 @@ export const getStatusStyle = (status) => {
   return statusColors[status] || statusColors['Pendiente']; 
 }; 
  
-//generar opcion de años 
+// Generate year options 
 export const generateYears = () => { 
   const currentYear = new Date().getFullYear(); 
   const years = []; 
@@ -24,7 +23,7 @@ export const generateYears = () => {
   return years.reverse(); 
 }; 
 
-//opciones de prensa 
+// Press options 
 export const PRESS_OPTIONS = [ 
   { value: '', label: 'Sin asignar' }, 
   { value: 'P1', label: 'Prensa 1 (P1)' }, 
@@ -37,7 +36,7 @@ export const PRESS_OPTIONS = [
   { value: 'P8', label: 'Prensa 8 (P8)' }, 
 ]; 
 
-//opciones de tipo de troquel 
+// Die type options 
 export const DIE_TYPE_OPTIONS = [ 
   { value: 'progresivo', label: 'Progresivo' }, 
   { value: 'transfer', label: 'Transfer' }, 
@@ -45,7 +44,7 @@ export const DIE_TYPE_OPTIONS = [
   { value: 'simple', label: 'Simple' }, 
 ]; 
 
-// Client options opciones de clinte 
+// Client options 
 export const CLIENT_OPTIONS = [ 
   { value: '', label: 'Seleccionar cliente' }, 
   { value: 'interno', label: 'Uso Interno' }, 
@@ -54,7 +53,7 @@ export const CLIENT_OPTIONS = [
   { value: 'cliente_c', label: 'Cliente C' }, 
 ]; 
 
-//animacion css como srting
+// CSS animations as string
 export const cssAnimations = ` 
   @keyframes spin { 
     to { transform: rotate(360deg); } 
@@ -100,10 +99,10 @@ export const cssAnimations = `
   } 
 `; 
 
-//objeto de estilos principal
+// Main styles object
 export const createStyles = () => ({ 
 
-  //contenedor 
+  // Container 
   container: { 
     minHeight: '100vh', 
     background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f23 100%)', 
@@ -129,7 +128,7 @@ export const createStyles = () => ({
     zIndex: 0, 
   }, 
 
-  //efecto de linea de scanner 
+  // Scan line effect 
   scanLine: { 
     position: 'fixed', 
     top: 0, 
@@ -231,7 +230,7 @@ export const createStyles = () => ({
     fontWeight: 500, 
   }, 
 
-  //contenido principal 
+  // Main content 
   mainContent: { 
     position: 'relative', 
     zIndex: 5, 
@@ -261,7 +260,7 @@ export const createStyles = () => ({
     letterSpacing: '0.5px', 
   }, 
 
-  //pestañas
+  // Tabs
   tabsContainer: { 
     display: 'flex', 
     gap: '4px', 
@@ -293,7 +292,7 @@ export const createStyles = () => ({
     boxShadow: '0 0 20px rgba(0, 255, 136, 0.1)', 
   }, 
 
-  //contenedor de form 
+  // Form container 
   formContainer: { 
     background: 'rgba(15, 15, 25, 0.9)', 
     borderRadius: '16px', 
@@ -338,7 +337,7 @@ export const createStyles = () => ({
     fontSize: '14px', 
   }, 
 
-  //elementos de form 
+  // Form elements 
   inputGroup: { 
     display: 'flex', 
     flexDirection: 'column', 
@@ -415,7 +414,7 @@ export const createStyles = () => ({
     fontFamily: 'inherit', 
   }, 
 
-  //subir imagen 
+  // Image upload 
   imageUploadArea: { 
     border: '2px dashed rgba(0, 255, 136, 0.25)', 
     borderRadius: '12px', 
@@ -476,7 +475,7 @@ export const createStyles = () => ({
     transition: 'all 0.2s ease', 
   }, 
 
-  //botones 
+  // Buttons 
   buttonGroup: { 
     display: 'flex', 
     gap: '12px', 
@@ -526,7 +525,7 @@ export const createStyles = () => ({
     transition: 'all 0.3s ease', 
   }, 
 
-  //mensajes 
+  // Messages 
   successMessage: { 
     background: 'rgba(0, 255, 136, 0.08)', 
     border: '1px solid rgba(0, 255, 136, 0.3)', 
@@ -561,12 +560,12 @@ export const createStyles = () => ({
     flexShrink: 0, 
   }, 
 
-  //utilidades del grid 
+  // Grid utilities 
   fullWidth: { gridColumn: '1 / -1' }, 
   twoColumns: { gridColumn: 'span 2' }, 
   threeColumns: { gridColumn: 'span 3' }, 
 
-  //estilos de la tabla 
+  // Table styles 
   tableContainer: { 
     background: 'rgba(15, 15, 25, 0.9)', 
     borderRadius: '16px', 
@@ -684,7 +683,7 @@ export const createStyles = () => ({
     animation: 'spin 0.8s linear infinite', 
   }, 
 
-  //seccion de estadisticas 
+  // Stats section 
   statsRow: { 
     display: 'grid', 
     gridTemplateColumns: 'repeat(4, 1fr)', 
@@ -727,7 +726,7 @@ export const createStyles = () => ({
     marginTop: '4px', 
   }, 
 
-  //configuracion de Empty state 
+  // Empty state 
   emptyState: { 
     textAlign: 'center', 
     padding: '60px 20px', 
@@ -793,7 +792,7 @@ export const createStyles = () => ({
     justifyContent: 'flex-end', 
   }, 
 
-  //paginacion 
+  // Pagination 
   pagination: { 
     display: 'flex', 
     justifyContent: 'space-between', 
@@ -808,4 +807,4 @@ export const createStyles = () => ({
   }, 
 }); 
 
-export default createStyles; 
+export default createStyles;
