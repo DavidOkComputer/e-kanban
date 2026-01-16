@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import EKanban from './Ekanban';
+import EKanban from './EKanban';
 import AdminDieRegistration from './adminDieRegistration';
  
 const App = () => {
@@ -17,7 +17,7 @@ const App = () => {
     return <AdminDieRegistration onNavigateBack={navigateToDashboard} />;
   }
  
-  return <AdminDieRegistration />;
+  return <EKanban/>;
 };
 
 export default App;
