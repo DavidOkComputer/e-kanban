@@ -1,6 +1,6 @@
 // EKanban.styles.js 
 
-// Status color mapping 
+//mapeo de color de estado
 export const statusColors = { 
   'En prensa': '#009b4a', 
   'Listo-BackUp': '#00d4ff', 
@@ -9,7 +9,7 @@ export const statusColors = {
   'Pendiente': '#ffaa00', 
 }; 
 
-// Status options with colors
+//opciones de estatus con colores
 export const statuses = [ 
   { name: 'En prensa', color: '#009b4a' }, 
   { name: 'Listo-BackUp', color: '#009b4a' }, 
@@ -50,10 +50,10 @@ export const injectStyles = () => {
   document.head.appendChild(style); 
 }; 
 
-// Component styles 
+//estilos del componente 
 export const styles = { 
 
-  // Main container 
+  //contenedor principal
   container: { 
     height: '100vh', 
     background: 'linear-gradient(135deg, #0a0f0d 0%, #0d1a14 50%, #081210 100%)', 
@@ -86,7 +86,7 @@ export const styles = {
     zIndex: 10, 
   }, 
 
-  // Logo button 
+  //boton de logo
   logoButton: { 
     width: 48, 
     height: 48, 
@@ -107,7 +107,7 @@ export const styles = {
     textShadow: '0 1px 2px rgba(0,0,0,0.2)', 
   }, 
 
-  // Title 
+  //titulo 
   title: { 
     fontSize: 26, 
     fontWeight: 800, 
@@ -122,7 +122,7 @@ export const styles = {
     color: '#00ff88', 
   }, 
 
-  // Search container 
+  //contenedor de busqueda 
   searchContainer: { 
     display: 'flex', 
     justifyContent: 'flex-end', 
@@ -154,7 +154,7 @@ export const styles = {
     color: '#fff', 
   }, 
 
-  // Error banner 
+  //banner de error 
   errorBanner: { 
     background: 'rgba(255,68,102,0.2)', 
     color: '#ff4466', 
@@ -163,7 +163,7 @@ export const styles = {
     textAlign: 'center', 
   }, 
 
-  // Kanban scroll area 
+  //area de scroll de kabnab
   kanbanScroll: { 
     padding: '20px 24px', 
     overflowX: 'auto', 
@@ -178,7 +178,7 @@ export const styles = {
     minWidth: 'fit-content', 
   }, 
 
-  // Loading state 
+  //estado de carga 
   loadingContainer: { 
     display: 'flex', 
     alignItems: 'center', 
@@ -188,7 +188,7 @@ export const styles = {
     fontSize: 16, 
   }, 
 
-  // Bottom panels 
+  //paneles inferiores
   bottomPanels: { 
     padding: '0 24px 16px', 
     display: 'flex', 
@@ -199,7 +199,7 @@ export const styles = {
     alignItems: 'flex-start', 
   }, 
 
-  // Kanban items 
+  //items del kanban
   kanbanItem: { 
     background: 'rgba(0,40,20,0.85)', 
     color: '#00ff88', 
@@ -256,7 +256,7 @@ export const styles = {
     textShadow: '0 0 8px rgba(0,255,136,0.7)', 
   }, 
 
-  // Kanban column 
+  //columna del kanban
   column: { 
     background: 'rgba(10,20,15,0.85)', 
     borderRadius: 12, 
@@ -318,7 +318,7 @@ export const styles = {
     border: '1px solid rgba(0,255,136,0.3)', 
   }, 
 
-  // Panel base 
+  //base del panel
   panel: { 
     background: 'rgba(10,20,15,0.85)', 
     borderRadius: 10, 
@@ -339,7 +339,7 @@ export const styles = {
     letterSpacing: 0.5, 
   }, 
 
-  // Troqueles table 
+  //tabla de troqueles
   tableHeader: { 
     padding: '4px 8px', 
     fontWeight: 600, 
@@ -354,7 +354,7 @@ export const styles = {
     fontSize: 10, 
   }, 
 
-  // Priority repairs 
+  //prioridad de reparacion
   priorityPanel: { 
     flex: 1, 
   }, 
@@ -412,7 +412,7 @@ export const styles = {
     color: '#fff', 
   }, 
 
-  // Status legend 
+  //leyuenda de status
   statusGrid: { 
     display: 'grid', 
     gridTemplateColumns: '1fr 1fr', 
@@ -513,7 +513,7 @@ export const styles = {
     overflow: 'hidden', 
   }, 
 
-  // Modal left panel
+  // panel izquierdo del modal
   modalLeftPanel: { 
     width: 260, 
     borderRight: '1px solid rgba(0,255,136,0.2)', 
@@ -597,7 +597,7 @@ export const styles = {
     fontWeight: 600, 
   }, 
 
-  // Modal right panel 
+  //panel derecho del modal
   modalRightPanel: { 
     flex: 1, 
     display: 'flex', 
@@ -605,7 +605,7 @@ export const styles = {
     overflow: 'hidden', 
   }, 
 
-  // Modal tabs 
+  //pestanias del modal 
   modalTabs: { 
     display: 'flex', 
     borderBottom: '1px solid rgba(0,255,136,0.2)', 
@@ -632,7 +632,7 @@ export const styles = {
     overflowY: 'auto', 
   }, 
 
-  // Actions form 
+  //form de accion
   actionsForm: { 
     display: 'flex', 
     gap: 20, 
@@ -721,7 +721,7 @@ export const styles = {
     boxShadow: '0 0 15px rgba(0,255,136,0.4)', 
   }, 
 
-  // History tab 
+  //pestania de historial
   historyContainer: { 
     height: '100%', 
   }, 

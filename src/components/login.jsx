@@ -23,22 +23,40 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
     e.preventDefault();
     
     if (!formData.username.trim() || !formData.password.trim()) {
-      setError('Por favor ingrese usuario y contraseña');
-      return;
+        setError('Por favor ingrese usuario y contraseña');
+        return;
     }
-
+    
     setIsLoading(true);
     setError('');
-
-    // Simulate authentication delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Demo credentials - in production, this would be an API call
-    if (formData.username === 'admin' && formData.password === 'admin123') {
-      onLoginSuccess && onLoginSuccess({ username: formData.username, role: 'admin' });
-    } else {
-      setError('Usuario o contraseña incorrectos');
-      setIsLoading(false);
+    
+    try {
+        const response = await fetch('http://localhost/toolroom/api/login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: formData.username,
+                password: formData.password
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            //almacenar info del usuario en localstorage o manejo de estados
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            onLoginSuccess && onLoginSuccess(data.user);
+        } else {
+            setError(data.message || 'Usuario o contraseña incorrectos');
+            setIsLoading(false);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        setError('Error de conexión. Intente nuevamente');
+        setIsLoading(false);
     }
   }, [formData, onLoginSuccess]);
 

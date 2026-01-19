@@ -9,7 +9,7 @@ import {
 const API_BASE = 'http://localhost:3001/api'; 
 const MAX_ITEMS = 8; 
 
-// Kanban Item Component
+//item del componenete de kanban
 const KanbanItem = memo(({ item, onClick }) => { 
   const [hovered, setHovered] = useState(false); 
 
@@ -33,7 +33,7 @@ const KanbanItem = memo(({ item, onClick }) => {
   ); 
 }); 
 
-// Kanban Column Component
+//columna del componente de kanban
 const KanbanColumn = memo(({ year, items, onItemClick }) => { 
   const display = items.slice(0, MAX_ITEMS); 
   return ( 
@@ -58,7 +58,7 @@ const KanbanColumn = memo(({ year, items, onItemClick }) => {
   ); 
 }); 
 
-// Troqueles Table Component 
+//componente de tabla de troqueles 
 const TroquelesTable = memo(({ data }) => ( 
   <div style={styles.panel}> 
     <h3 style={styles.panelTitle}>Troqueles</h3> 
@@ -87,7 +87,7 @@ const TroquelesTable = memo(({ data }) => (
   </div> 
 )); 
 
-// Priority Repairs Component 
+//componente de prioridades de reparacion
 const PriorityRepairs = memo(({ data }) => ( 
   <div style={{ ...styles.panel, ...styles.priorityPanel }}> 
     <h3 style={{ ...styles.panelTitle, ...styles.priorityTitle }}> 
@@ -105,7 +105,7 @@ const PriorityRepairs = memo(({ data }) => (
   </div> 
 )); 
 
-// Status Legend Component 
+//componente de leyenda de estatus 
 const StatusLegend = memo(() => ( 
   <div style={styles.panel}> 
     <h3 style={styles.panelTitle}>Estado</h3> 
@@ -120,7 +120,7 @@ const StatusLegend = memo(() => (
   </div> 
 )); 
 
-// Detail Modal Component 
+//componente de modal de detalles
 const DetailModal = memo(({ item, fallas, onClose, onSaveAction }) => { 
   const [activeTab, setActiveTab] = useState('acciones'); 
   const [action, setAction] = useState('limpieza'); 
@@ -226,9 +226,9 @@ const DetailModal = memo(({ item, fallas, onClose, onSaveAction }) => {
           <button onClick={onClose} style={styles.modalCloseButton}>×</button> 
         </div> 
 
-        {/* Content */} 
+        {/*contenido*/} 
         <div style={styles.modalContent}> 
-          {/* Left Panel */} 
+          {/*panel izquierdo*/} 
           <div style={styles.modalLeftPanel}> 
             <div style={styles.modalImage}> 
               <span style={styles.modalImagePlaceholder}>Image</span> 
@@ -280,7 +280,7 @@ const DetailModal = memo(({ item, fallas, onClose, onSaveAction }) => {
             </div> 
           </div> 
 
-          {/* Right Panel */} 
+          {/*panel derecho*/} 
           <div style={styles.modalRightPanel}> 
             <div style={styles.modalTabs}> 
               {['acciones', 'historial'].map(tab => ( 
@@ -416,7 +416,7 @@ const DetailModal = memo(({ item, fallas, onClose, onSaveAction }) => {
   ); 
 }); 
 
-// Main EKanban Component 
+//componente principal del ekanban 
 const EKanban = ({ onLogoClick }) => { 
   const [selectedItem, setSelectedItem] = useState(null); 
   const [searchQuery, setSearchQuery] = useState(''); 
@@ -459,7 +459,7 @@ const EKanban = ({ onLogoClick }) => {
       console.error('Error fetching data:', err); 
       setError('Error connecting to server. Using fallback data.'); 
 
-      // Fallback data
+      //informacion en caso de falla en conexion
       setTroqueles({ 
         2025: [ 
           { id: 'T951', name: 'Alpha', status: 'En prensa', model: 'G3-VSS', golpes: '257,540', golpesAcum: '121,442,752', capacidadGolpes: '250,000,000', rectificaciones: '15', prensas: [] } 
@@ -490,7 +490,7 @@ const EKanban = ({ onLogoClick }) => {
   const handleClose = useCallback(() => setSelectedItem(null), []); 
   const years = Object.keys(troqueles).sort((a, b) => a - b); 
 
-  // Logo click handler with visual feedback
+  //manejo de click en logo para feedback visual
   const handleLogoClickInternal = useCallback(() => {
     if (onLogoClick) {
       onLogoClick();
@@ -499,19 +499,19 @@ const EKanban = ({ onLogoClick }) => {
 
   return ( 
     <div style={styles.container}> 
-      {/* Grid overlay */} 
+      {/*overlay de grid*/} 
       <div style={styles.gridOverlay} /> 
 
       {/* Header */} 
       <header style={styles.header}> 
-        {/* Clickable Logo */} 
+        {/*se puede hacer clic en logo*/} 
         <div> 
           <div  
             className="logo-btn" 
             onClick={handleLogoClickInternal}
             onMouseEnter={() => setLogoHovered(true)}
             onMouseLeave={() => setLogoHovered(false)}
-            title="🔐 Acceso Administrativo - Click para iniciar sesión" 
+            title="Acceso Administrativo - Click para iniciar sesión" 
             style={{
               ...styles.logoButton,
               transform: logoHovered ? 'scale(1.08)' : 'scale(1)',
@@ -530,7 +530,7 @@ const EKanban = ({ onLogoClick }) => {
               textShadow: '0 1px 2px rgba(0,0,0,0.2)',
             }}>⚙</span>
           </div>
-          {/* Admin hint tooltip */}
+          {/*tooltips de admin*/}
           {logoHovered && (
             <div style={{
               position: 'absolute',
@@ -603,7 +603,7 @@ const EKanban = ({ onLogoClick }) => {
         )} 
       </div> 
 
-      {/* Bottom Panels */} 
+      {/*paneles inferiores*/} 
       <div style={styles.bottomPanels}> 
         <TroquelesTable data={troquelesSum} /> 
         <PriorityRepairs data={priorityRepairs} /> 

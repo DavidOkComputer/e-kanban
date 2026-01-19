@@ -15,10 +15,10 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
   const styles = useMemo(() => createStyles(), []); 
   const years = useMemo(() => generateYears(), []); 
 
-  // Tab state 
+  //estado de la pestania
   const [activeTab, setActiveTab] = useState('register'); 
 
-  // Form state
+  //estado del form
   const [formData, setFormData] = useState({ 
     id: '', 
     name: '', 
@@ -31,7 +31,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
     rectificaciones: '0', 
     image_url: '', 
     notes: '', 
-    // Additional fields 
+    //campos adicionales 
     cliente: '', 
     prensa_asignada: '', 
     tipo_troquel: 'progresivo', 
@@ -51,19 +51,19 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
   const [message, setMessage] = useState({ type: '', text: '' }); 
   const [imagePreview, setImagePreview] = useState(null); 
 
-  // List state 
+  //estado de lista
   const [dies, setDies] = useState([]); 
   const [isLoading, setIsLoading] = useState(false); 
   const [searchTerm, setSearchTerm] = useState(''); 
   const [filterYear, setFilterYear] = useState(''); 
   const [filterStatus, setFilterStatus] = useState(''); 
 
-  // Modal state
+  //estado del modal
   const [showDeleteModal, setShowDeleteModal] = useState(false); 
   const [dieToDelete, setDieToDelete] = useState(null); 
   const [editingDie, setEditingDie] = useState(null); 
 
-  // Statistics 
+  //estadisticas
   const [stats, setStats] = useState({ 
     total: 0, 
     activos: 0, 
@@ -71,7 +71,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
     pendientes: 0, 
   }); 
 
-  // Fetch dies when switching to manage tab
+  //obtener troqueles cuando se cambia a pestania de administracion
   useEffect(() => { 
     if (activeTab === 'manage') { 
       fetchDies(); 
@@ -93,7 +93,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
         const data = await response.json(); 
         setDies(Array.isArray(data) ? data : []); 
 
-        // Calculate statistics 
+        //calcular estadisticas
         const allDies = Array.isArray(data) ? data : []; 
 
         setStats({ 
@@ -188,11 +188,11 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
       const actionText = isEditing ? 'actualizado' : 'registrado'; 
       setMessage({ type: 'success', text: `¡Troquel ${formData.id} ${actionText} exitosamente!` }); 
 
-      // Reset form 
+      //reiniciar form 
       handleReset(); 
       setEditingDie(null); 
 
-      // Refresh list if on manage tab
+      //refrescar la lista si se esta en la pestania de administracion
       if (activeTab === 'manage') { 
         fetchDies(); 
       } 
@@ -296,7 +296,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
     } 
   }, [dieToDelete]); 
 
-  // Filtered dies
+  //troqueles filtrados
   const filteredDies = useMemo(() => { 
     return dies.filter(die => { 
       const matchesSearch = !searchTerm || 
@@ -307,18 +307,18 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
     }); 
   }, [dies, searchTerm]); 
 
-  // Input style helper 
+  //  
 const getInputStyle = useCallback((fieldName, disabled = false) => {
   const baseStyle = {
     ...styles.input,
     ...(disabled ? styles.inputDisabled : {}),
   };
   
-  // If focused, override border properties individually
+  //si se encuentra seleccionados sobrescribir las propiedades del borde individualmente
   if (focusedField === fieldName) {
     return {
       ...baseStyle,
-      borderColor: '#00ff88', // Use specific property
+      borderColor: '#00ff88', //usar propiedad especifica
       borderWidth: '1px',
       borderStyle: 'solid',
       boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
@@ -346,7 +346,7 @@ const getSelectStyle = useCallback((fieldName) => {
 
   return ( 
     <div style={styles.container}> 
-      {/* Grid Overlay */} 
+      {/*overlay del grid*/} 
       <div style={styles.gridOverlay} /> 
       <div style={styles.scanLine} /> 
 
@@ -389,9 +389,9 @@ const getSelectStyle = useCallback((fieldName) => {
         </div> 
       </header> 
 
-      {/* Main Content */} 
+      {/*contenido principal*/} 
       <main style={styles.mainContent}> 
-        {/* Page Header */} 
+        {/*header de la pagina*/} 
         <div style={styles.pageHeader}> 
           <h1 style={styles.pageTitle}> 
             <span></span> 

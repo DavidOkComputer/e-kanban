@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'; 
 import EKanban from './components/EKanban'; 
 import Login from './components/Login'; 
-import AdminDieRegistration from './components/AdminDieRegistration'; 
+import AdminDieRegistration from './components/adminDieRegistration'; 
 
 //estados de navegacion 
 const PAGES = { 
@@ -10,7 +10,7 @@ const PAGES = {
   ADMIN: 'admin', 
 }; 
 
-//duracion de  
+//duracion de  transicion
 const TRANSITION_DURATION = 800; 
 
 //estilos de transicion 
@@ -385,424 +385,212 @@ const transitionStyles = `
   } 
 
   .cyber-frame.active { 
-
     opacity: 1; 
-
     animation: borderTrace 800ms linear forwards; 
-
   } 
-
- 
 
   .cyber-frame::before, 
-
   .cyber-frame::after { 
-
     content: ''; 
-
     position: absolute; 
-
     width: 20px; 
-
     height: 20px; 
-
     border: 2px solid #00ff88; 
-
   } 
-
  
 
   .cyber-frame::before { 
-
     top: -2px; 
-
     left: -2px; 
-
     border-right: none; 
-
     border-bottom: none; 
-
     box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); 
-
   } 
-
- 
 
   .cyber-frame::after { 
-
     bottom: -2px; 
-
     right: -2px; 
-
     border-left: none; 
-
     border-top: none; 
-
     box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); 
-
   } 
-
- 
-
-  /* ===== GLITCH SLICES ===== */ 
 
   .glitch-slice { 
-
     position: fixed; 
-
     left: 0; 
-
     right: 0; 
-
     height: 20%; 
-
     z-index: 9998; 
-
     pointer-events: none; 
-
     opacity: 0; 
-
     background: rgba(0, 255, 136, 0.03); 
-
   } 
-
- 
 
   .glitch-slice.active { 
-
     animation: horizontalGlitch 400ms steps(1) forwards; 
-
   } 
 
- 
 
   .glitch-slice:nth-child(1) { top: 0; animation-delay: 0ms; } 
-
   .glitch-slice:nth-child(2) { top: 20%; animation-delay: 50ms; } 
-
   .glitch-slice:nth-child(3) { top: 40%; animation-delay: 100ms; } 
-
   .glitch-slice:nth-child(4) { top: 60%; animation-delay: 150ms; } 
-
   .glitch-slice:nth-child(5) { top: 80%; animation-delay: 200ms; } 
 
- 
-
   .glitch-slice.active:nth-child(odd) { 
-
     transform: translateX(5px); 
-
     background: rgba(255, 0, 0, 0.02); 
-
   } 
-
- 
 
   .glitch-slice.active:nth-child(even) { 
-
     transform: translateX(-5px); 
-
     background: rgba(0, 255, 255, 0.02); 
-
   } 
-
 `; 
 
- 
-
-// Loading messages for cyberpunk effect 
-
+//menaje de carga en la transicion entre pestanias 
 const LOADING_MESSAGES = [ 
-
   'INITIALIZING', 
-
   'DECRYPTING', 
-
   'LOADING MODULE', 
-
   'ACCESSING', 
-
   'CONNECTING', 
-
   'SYNCING DATA', 
-
   'BOOTING', 
-
 ]; 
 
- 
-
 const App = () => { 
-
   const [currentPage, setCurrentPage] = useState(PAGES.DASHBOARD); 
-
   const [displayedPage, setDisplayedPage] = useState(PAGES.DASHBOARD); 
-
   const [user, setUser] = useState(null); 
-
   const [transitionState, setTransitionState] = useState('idle'); 
-
   const [isTransitioning, setIsTransitioning] = useState(false); 
-
   const [loadingMessage, setLoadingMessage] = useState(''); 
-
   const stylesInjected = useRef(false); 
-
   const transitionRef = useRef(null); 
 
- 
-
-  // Inject transition styles once 
-
+  //insertar estilos de transicion una vez 
   useEffect(() => { 
-
     if (!stylesInjected.current) { 
-
       const styleEl = document.createElement('style'); 
-
       styleEl.textContent = transitionStyles; 
-
       document.head.appendChild(styleEl); 
-
       stylesInjected.current = true; 
-
     } 
-
   }, []); 
-
- 
-
-  // Function to perform transition 
 
   const performTransition = useCallback((targetPage) => { 
 
-    // Clear any existing transition 
-
+    //limpiar cualquier transicion existente 
     if (transitionRef.current) { 
-
       clearTimeout(transitionRef.current.timer1); 
-
       clearTimeout(transitionRef.current.timer2); 
-
       clearTimeout(transitionRef.current.timer3); 
-
     } 
 
- 
-
-    // Random loading message 
-
+    //escoger mensaje de carga al azar
     const message = LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]; 
-
     setLoadingMessage(message); 
-
      
-
-    // Start transition 
-
+    //iniciar transicion 
     setIsTransitioning(true); 
-
     setTransitionState('exiting'); 
 
- 
-
     const timer1 = setTimeout(() => { 
-
       setDisplayedPage(targetPage); 
-
       setCurrentPage(targetPage); 
-
       setTransitionState('entering'); 
-
     }, 350); 
 
- 
-
     const timer2 = setTimeout(() => { 
-
       setTransitionState('idle'); 
-
     }, 700); 
 
- 
-
     const timer3 = setTimeout(() => { 
-
       setIsTransitioning(false); 
-
     }, 750); 
 
- 
-
     transitionRef.current = { timer1, timer2, timer3 }; 
-
   }, []); 
 
- 
-
-  // Navigate to login when logo is clicked on EKanban 
-
+  //navegar al login cuando se hace clic en logo
   const handleLogoClick = useCallback(() => { 
-
     if (isTransitioning) return; 
-
-     
-
     const targetPage = user ? PAGES.ADMIN : PAGES.LOGIN; 
-
     performTransition(targetPage); 
-
   }, [user, isTransitioning, performTransition]); 
 
- 
-
-  // Handle successful login 
-
+  //manejo de login exitoso
   const handleLoginSuccess = useCallback((userData) => { 
-
     if (isTransitioning) return; 
-
-     
-
     setUser(userData); 
-
     performTransition(PAGES.ADMIN); 
-
   }, [isTransitioning, performTransition]); 
 
- 
-
-  // Navigate back to dashboard from login 
-
+  //navegar al dashboard hasta el login 
   const handleBackFromLogin = useCallback(() => { 
-
     if (isTransitioning) return; 
-
     performTransition(PAGES.DASHBOARD); 
-
   }, [isTransitioning, performTransition]); 
 
- 
-
-  // Navigate back to dashboard from admin 
-
+  //navegar hasta el dashboard desde admin
   const handleBackFromAdmin = useCallback(() => { 
-
     if (isTransitioning) return; 
-
     performTransition(PAGES.DASHBOARD); 
-
   }, [isTransitioning, performTransition]); 
 
- 
-
-  // Get transition class based on state 
-
+  //obtener la clase de transicion basado en el estado
   const getTransitionClass = () => { 
-
     switch (transitionState) { 
-
       case 'exiting': 
-
         return 'page-exiting'; 
-
       case 'entering': 
-
         return 'page-entering'; 
-
       case 'idle': 
-
       default: 
-
         return 'page-idle'; 
-
     } 
-
   }; 
 
- 
-
-  // Render current page 
-
+  //cargar paginas actuales 
   const renderPage = () => { 
-
     switch (displayedPage) { 
-
       case PAGES.LOGIN: 
-
         return ( 
-
           <Login 
-
             onLoginSuccess={handleLoginSuccess} 
-
             onNavigateBack={handleBackFromLogin} 
-
           /> 
-
         ); 
-
-       
 
       case PAGES.ADMIN: 
-
         return ( 
-
           <AdminDieRegistration 
-
             onNavigateBack={handleBackFromAdmin} 
-
             user={user} 
-
           /> 
-
         ); 
-
-       
-
       case PAGES.DASHBOARD: 
-
       default: 
-
         return ( 
-
           <EKanban 
-
             onLogoClick={handleLogoClick} 
-
           /> 
-
         ); 
-
     } 
-
   }; 
 
- 
-
   const activeClass = isTransitioning ? 'active' : ''; 
-
- 
-
   return ( 
-
-    <> 
-
-      {/* Glitch slices */} 
-
+   <> 
+      {/*laminas del glitch*/} 
+      <div className={`glitch-slice ${activeClass}`} /> 
+      <div className={`glitch-slice ${activeClass}`} /> 
+      <div className={`glitch-slice ${activeClass}`} /> 
+      <div className={`glitch-slice ${activeClass}`} /> 
       <div className={`glitch-slice ${activeClass}`} /> 
 
-      <div className={`glitch-slice ${activeClass}`} /> 
-
-      <div className={`glitch-slice ${activeClass}`} /> 
-
-      <div className={`glitch-slice ${activeClass}`} /> 
-
-      <div className={`glitch-slice ${activeClass}`} /> 
-
- 
-
-      {/* Data stream background */} 
+      {/*fondo de manejo de la info*/} 
 
       <div className={`data-stream ${activeClass}`} /> 
 
