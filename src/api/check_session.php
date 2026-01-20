@@ -1,8 +1,16 @@
 <?php
-//check_session.php para revisar que los usuarios hayan iniciado sesion
+// check_session.php para revisar que los usuarios hayan iniciado sesion
+ 
+require_once 'cors.php';
+require_once 'db_config.php';
+ 
+//manejo de solicitudes especificas preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+ 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Credentials: true');
  
 session_start();
  
@@ -20,4 +28,3 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     http_response_code(401);
     echo json_encode(['authenticated' => false]);
 }
-?>

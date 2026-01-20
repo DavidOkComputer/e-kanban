@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
  
-// Database connection pool
+//conexion a la base de datos
 const pool = mysql.createPool({
   host: process.env.DB_HOST || '127.0.0.1',
   port: process.env.DB_PORT || 3306,
@@ -22,7 +22,7 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
  
-// Test database connection
+//probar la conexion a la base de datos
 app.get('/api/health', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT 1');
@@ -71,12 +71,11 @@ app.get('/api/troqueles', async (req, res) => {
           })
         : [];
  
-      // Map Spanish column names to English property names for frontend
       groupedByYear[year].push({
-        id: t.id_troquel,           // id_troquel -> id
-        name: t.nombre,             // nombre -> name
+        id: t.id_troquel,           
+        name: t.nombre,             
         status: t.status,
-        model: t.modelo,            // modelo -> model
+        model: t.modelo,            
         golpes: t.golpes,
         golpesAcum: t.golpes_acum,
         capacidadGolpes: t.capacidad_golpes,
@@ -92,7 +91,6 @@ app.get('/api/troqueles', async (req, res) => {
   }
 });
  
-// Get single troquel by ID
 app.get('/api/troqueles/:id', async (req, res) => {
   try {
     const [troqueles] = await pool.query(
@@ -111,7 +109,6 @@ app.get('/api/troqueles/:id', async (req, res) => {
  
     const t = troqueles[0];
     
-    // Map Spanish column names to English property names
     const troquel = {
       id: t.id_troquel,
       name: t.nombre,
@@ -163,7 +160,6 @@ app.get('/api/priority-repairs', async (req, res) => {
       ORDER BY pr.prioridad
     `);
  
-    // Map to frontend expected format
     res.json(repairs.map(r => ({
       priority: r.prioridad,
       name: r.nombre
@@ -181,7 +177,6 @@ app.get('/api/troqueles-summary', async (req, res) => {
       'SELECT etiqueta, count, goal, perf FROM tbl_resumen_troqueles ORDER BY FIELD(etiqueta, "UP", "BACKUP", "TOTAL")'
     );
  
-    // Map to frontend expected format
     res.json(summary.map(s => ({
       label: s.etiqueta,
       count: s.count,
@@ -201,7 +196,6 @@ app.get('/api/fallas', async (req, res) => {
       'SELECT id_fallas_catalogo, descripcion FROM tbl_fallas_catalogo WHERE activo = TRUE ORDER BY descripcion'
     );
  
-    // Map to frontend expected format
     res.json(fallas.map(f => ({
       id: f.id_fallas_catalogo,
       description: f.descripcion
@@ -254,7 +248,6 @@ app.get('/api/troqueles/:id/history', async (req, res) => {
       ORDER BY ah.creado_el DESC
     `, [req.params.id]);
  
-    // Map to frontend expected format
     res.json(history.map(h => ({
       id: h.id_historial,
       action_type: h.action_type,
@@ -284,7 +277,6 @@ app.get('/api/search', async (req, res) => {
       [searchTerm, searchTerm, searchTerm]
     );
  
-    // Map to frontend expected format
     res.json(results.map(r => ({
       id: r.id_troquel,
       name: r.nombre,

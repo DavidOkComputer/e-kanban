@@ -166,6 +166,7 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
       const response = await fetch(url, { 
         method, 
         headers: { 'Content-Type': 'application/json' }, 
+        credentials:'include',
         body: JSON.stringify({ 
           id: formData.id.trim().toUpperCase(), 
           name: formData.name.trim(), 
@@ -307,7 +308,6 @@ const AdminDieRegistration = ({ onNavigateBack, user }) => {
     }); 
   }, [dies, searchTerm]); 
 
-  //  
 const getInputStyle = useCallback((fieldName, disabled = false) => {
   const baseStyle = {
     ...styles.input,
@@ -544,21 +544,6 @@ const getSelectStyle = useCallback((fieldName) => {
                     </select> 
                   </div> 
 
-                  <div style={styles.inputGroup}> 
-                    <label style={styles.label}>Cliente</label> 
-                    <select 
-                      name="cliente" 
-                      value={formData.cliente} 
-                      onChange={handleInputChange} 
-                      onFocus={() => setFocusedField('cliente')} 
-                      onBlur={() => setFocusedField(null)} 
-                      style={getSelectStyle('cliente')} 
-                    > 
-                      {CLIENT_OPTIONS.map(opt => ( 
-                        <option key={opt.value} value={opt.value}>{opt.label}</option> 
-                      ))} 
-                    </select> 
-                  </div> 
                 </div> 
               </div> 
 

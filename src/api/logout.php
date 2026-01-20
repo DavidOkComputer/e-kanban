@@ -1,8 +1,8 @@
 <?php
 //logout.php
+require_once 'cors.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
- 
 session_start();
  
 //destruir toda la informacion de la sesion
@@ -18,4 +18,3 @@ if (ini_get("session.use_cookies")) {
  
 session_destroy();
 echo json_encode(['success' => true, 'message' => 'Sesión cerrada correctamente']);
-?>

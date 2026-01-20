@@ -1,5 +1,6 @@
 <?php
 // db_config.php
+require_once 'cors.php';
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -21,4 +22,3 @@ function getDBConnection() {
         return null;
     }
 }
-?>

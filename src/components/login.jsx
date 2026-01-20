@@ -31,11 +31,12 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
     setError('');
     
     try {
-        const response = await fetch('http://localhost/toolroom/api/login.php', {
+        const response = await fetch('http://localhost/ekanban-toolroom/src/api/login.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({
                 username: formData.username,
                 password: formData.password
@@ -71,7 +72,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
       <div style={styles.gridOverlay} />
       <div style={styles.scanLine} />
 
-      {/* Floating particles effect */}
+      {/*efecto de particulas flotantes*/}
       <div style={styles.particlesContainer}>
         {[...Array(20)].map((_, i) => (
           <div
@@ -86,9 +87,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/*contenido principal*/}
       <div style={styles.loginWrapper}>
-        {/* Back button */}
+        {/*boton de regreso*/}
         {onNavigateBack && (
           <button
             style={styles.backButton}
@@ -106,9 +107,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           </button>
         )}
 
-        {/* Login Card */}
+        {/*login*/}
         <div style={styles.loginCard}>
-          {/* Logo Section */}
+          {/*seccion de logo*/}
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
               <span style={styles.logoSymbol}>⚙</span>
@@ -119,13 +120,13 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </div>
           </div>
 
-          {/* Title */}
+          {/*titulo*/}
           <div style={styles.titleSection}>
             <h1 style={styles.title}>Acceso Administrativo</h1>
             <p style={styles.subtitle}>Ingrese sus credenciales para continuar</p>
           </div>
 
-          {/* Error Message */}
+          {/*mensaje de error*/}
           {error && (
             <div style={styles.errorMessage}>
               <span style={styles.errorIcon}>⚠</span>
@@ -133,7 +134,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </div>
           )}
 
-          {/* Login Form */}
+          {/*form de login*/}
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>
@@ -177,7 +178,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
-                  {showPassword ? '🙈' : '👁'}
+                  {showPassword ? '' : ''}
                 </button>
               </div>
             </div>
@@ -214,7 +215,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </button>
           </form>
 
-          {/* Demo credentials hint */}
+          {/*credenciales de prueba*/}
           <div style={styles.demoHint}>
             <span>Demo: admin / admin123</span>
           </div>
@@ -233,7 +234,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
         </div>
       </div>
 
-      {/* CSS Animations */}
+      {/*animacion css*/}
       <style>{cssAnimations}</style>
     </div>
   );
