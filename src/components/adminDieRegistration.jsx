@@ -380,7 +380,7 @@ const getSelectStyle = useCallback((fieldName) => {
               }} 
               onMouseLeave={(e) => { 
                 e.target.style.background = 'transparent'; 
-                e.target.style.boxShadow = 'none'; 
+                e.target.style.boxShadow   = 'none'; 
               }} 
             > 
               ← Volver al Dashboard 
@@ -595,19 +595,6 @@ const getSelectStyle = useCallback((fieldName) => {
                   </div> 
 
                   <div style={styles.inputGroup}> 
-                    <label style={styles.label}>Vida Útil Estimada</label> 
-                    <input 
-                      type="text" 
-                      name="vida_util_estimada" 
-                      value={formData.vida_util_estimada} 
-                      onChange={handleInputChange} 
-                      onFocus={() => setFocusedField('vida_util_estimada')} 
-                      onBlur={() => setFocusedField(null)} 
-                      style={getInputStyle('vida_util_estimada')} 
-                      placeholder="Ej: 5 años" 
-                    /> 
-                  </div> 
-                  <div style={styles.inputGroup}> 
                     <label style={styles.label}>Rectificaciones</label> 
                     <input 
                       type="text" 
@@ -696,18 +683,6 @@ const getSelectStyle = useCallback((fieldName) => {
                       onBlur={() => setFocusedField(null)} 
                       style={getInputStyle('proveedor')} 
                       placeholder="Ej: Troqueles MX S.A." 
-                    /> 
-                  </div> 
-                  <div style={styles.inputGroup}> 
-                    <label style={styles.label}>Fecha de Fabricación</label> 
-                    <input 
-                      type="date" 
-                      name="fecha_fabricacion" 
-                      value={formData.fecha_fabricacion} 
-                      onChange={handleInputChange} 
-                      onFocus={() => setFocusedField('fecha_fabricacion')} 
-                      onBlur={() => setFocusedField(null)} 
-                      style={getInputStyle('fecha_fabricacion')} 
                     /> 
                   </div> 
  

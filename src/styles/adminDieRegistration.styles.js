@@ -355,8 +355,6 @@ export const createStyles = () => ({
     fontSize: '14px',   
   },   
 
- 
-
   //elementos del form   
   inputGroup: {   
     display: 'flex',   
