@@ -14,7 +14,7 @@ import createStyles, {
 	cssAnimations
 } from '../styles/adminDieRegistration.styles';
 // Configuración de la API
-const API_BASE = 'http://localhost/ekanban-toolroom/src/api'; 
+const API_BASE = 'http://localhost/e-kanban/api'; 
 const mapFormToApi = (formData) => {
 	return {
 		id_troquel: formData.id?.trim().toUpperCase(),
@@ -89,14 +89,18 @@ const AdminDieRegistration = ({
 			rectificaciones: '0',
 			image_url: '',
 			notes: '',
+			cliente: '',
 			prensa_asignada: '',
 			tipo_troquel: 'progresivo',
 			ubicacion: '',
+			numero_serie: '',
 			proveedor: '',
+			fecha_fabricacion: '',
 			peso_kg: '',
 			dimensiones: '',
 			material_base: '',
 			num_estaciones: '',
+			vida_util_estimada: '',
 		});
 		const [focusedField, setFocusedField] = useState(null);
 		const [isSubmitting, setIsSubmitting] = useState(false);
