@@ -1,630 +1,916 @@
-import React, { useState, useEffect, memo, useCallback } from 'react';  
+ 
 
-import {   
-
-  statusColors,   
-
-  statuses,   
-
-  injectStyles,   
-
-  styles   
-
-} from '../styles/EKanban.styles';  
-
-  
-
-const API_BASE = 'http://localhost:3001/api';  
-
-const MAX_ITEMS = 8;  
+import React, { useState, useEffect, memo, useCallback } from 'react';   
 
  
 
-// Item del componente de kanban 
+import {    
 
-const KanbanItem = memo(({ item, onClick }) => {  
+  statusColors,    
 
-  const [hovered, setHovered] = useState(false);  
+  statuses,    
 
- 
+  injectStyles,    
 
-  return (  
+  styles    
 
-    <div  
-
-      className="ki"  
-
-      onClick={() => onClick(item)}  
-
-      onMouseEnter={() => setHovered(true)}  
-
-      onMouseLeave={() => setHovered(false)}  
-
-      style={styles.kanbanItem}  
-
-    >  
-
-      {hovered && (  
-
-        <div style={styles.kanbanItemTooltip}>  
-
-          {item.id} - {item.name}  
-
-          <div style={styles.kanbanItemTooltipArrow} />  
-
-        </div>  
-
-      )}  
-
-      <div style={styles.kanbanItemId}>{item.id}</div>  
-
-      <div style={styles.kanbanItemName}>{item.name}</div>  
-
-    </div>  
-
-  );  
-
-});  
+} from '../styles/EKanban.styles';   
 
  
 
-// Columna del componente de kanban 
+// Import the new RepairModal component 
 
-const KanbanColumn = memo(({ year, items, onItemClick }) => {  
-
-  const display = items.slice(0, MAX_ITEMS);  
-
-  return (  
-
-    <div className="col-card" style={styles.column}>  
-
-      <div style={styles.columnHeader}>  
-
-        <span>{year}</span>  
-
-        <span style={styles.columnCount}>{items.length}</span>  
-
-      </div>  
-
-      <div style={styles.columnItems}>  
-
-        {display.length > 0 ? display.map(item => (  
-
-          <KanbanItem key={item.id} item={item} onClick={onItemClick} />  
-
-        )) : (  
-
-         <div style={styles.columnEmpty}>No items</div>  
-
-        )}  
-
-        {items.length > MAX_ITEMS && (  
-
-          <div style={styles.columnMore}>  
-
-            +{items.length - MAX_ITEMS} more  
-
-          </div>  
-
-        )}  
-
-      </div>  
-
-    </div>  
-
-  );  
-
-});  
+import RepairModal from './RepairModal'; 
 
  
 
-// Componente de tabla de troqueles  
+const API_BASE = 'http://localhost:3001/api';   
 
-const TroquelesTable = memo(({ data }) => (  
-
-  <div style={styles.panel}>  
-
-    <h3 style={styles.panelTitle}>Troqueles</h3>  
-
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>  
-
-      <thead>  
-
-        <tr>  
-
-          {['', '#', 'GOAL', 'PERF'].map((h, i) => (  
-
-            <th key={i} style={{   
-
-              ...styles.tableHeader,   
-
-              textAlign: i === 0 ? 'left' : 'center'   
-
-            }}>{h}</th>  
-
-          ))}  
-
-        </tr>  
-
-      </thead>  
-
-      <tbody>  
-
-        {data.map((r, i) => (  
-
-          <tr key={r.label} style={{ borderBottom: i < 2 ? '1px solid rgba(0,255,136,0.1)' : 'none' }}>  
-
-            <td style={{ ...styles.tableCell, fontWeight: 600, color: '#fff' }}>{r.label}</td>  
-
-            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.count}</td>  
-
-            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.goal}</td>  
-
-            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.perf}</td>  
-
-          </tr>  
-
-        ))}  
-
-      </tbody>  
-
-    </table>  
-
-  </div>  
-
-));  
+const MAX_ITEMS = 8;   
 
  
 
-// Componente de prioridades de reparacion 
+// Item del componente de kanban  
 
-const PriorityRepairs = memo(({ data }) => (  
+const KanbanItem = memo(({ item, onClick }) => {   
 
-  <div style={{ ...styles.panel, ...styles.priorityPanel }}>  
-
-    <h3 style={{ ...styles.panelTitle, ...styles.priorityTitle }}>  
-
-      <span style={styles.priorityIndicator} />  
-
-      Prioridad de Reparación  
-
-    </h3>  
-
-    <div style={styles.priorityItems}>  
-
-      {data.map(item => (  
-
-        <div key={item.priority} className="pri" style={styles.priorityItem}>  
-
-          <span style={styles.priorityBadge(item.priority)}>{item.priority}</span>  
-
-          <span style={styles.priorityName}>{item.name}</span>  
-
-        </div>  
-
-      ))}  
-
-    </div>  
-
-  </div>  
-
-));  
+  const [hovered, setHovered] = useState(false);   
 
  
 
-// Componente de leyenda de estatus  
+  return (   
 
-const StatusLegend = memo(() => (  
+    <div   
 
-  <div style={styles.panel}>  
+      className="ki"   
 
-    <h3 style={styles.panelTitle}>Estado</h3>  
+      onClick={() => onClick(item)}   
 
-    <div style={styles.statusGrid}>  
+      onMouseEnter={() => setHovered(true)}   
 
-      {statuses.map(s => (  
+      onMouseLeave={() => setHovered(false)}   
 
-        <div key={s.name} style={styles.statusItem}>  
+      style={styles.kanbanItem}   
 
-          <div style={styles.statusColor(s.color)} />  
+    >   
 
-          <span style={styles.statusName}>{s.name}</span>  
+      {hovered && (   
 
-        </div>  
+        <div style={styles.kanbanItemTooltip}>   
 
-      ))}  
+          {item.id} - {item.name}   
 
-    </div>  
+          <div style={styles.kanbanItemTooltipArrow} />   
 
-  </div>  
+        </div>   
 
-));  
+      )}   
 
- 
+      <div style={styles.kanbanItemId}>{item.id}</div>   
 
-// Componente de modal de detalles 
+      <div style={styles.kanbanItemName}>{item.name}</div>   
 
-const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveAction }) => {  
+    </div>   
 
-  const [activeTab, setActiveTab] = useState('acciones');  
+  );   
 
-  const [action, setAction] = useState('limpieza');  
-
-   
-
-  // Form data for Bajar Troquel (left column) 
-
-  const [bajaTroquelData, setBajaTroquelData] = useState({  
-
-    falla_id: '',  
-
-    modelo_nuevo: '',  
-
-    nivel_setup: '',  
-
-    grupo: '1',  
-
-    comentarios: '', 
-
-    empleado: '' 
-
-  }); 
+});   
 
  
 
-  // Form data for Asistencia en Prensa (right column) 
+// Columna del componente de kanban  
 
-  const [asistenciaData, setAsistenciaData] = useState({ 
+const KanbanColumn = memo(({ year, items, onItemClick }) => {   
 
-    motivo: '',  
+  const display = items.slice(0, MAX_ITEMS);   
 
-    comentarios: '', 
+  return (   
 
-    empleado: '' 
+    <div className="col-card" style={styles.column}>   
+
+      <div style={styles.columnHeader}>   
+
+        <span>{year}</span>   
+
+        <span style={styles.columnCount}>{items.length}</span>   
+
+      </div>   
+
+      <div style={styles.columnItems}>   
+
+        {display.length > 0 ? display.map(item => (   
+
+          <KanbanItem key={item.id} item={item} onClick={onItemClick} />   
+
+        )) : (   
+
+         <div style={styles.columnEmpty}>No items</div>   
+
+        )}   
+
+        {items.length > MAX_ITEMS && (   
+
+          <div style={styles.columnMore}>   
+
+            +{items.length - MAX_ITEMS} more   
+
+          </div>   
+
+        )}   
+
+      </div>   
+
+    </div>   
+
+  );   
+
+});   
+
+ 
+
+// Componente de tabla de troqueles   
+
+const TroquelesTable = memo(({ data }) => (   
+
+  <div style={styles.panel}>   
+
+    <h3 style={styles.panelTitle}>Troqueles</h3>   
+
+    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>   
+
+      <thead>   
+
+        <tr>   
+
+          {['', '#', 'GOAL', 'PERF'].map((h, i) => (   
+
+            <th key={i} style={{    
+
+              ...styles.tableHeader,    
+
+              textAlign: i === 0 ? 'left' : 'center'    
+
+            }}>{h}</th>   
+
+          ))}   
+
+        </tr>   
+
+      </thead>   
+
+      <tbody>   
+
+        {data.map((r, i) => (   
+
+          <tr key={r.label} style={{ borderBottom: i < 2 ? '1px solid rgba(0,255,136,0.1)' : 'none' }}>   
+
+            <td style={{ ...styles.tableCell, fontWeight: 600, color: '#fff' }}>{r.label}</td>   
+
+            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.count}</td>   
+
+            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.goal}</td>   
+
+            <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.perf}</td>   
+
+          </tr>   
+
+        ))}   
+
+      </tbody>   
+
+    </table>   
+
+  </div>   
+
+));   
+
+ 
+
+// Componente de prioridades de reparacion  
+
+const PriorityRepairs = memo(({ data }) => (   
+
+  <div style={{ ...styles.panel, ...styles.priorityPanel }}>   
+
+    <h3 style={{ ...styles.panelTitle, ...styles.priorityTitle }}>   
+
+      <span style={styles.priorityIndicator} />   
+
+      Prioridad de Reparación   
+
+    </h3>   
+
+    <div style={styles.priorityItems}>   
+
+      {data.map(item => (   
+
+        <div key={item.priority} className="pri" style={styles.priorityItem}>   
+
+          <span style={styles.priorityBadge(item.priority)}>{item.priority}</span>   
+
+          <span style={styles.priorityName}>{item.name}</span>   
+
+        </div>   
+
+      ))}   
+
+    </div>   
+
+  </div>   
+
+));   
+
+ 
+
+// Componente de leyenda de estatus   
+
+const StatusLegend = memo(() => (   
+
+  <div style={styles.panel}>   
+
+    <h3 style={styles.panelTitle}>Estado</h3>   
+
+    <div style={styles.statusGrid}>   
+
+      {statuses.map(s => (   
+
+        <div key={s.name} style={styles.statusItem}>   
+
+          <div style={styles.statusColor(s.color)} />   
+
+          <span style={styles.statusName}>{s.name}</span>   
+
+        </div>   
+
+      ))}   
+
+    </div>   
+
+  </div>   
+
+));   
+
+ 
+
+// Custom modal styles for larger modal  
+
+const modalStyles = {  
+
+  overlay: {  
+
+    position: 'fixed',  
+
+    top: 0,  
+
+    left: 0,  
+
+    right: 0,  
+
+    bottom: 0,  
+
+    background: 'rgba(0,0,0,0.85)',  
+
+    backdropFilter: 'blur(8px)',  
+
+    display: 'flex',  
+
+    alignItems: 'center',  
+
+    justifyContent: 'center',  
+
+    zIndex: 1000,  
+
+    padding: '20px',  
+
+  },  
+
+  modal: {  
+
+    background: 'linear-gradient(145deg, rgba(15,25,20,0.98), rgba(10,15,13,0.98))',  
+
+    borderRadius: 16,  
+
+    border: '1px solid rgba(0,255,136,0.3)',  
+
+    boxShadow: '0 0 60px rgba(0,255,136,0.2), 0 25px 50px rgba(0,0,0,0.5)',  
+
+    width: '95vw',  
+
+    maxWidth: '1400px',  
+
+    height: '90vh',  
+
+    maxHeight: '850px',  
+
+    display: 'flex',  
+
+    flexDirection: 'column',  
+
+    overflow: 'hidden',  
+
+  },  
+
+  content: {  
+
+    display: 'flex',  
+
+    flex: 1,  
+
+    overflow: 'hidden',  
+
+    gap: 0,  
+
+  },  
+
+  leftPanel: {  
+
+    width: '280px',  
+
+    minWidth: '280px',  
+
+    borderRight: '1px solid rgba(0,255,136,0.2)',  
+
+    padding: '16px',  
+
+    overflowY: 'auto',  
+
+    background: 'rgba(0,0,0,0.2)',  
+
+  },  
+
+  rightPanel: {  
+
+    flex: 1,  
+
+    display: 'flex',  
+
+    flexDirection: 'column',  
+
+    overflow: 'hidden',  
+
+    minWidth: 0,  
+
+  },  
+
+  tabContent: {  
+
+    flex: 1,  
+
+    overflow: 'hidden',  
+
+    padding: '16px',  
+
+  },  
+
+  actionsForm: {  
+
+    display: 'flex',  
+
+    gap: '20px',  
+
+    height: '100%',  
+
+  },  
+
+  actionsColumn: {  
+
+    flex: 1,  
+
+    display: 'flex',  
+
+    flexDirection: 'column',  
+
+    background: 'rgba(0,0,0,0.2)',  
+
+    borderRadius: 12,  
+
+    padding: '14px',  
+
+    overflow: 'hidden',  
+
+  },  
+
+};  
+
+ 
+
+// Componente de modal de detalles para "En prensa" status 
+
+const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveAction }) => {   
+
+  const [activeTab, setActiveTab] = useState('acciones');   
+
+  const [action, setAction] = useState('limpieza');   
+
+    
+
+  // Form data for Bajar Troquel (left column)  
+
+  const [bajaTroquelData, setBajaTroquelData] = useState({   
+
+    folio: '',  
+
+    falla_id: '',   
+
+    modelo_nuevo: '',   
+
+    nivel_setup: '',   
+
+    grupo: '1',   
+
+    comentarios: '',  
+
+    empleado: ''  
 
   });  
 
  
 
-  const [history, setHistory] = useState([]);  
+  // Form data for Asistencia en Prensa (right column)  
 
-  const [loadingHistory, setLoadingHistory] = useState(false); 
+  const [asistenciaData, setAsistenciaData] = useState({  
 
-  const [imageError, setImageError] = useState(false); 
+    folio: '',  
 
-  const [savingBaja, setSavingBaja] = useState(false); 
+    motivo: '',   
 
-  const [savingAsistencia, setSavingAsistencia] = useState(false); 
+    comentarios: '',  
 
- 
+    empleado: ''  
 
-  // Load history when tab changes 
-
-  const loadHistory = useCallback(() => { 
-
-    if (item) { 
-
-      setLoadingHistory(true);  
-
-      fetch(`${API_BASE}/troqueles/${item.id}/history`)  
-
-        .then(res => res.json())  
-
-        .then(data => {  
-
-          setHistory(data);  
-
-          setLoadingHistory(false);  
-
-        })  
-
-        .catch(err => {  
-
-          console.error('Error loading history:', err);  
-
-          setLoadingHistory(false);  
-
-        });  
-
-    } 
-
-  }, [item]); 
+  });   
 
  
 
-  useEffect(() => {  
+  const [history, setHistory] = useState([]);   
 
-    if (activeTab === 'historial' && item) {  
+  const [loadingHistory, setLoadingHistory] = useState(false);  
 
-      loadHistory(); 
+  const [imageError, setImageError] = useState(false);  
+
+  const [savingBaja, setSavingBaja] = useState(false);  
+
+  const [savingAsistencia, setSavingAsistencia] = useState(false);  
+
+ 
+
+  // Load history when tab changes  
+
+  const loadHistory = useCallback(() => {  
+
+    if (item) {  
+
+      setLoadingHistory(true);   
+
+      fetch(`${API_BASE}/troqueles/${item.id}/history`)   
+
+        .then(res => res.json())   
+
+        .then(data => {   
+
+          setHistory(data);   
+
+          setLoadingHistory(false);   
+
+        })   
+
+        .catch(err => {   
+
+          console.error('Error loading history:', err);   
+
+          setLoadingHistory(false);   
+
+        });   
 
     }  
 
-  }, [activeTab, item, loadHistory]); 
+  }, [item]);  
 
  
 
-  // Reset image error when item changes 
+  useEffect(() => {   
 
-  useEffect(() => { 
+    if (activeTab === 'historial' && item) {   
 
-    setImageError(false); 
+      loadHistory();  
 
-  }, [item]); 
+    }   
 
- 
-
-  if (!item) return null;  
-
-  const statusColor = statusColors[item.status] || '#00ff88';  
-
-   
-
-  // Handle submit for Bajar Troquel (left column) 
-
-  const handleSubmitBajaTroquel = async () => { 
-
-    if (!bajaTroquelData.empleado.trim()) { 
-
-      alert('Por favor ingrese el nombre del empleado que ejecuta la acción'); 
-
-      return; 
-
-    } 
+  }, [activeTab, item, loadHistory]);  
 
  
 
-    setSavingBaja(true); 
+  // Reset image error when item changes  
 
-     
+  useEffect(() => {  
 
-    // Determine action type based on radio selection 
+    setImageError(false);  
 
-    let actionType = 'Limpieza General'; 
-
-    if (action === 'cambio') actionType = 'Cambio de Modelo'; 
-
-    if (action === 'falla') actionType = 'Falla de Troquel'; 
+  }, [item]);  
 
  
 
-    const actionData = {  
+  if (!item) return null;   
 
-      troquel_id: item.id,  
+  const statusColor = statusColors[item.status] || '#00ff88';   
 
-      tipo_registro: 'baja_troquel', 
+    
 
-      action_type: actionType, 
+  // Handle submit for Bajar Troquel (left column)  
 
-      falla_id: action === 'falla' ? bajaTroquelData.falla_id : null, 
+  const handleSubmitBajaTroquel = async () => {  
 
-      modelo_nuevo: action === 'cambio' ? bajaTroquelData.modelo_nuevo : null, 
+    if (!bajaTroquelData.empleado.trim()) {  
 
-      nivel_setup: bajaTroquelData.nivel_setup, 
+      alert('Por favor ingrese el nombre del empleado que ejecuta la acción');  
 
-      grupo: bajaTroquelData.grupo, 
+      return;  
 
-      comentarios: bajaTroquelData.comentarios, 
-
-      empleado: bajaTroquelData.empleado 
-
-    };  
+    }  
 
  
 
-    try {  
+    if (!bajaTroquelData.folio.trim()) {  
 
-      const res = await fetch(`${API_BASE}/actions/baja-troquel`, {  
+      alert('Por favor ingrese el número de folio');  
 
-        method: 'POST',  
+      return;  
 
-        headers: { 'Content-Type': 'application/json' },  
-
-        body: JSON.stringify(actionData)  
-
-      });  
+    }  
 
  
 
-      if (res.ok) {  
+    setSavingBaja(true);  
 
-        alert('Baja de Troquel guardada exitosamente');  
+      
 
-        // Reset form 
+    // Determine action type based on radio selection  
 
-        setBajaTroquelData({ 
+    let actionType = 'Limpieza General';  
 
-          falla_id: '',  
+    if (action === 'cambio') actionType = 'Cambio de Modelo';  
 
-          modelo_nuevo: '',  
-
-          nivel_setup: '',  
-
-          grupo: '1',  
-
-          comentarios: '', 
-
-          empleado: '' 
-
-        }); 
-
-        setAction('limpieza'); 
-
-        onSaveAction && onSaveAction(); 
-
-        // Reload history if on that tab 
-
-        if (activeTab === 'historial') loadHistory(); 
-
-      } else { 
-
-        const errorData = await res.json(); 
-
-        alert(`Error: ${errorData.message || 'No se pudo guardar'}`); 
-
-      } 
-
-    } catch (err) {  
-
-      console.error('Error saving baja troquel:', err);  
-
-      alert('Error al guardar la baja de troquel');  
-
-    } finally { 
-
-      setSavingBaja(false); 
-
-    } 
-
-  }; 
+    if (action === 'falla') actionType = 'Falla de Troquel';  
 
  
 
-  // Handle submit for Asistencia en Prensa (right column) 
+    const actionData = {   
 
-  const handleSubmitAsistencia = async () => { 
+      troquel_id: item.id,   
 
-    if (!asistenciaData.empleado.trim()) { 
+      tipo_registro: 'baja_troquel',  
 
-      alert('Por favor ingrese el nombre del empleado que ejecuta la acción'); 
+      action_type: actionType,  
 
-      return; 
+      folio: bajaTroquelData.folio,  
 
-    } 
+      falla_id: action === 'falla' ? bajaTroquelData.falla_id : null,  
 
- 
+      modelo_nuevo: action === 'cambio' ? bajaTroquelData.modelo_nuevo : null,  
 
-    if (!asistenciaData.motivo) { 
+      nivel_setup: bajaTroquelData.nivel_setup,  
 
-      alert('Por favor seleccione un motivo de asistencia'); 
+      grupo: bajaTroquelData.grupo,  
 
-      return; 
+      comentarios: bajaTroquelData.comentarios,  
 
-    } 
+      empleado: bajaTroquelData.empleado  
 
- 
-
-    setSavingAsistencia(true); 
+    };   
 
  
 
-    const actionData = {  
+    try {   
 
-      troquel_id: item.id,  
+      const res = await fetch(`${API_BASE}/actions/baja-troquel`, {   
 
-      tipo_registro: 'asistencia_prensa', 
+        method: 'POST',   
 
-      motivo_id: asistenciaData.motivo, 
+        headers: { 'Content-Type': 'application/json' },   
 
-      comentarios: asistenciaData.comentarios, 
+        body: JSON.stringify(actionData)   
 
-      empleado: asistenciaData.empleado 
-
-    };  
+      });   
 
  
 
-    try {  
+      if (res.ok) {   
 
-      const res = await fetch(`${API_BASE}/actions/asistencia-prensa`, {  
+        alert('Baja de Troquel guardada exitosamente. Estado cambiado a "Reparando"');   
 
-        method: 'POST',  
+        // Reset form  
 
-        headers: { 'Content-Type': 'application/json' },  
+        setBajaTroquelData({  
 
-        body: JSON.stringify(actionData)  
+          folio: '',  
 
-      });  
+          falla_id: '',   
 
- 
+          modelo_nuevo: '',   
 
-      if (res.ok) {  
+          nivel_setup: '',   
 
-        alert('Asistencia en Prensa guardada exitosamente');  
+          grupo: '1',   
 
-        // Reset form 
+          comentarios: '',  
 
-        setAsistenciaData({ 
+          empleado: ''  
 
-          motivo: '',  
+        });  
 
-          comentarios: '', 
+        setAction('limpieza');  
 
-          empleado: '' 
+        onSaveAction && onSaveAction();  
 
-        }); 
+        // Reload history if on that tab  
 
-        onSaveAction && onSaveAction(); 
+        if (activeTab === 'historial') loadHistory();  
 
-        // Reload history if on that tab 
+      } else {  
 
-        if (activeTab === 'historial') loadHistory(); 
+        const errorData = await res.json();  
 
-      } else { 
+        alert(`Error: ${errorData.message || 'No se pudo guardar'}`);  
 
-        const errorData = await res.json(); 
+      }  
 
-        alert(`Error: ${errorData.message || 'No se pudo guardar'}`); 
+    } catch (err) {   
 
-      } 
+      console.error('Error saving baja troquel:', err);   
 
-    } catch (err) {  
+      alert('Error al guardar la baja de troquel');   
 
-      console.error('Error saving asistencia:', err);  
+    } finally {  
 
-      alert('Error al guardar la asistencia en prensa');  
+      setSavingBaja(false);  
 
-    } finally { 
+    }  
 
-      setSavingAsistencia(false); 
-
-    } 
-
-  }; 
+  };  
 
  
 
-  const SelectBox = ({ label, value, onChange, children, mt, disabled }) => (  
+  // Handle submit for Asistencia en Prensa (right column)  
 
-    <div style={{ marginTop: mt || 0 }}>  
+  const handleSubmitAsistencia = async () => {  
 
-      {label && <label style={styles.formSelectLabel}>{label}</label>}  
+    if (!asistenciaData.empleado.trim()) {  
 
-      <select   
+      alert('Por favor ingrese el nombre del empleado que ejecuta la acción');  
 
-        className="form-el"   
+      return;  
 
-        value={value}   
+    }  
 
-        onChange={onChange} 
+ 
 
-        disabled={disabled} 
+    if (!asistenciaData.folio.trim()) {  
+
+      alert('Por favor ingrese el número de folio');  
+
+      return;  
+
+    }  
+
+ 
+
+    if (!asistenciaData.motivo) {  
+
+      alert('Por favor seleccione un motivo de asistencia');  
+
+      return;  
+
+    }  
+
+ 
+
+    setSavingAsistencia(true);  
+
+ 
+
+    const actionData = {   
+
+      troquel_id: item.id,   
+
+      tipo_registro: 'asistencia_prensa',  
+
+      folio: asistenciaData.folio,  
+
+      motivo_id: asistenciaData.motivo,  
+
+      comentarios: asistenciaData.comentarios,  
+
+      empleado: asistenciaData.empleado  
+
+    };   
+
+ 
+
+    try {   
+
+      const res = await fetch(`${API_BASE}/actions/asistencia-prensa`, {   
+
+        method: 'POST',   
+
+        headers: { 'Content-Type': 'application/json' },   
+
+        body: JSON.stringify(actionData)   
+
+      });   
+
+ 
+
+      if (res.ok) {   
+
+        alert('Asistencia en Prensa guardada exitosamente. Estado cambiado a "Reparando"');   
+
+        // Reset form  
+
+        setAsistenciaData({  
+
+          folio: '',  
+
+          motivo: '',   
+
+          comentarios: '',  
+
+          empleado: ''  
+
+        });  
+
+        onSaveAction && onSaveAction();  
+
+        // Reload history if on that tab  
+
+        if (activeTab === 'historial') loadHistory();  
+
+      } else {  
+
+        const errorData = await res.json();  
+
+        alert(`Error: ${errorData.message || 'No se pudo guardar'}`);  
+
+      }  
+
+    } catch (err) {   
+
+      console.error('Error saving asistencia:', err);   
+
+      alert('Error al guardar la asistencia en prensa');   
+
+    } finally {  
+
+      setSavingAsistencia(false);  
+
+    }  
+
+  };  
+
+ 
+
+  const SelectBox = ({ label, value, onChange, children, mt, disabled }) => (   
+
+    <div style={{ marginTop: mt || 0 }}>   
+
+      {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>}   
+
+      <select    
+
+        className="form-el"    
+
+        value={value}    
+
+        onChange={onChange}  
+
+        disabled={disabled}  
+
+        style={{    
+
+          width: '100%',    
+
+          padding: '7px 10px',    
+
+          background: 'rgba(0,0,0,0.3)',    
+
+          border: '1px solid rgba(0,255,136,0.3)',    
+
+          borderRadius: 6,    
+
+          color: '#fff',    
+
+          fontSize: 11,  
+
+          opacity: disabled ? 0.5 : 1  
+
+        }}   
+
+      >   
+
+        {children}   
+
+      </select>   
+
+    </div>   
+
+  );   
+
+ 
+
+  const TextArea = ({ label, value, onChange, h, mt, disabled }) => (   
+
+    <div style={{ marginTop: mt || 0 }}>   
+
+      {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>}   
+
+      <textarea    
+
+        className="form-el"    
+
+        value={value}    
+
+        onChange={onChange}  
+
+        disabled={disabled}  
 
         style={{   
 
-          width: '100%',   
+          width: '100%',  
 
-          padding: '8px 10px',   
+          padding: '8px 10px',  
 
-          background: 'rgba(0,0,0,0.3)',   
+          background: 'rgba(0,0,0,0.3)',  
 
-          border: '1px solid rgba(0,255,136,0.3)',   
+          border: '1px solid rgba(0,255,136,0.3)',  
 
-          borderRadius: 6,   
+          borderRadius: 6,  
 
-          color: '#fff',   
+          color: '#fff',  
 
-          fontSize: 11, 
+          fontSize: 11,  
 
-          opacity: disabled ? 0.5 : 1 
+          resize: 'none',  
+
+          boxSizing: 'border-box',  
+
+          height: h || 60,   
+
+          opacity: disabled ? 0.5 : 1   
+
+        }}    
+
+      />   
+
+    </div>   
+
+  );  
+
+ 
+
+  const InputBox = ({ label, value, onChange, placeholder, mt, disabled, type = 'text' }) => (  
+
+    <div style={{ marginTop: mt || 0 }}>  
+
+      {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>}  
+
+      <input  
+
+        type={type}  
+
+        className="form-el"  
+
+        value={value}  
+
+        onChange={onChange}  
+
+        placeholder={placeholder}  
+
+        disabled={disabled}  
+
+        style={{  
+
+          width: '100%',  
+
+          padding: '7px 10px',  
+
+          background: 'rgba(0,0,0,0.3)',  
+
+          border: '1px solid rgba(0,255,136,0.3)',  
+
+          borderRadius: 6,  
+
+          color: '#fff',  
+
+          fontSize: 11,  
+
+          outline: 'none',  
+
+          boxSizing: 'border-box',  
+
+          opacity: disabled ? 0.5 : 1  
 
         }}  
 
-      >  
-
-        {children}  
-
-      </select>  
+      />  
 
     </div>  
 
@@ -632,769 +918,325 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
 
  
 
-  const TextArea = ({ label, value, onChange, h, mt, disabled }) => (  
+  // Button style helper  
 
-    <div style={{ marginTop: mt || 0 }}>  
+  const getButtonStyle = (isLoading, baseColor = '#00ff88') => ({  
 
-      {label && <label style={styles.formSelectLabel}>{label}</label>}  
+    width: '100%',  
 
-      <textarea   
+    padding: '10px 16px',  
 
-        className="form-el"   
+    background: isLoading ? 'rgba(100,100,100,0.3)' : `linear-gradient(135deg, ${baseColor}, ${baseColor}aa)`,  
 
-        value={value}   
+    border: `1px solid ${baseColor}`,  
 
-        onChange={onChange} 
+    borderRadius: 8,  
 
-        disabled={disabled} 
+    color: isLoading ? '#888' : '#0a0f0d',  
 
-        style={{ ...styles.formTextarea, height: h || 60, opacity: disabled ? 0.5 : 1 }}   
+    fontSize: 11,  
 
-      />  
+    fontWeight: 700,  
 
-    </div>  
+    cursor: isLoading ? 'not-allowed' : 'pointer',  
 
-  ); 
+    textTransform: 'uppercase',  
 
- 
+    letterSpacing: 0.5,  
 
-  const InputBox = ({ label, value, onChange, placeholder, mt, disabled }) => ( 
+    transition: 'all 0.3s ease',  
 
-    <div style={{ marginTop: mt || 0 }}> 
+    boxShadow: isLoading ? 'none' : `0 0 15px ${baseColor}40`,  
 
-      {label && <label style={styles.formSelectLabel}>{label}</label>} 
+    marginTop: 'auto',  
 
-      <input 
-
-        type="text" 
-
-        className="form-el" 
-
-        value={value} 
-
-        onChange={onChange} 
-
-        placeholder={placeholder} 
-
-        disabled={disabled} 
-
-        style={{ 
-
-          width: '100%', 
-
-          padding: '8px 10px', 
-
-          background: 'rgba(0,0,0,0.3)', 
-
-          border: '1px solid rgba(0,255,136,0.3)', 
-
-          borderRadius: 6, 
-
-          color: '#fff', 
-
-          fontSize: 11, 
-
-          outline: 'none', 
-
-          boxSizing: 'border-box', 
-
-          opacity: disabled ? 0.5 : 1 
-
-        }} 
-
-      /> 
-
-    </div> 
-
-  ); 
+  });  
 
  
 
-  // Button style helper 
+  // Check if item has a valid image URL  
 
-  const getButtonStyle = (isLoading, baseColor = '#00ff88') => ({ 
-
-    width: '100%', 
-
-    padding: '10px 16px', 
-
-    background: isLoading ? 'rgba(100,100,100,0.3)' : `linear-gradient(135deg, ${baseColor}, ${baseColor}aa)`, 
-
-    border: `1px solid ${baseColor}`, 
-
-    borderRadius: 8, 
-
-    color: isLoading ? '#888' : '#0a0f0d', 
-
-    fontSize: 12, 
-
-    fontWeight: 700, 
-
-    cursor: isLoading ? 'not-allowed' : 'pointer', 
-
-    textTransform: 'uppercase', 
-
-    letterSpacing: 1, 
-
-    transition: 'all 0.3s ease', 
-
-    boxShadow: isLoading ? 'none' : `0 0 15px ${baseColor}40`, 
-
-  }); 
+  const hasImage = item.imageUrl && !imageError;  
 
  
 
-  // Check if item has a valid image URL 
+  // History item component for better organization  
 
-  const hasImage = item.imageUrl && !imageError; 
+  const HistoryItem = ({ h }) => {  
+
+    const isAsistencia = h.tipo_registro === 'asistencia_prensa';  
+
+    const borderColor = isAsistencia ? '#00c8ff' : '#00ff88';  
+
+    const titleColor = isAsistencia ? '#00c8ff' : '#00ff88';  
+
+    const icon = isAsistencia ? '' : '';  
+
+    const typeLabel = isAsistencia ? 'Asistencia en Prensa' : 'Baja de Troquel';  
 
  
 
-  return (  
+    return (  
 
-    <div onClick={onClose} style={styles.modalOverlay}>  
+      <div style={{  
 
-      <div onClick={e => e.stopPropagation()} style={styles.modal}>  
+        background: 'rgba(0,0,0,0.3)',  
 
-        {/* Header */}  
+        borderRadius: 10,  
 
-        <div style={styles.modalHeader}>  
+        padding: '14px 16px',  
 
-          <div style={styles.modalStatusLabel}>  
+        marginBottom: 12,  
 
-            <span style={styles.modalStatusText}>Estatus:</span>  
+        borderLeft: `4px solid ${borderColor}`,  
 
-            <span style={styles.modalStatusValue(statusColor)}>{item.status}</span>  
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',  
+
+      }}>  
+
+        {/* Header with type and date */}  
+
+        <div style={{  
+
+          display: 'flex',  
+
+          justifyContent: 'space-between',  
+
+          alignItems: 'flex-start',  
+
+          marginBottom: 10,  
+
+          flexWrap: 'wrap',  
+
+          gap: 8,  
+
+        }}>  
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>  
+
+            <span style={{ fontSize: 16 }}>{icon}</span>  
+
+            <span style={{ color: titleColor, fontWeight: 700, fontSize: 13, textTransform: 'uppercase' }}>  
+
+              {typeLabel}  
+
+            </span>  
+
+            {h.folio && (  
+
+              <span style={{  
+
+                background: 'rgba(255,200,0,0.2)',  
+
+                color: '#ffc800',  
+
+                padding: '2px 8px',  
+
+                borderRadius: 4,  
+
+                fontSize: 10,  
+
+                fontWeight: 600,  
+
+              }}>  
+
+                Folio: {h.folio}  
+
+              </span>  
+
+            )}  
 
           </div>  
 
-          <button onClick={onClose} style={styles.modalCloseButton}>×</button>  
+          <span style={{ color: '#888', fontSize: 11, background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>  
+
+            {new Date(h.created_at).toLocaleString()}  
+
+          </span>  
 
         </div>  
 
  
 
-        {/* Contenido */}  
+        {/* Action type / Reason */}  
 
-        <div style={styles.modalContent}>  
+        <div style={{  
 
-          {/* Panel izquierdo */}  
+          background: 'rgba(255,255,255,0.05)',  
 
-          <div style={styles.modalLeftPanel}>  
+          borderRadius: 6,  
 
-            {/* Image from database or placeholder */} 
+          padding: '10px 12px',  
 
-            <div style={{ 
+          marginBottom: 10,  
 
-              ...styles.modalImage, 
+        }}>  
 
-              overflow: 'hidden', 
+          <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
 
-              position: 'relative', 
+            {isAsistencia ? 'Motivo de Asistencia' : 'Tipo de Acción'}  
 
-            }}>  
+          </div>  
 
-              {hasImage ? ( 
+          <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>  
 
-                <img  
+            {h.action_type || '-'}  
 
-                  src={item.imageUrl}  
+          </div>  
 
-                  alt={`Troquel ${item.id}`} 
-
-                  onError={() => setImageError(true)} 
-
-                  style={{ 
-
-                    width: '100%', 
-
-                    height: '100%', 
-
-                    objectFit: 'cover', 
-
-                    borderRadius: 8, 
-
-                  }} 
-
-                /> 
-
-              ) : ( 
-
-                <div style={{ 
-
-                  width: '100%', 
-
-                  height: '100%', 
-
-                  display: 'flex', 
-
-                  flexDirection: 'column', 
-
-                  alignItems: 'center', 
-
-                  justifyContent: 'center', 
-
-                  background: 'rgba(0,0,0,0.3)', 
-
-                  borderRadius: 8, 
-
-                }}> 
-
-                  <span style={{ fontSize: 40, opacity: 0.3, marginBottom: 8 }}>📷</span> 
-
-                  <span style={styles.modalImagePlaceholder}>Sin imagen</span> 
-
-                </div> 
-
-              )} 
-
-            </div>  
+        </div>  
 
  
 
-            <div style={styles.modalItemInfo}>  
+        {/* Only show Falla for baja_troquel records */}  
 
-              <div style={styles.modalItemId}>{item.id}</div>  
+        {!isAsistencia && h.falla_description && (  
 
-              <div style={styles.modalItemModel}>{item.model || '-'}</div>  
+          <div style={{  
 
-            </div>  
+            background: 'rgba(255,107,107,0.1)',  
 
- 
+            borderRadius: 6,  
 
-            <div style={styles.modalInfoBox}>  
+            padding: '10px 12px',  
 
-              <div style={styles.modalInfoBoxHeader}>Información del Troquel</div>  
+            marginBottom: 10,  
 
-              <div style={styles.modalInfoBoxContent}>  
+            border: '1px solid rgba(255,107,107,0.2)',  
 
-                {[  
+          }}>  
 
-                  ['Golpes:', item.golpes],   
+            <div style={{ color: '#ff6b6b', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
 
-                  ['Golpes Acum:', item.golpesAcum],   
-
-                  ['Capacidad Golpes:', item.capacidadGolpes],   
-
-                  ['No. Rectificaciones:', item.rectificaciones]  
-
-                ].map(([l, v], i) => (  
-
-                  <div key={i} style={styles.modalInfoRow(i >= 3)}>  
-
-                    <span style={styles.modalInfoLabel}>{l}</span>  
-
-                    <span style={styles.modalInfoValue}>{v || '-'}</span>  
-
-                  </div>  
-
-                ))}  
-
-              </div>  
+              Falla Registrada  
 
             </div>  
 
- 
+            <div style={{ color: '#fff', fontSize: 12, fontWeight: 500 }}>  
 
-            <div style={styles.modalInfoBox}>  
-
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>  
-
-                <thead>  
-
-                  <tr>  
-
-                    <th style={{ padding: 6, background: 'rgba(0,200,255,0.2)', color: '#00d4ff', fontWeight: 600, textAlign: 'center' }}>Prensas</th>  
-
-                    <th style={{ padding: 6, background: 'rgba(255,200,100,0.2)', color: '#fc6', fontWeight: 600, textAlign: 'center' }}>Modelos</th>  
-
-                  </tr>  
-
-                </thead>  
-
-                <tbody>  
-
-                  {item.prensas?.length > 0 ? item.prensas.map((p, i) => (  
-
-                    <tr key={i}>  
-
-                      <td style={{ padding: '4px 6px', textAlign: 'center', color: p.current ? '#00ff88' : '#fff', fontWeight: p.current ? 700 : 400, borderBottom: '1px solid rgba(0,255,136,0.1)' }}>  
-
-                        {p.current ? `*** ${p.year} ***` : p.year}  
-
-                      </td>  
-
-                      <td style={{ padding: '4px 6px', textAlign: 'center', color: '#ccc', borderBottom: '1px solid rgba(0,255,136,0.1)' }}>{p.model || '-'}</td>  
-
-                    </tr>  
-
-                  )) : (  
-
-                    <tr><td colSpan={2} style={{ padding: 10, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>No data</td></tr>  
-
-                  )}  
-
-                </tbody>  
-
-              </table>  
+              {h.falla_description}  
 
             </div>  
 
           </div>  
 
+        )}  
+
  
 
-          {/* Panel derecho */}  
+        {/* Comments */}  
 
-          <div style={styles.modalRightPanel}>  
+        {h.comentarios && (  
 
-            <div style={styles.modalTabs}>  
+          <div style={{  
 
-              {['acciones', 'historial'].map(tab => (  
+            background: 'rgba(255,255,255,0.03)',  
 
-                <button   
+            borderRadius: 6,  
 
-                  key={tab}   
+            padding: '10px 12px',  
 
-                  className="tab-btn"   
+            marginBottom: 10,  
 
-                  onClick={() => setActiveTab(tab)}   
+          }}>  
 
-                  style={styles.modalTab(activeTab === tab)}  
+            <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
 
-                >  
-
-                  {tab}  
-
-                </button>  
-
-              ))}  
+              Comentarios  
 
             </div>  
 
- 
+            <div style={{ color: '#ddd', fontSize: 12, lineHeight: 1.4 }}>  
 
-            <div style={styles.modalTabContent}>  
+              {h.comentarios}  
 
-              {activeTab === 'acciones' ? (  
+            </div>  
 
-                <div style={styles.actionsForm}>  
+          </div>  
 
-                  {/* LEFT COLUMN - Bajar Troquel */} 
-
-                  <div style={styles.actionsColumn}>  
-
-                    <div style={styles.actionHeader}>  
-
-                      <span style={styles.actionHeaderText}>Bajar Troquel por:</span>  
-
-                    </div>  
+        )}  
 
  
 
-                    {[  
+        {/* Footer with employee and additional info */}  
 
-                      { id: 'limpieza', label: 'Limpieza General' },   
+        <div style={{  
 
-                      { id: 'cambio', label: 'Cambio de Modelo', select: true },   
+          display: 'flex',  
 
-                      { id: 'falla', label: 'Falla de Troquel', select: true }  
+          justifyContent: 'space-between',  
 
-                    ].map(opt => (  
+          alignItems: 'center',  
 
-                      <label key={opt.id} style={styles.actionOption(action === opt.id)}>  
+          flexWrap: 'wrap',  
 
-                        <div style={styles.actionRadioRow}>  
+          gap: 10,  
 
-                          <input   
+          paddingTop: 8,  
 
-                            type="radio"   
+          borderTop: '1px solid rgba(255,255,255,0.1)',  
 
-                            name="act"   
+        }}>  
 
-                            checked={action === opt.id}   
+          {h.empleado && (  
 
-                            onChange={() => setAction(opt.id)}   
+            <div style={{  
 
-                            style={{ accentColor: '#00ff88' }}   
+              display: 'flex',  
 
-                          />  
+              alignItems: 'center',  
 
-                          <span style={styles.actionLabel}>{opt.label}</span>  
+              gap: 6,  
 
-                        </div>  
+              background: 'rgba(255,200,0,0.1)',  
 
- 
+              padding: '6px 10px',  
 
-                        {opt.select && (  
+              borderRadius: 6,  
 
-                          <select   
+              border: '1px solid rgba(255,200,0,0.2)',  
 
-                            className="form-el"   
+            }}>  
 
-                            value={opt.id === 'cambio' ? bajaTroquelData.modelo_nuevo : bajaTroquelData.falla_id}  
+              <span style={{ fontSize: 14 }}>👤</span>  
 
-                            onChange={(e) => setBajaTroquelData({ 
+              <div>  
 
-                              ...bajaTroquelData,  
+                <div style={{ color: '#888', fontSize: 9, textTransform: 'uppercase' }}>Ejecutado por</div>  
 
-                              [opt.id === 'cambio' ? 'modelo_nuevo' : 'falla_id']: e.target.value 
+                <div style={{ color: '#ffc800', fontSize: 12, fontWeight: 600 }}>{h.empleado}</div>  
 
-                            })}  
+              </div>  
 
-                            style={styles.formSelect}  
+            </div>  
 
-                          >  
-
-                            {opt.id === 'cambio' ? (  
-
-                              <option value="">Seleccionar Modelo</option>  
-
-                            ) : (  
-
-                              <>  
-
-                                <option value="">Seleccionar Falla</option>  
-
-                                {fallas.map(f => (  
-
-                                  <option key={f.id} value={f.id}>{f.description}</option>  
-
-                                ))}  
-
-                              </>  
-
-                            )}  
-
-                          </select>  
-
-                        )}  
-
-                      </label>  
-
-                    ))}  
+          )}  
 
  
 
-                    <SelectBox  
+          {!isAsistencia && (h.nivel_setup || h.grupo) && (  
 
-                      label="Nivel:"  
+            <div style={{ display: 'flex', gap: 8 }}>  
 
-                      value={bajaTroquelData.nivel_setup}  
+              {h.nivel_setup && (  
 
-                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, nivel_setup: e.target.value})}  
+                <div style={{ background: 'rgba(100,255,100,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,255,100,0.2)' }}>  
 
-                      mt={12} 
+                  <span style={{ color: '#888', fontSize: 9 }}>Nivel: </span>  
 
-                    >  
-
-                      <option value="">Seleccionar Nivel de Setup</option>  
-
-                      <option value="1">Nivel 1</option>  
-
-                      <option value="2">Nivel 2</option>  
-
-                      <option value="3">Nivel 3</option>  
-
-                    </SelectBox>  
-
- 
-
-                    <TextArea  
-
-                      label="Comentarios:"  
-
-                      value={bajaTroquelData.comentarios}  
-
-                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, comentarios: e.target.value})}  
-
-                      h={40}  
-
-                      mt={8}  
-
-                    />  
-
- 
-
-                    <SelectBox  
-
-                      label="Grupo:"  
-
-                      value={bajaTroquelData.grupo}  
-
-                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, grupo: e.target.value})}  
-
-                      mt={8} 
-
-                    >  
-
-                      <option value="1">1</option>  
-
-                      <option value="2">2</option>  
-
-                      <option value="3">3</option>  
-
-                    </SelectBox> 
-
- 
-
-                    {/* Employee input for Bajar Troquel */} 
-
-                    <InputBox  
-
-                      label="Ejecutado por: *"  
-
-                      value={bajaTroquelData.empleado}  
-
-                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, empleado: e.target.value})}  
-
-                      placeholder="Nombre del empleado" 
-
-                      mt={8} 
-
-                    /> 
-
- 
-
-                    {/* Save button for Bajar Troquel */} 
-
-                    <button  
-
-                      onClick={handleSubmitBajaTroquel}  
-
-                      disabled={savingBaja} 
-
-                      style={{...getButtonStyle(savingBaja), marginTop: 12}} 
-
-                    >  
-
-                      {savingBaja ? 'Guardando...' : 'Guardar Baja Troquel'} 
-
-                    </button> 
-
-                  </div>  
-
- 
-
-                  {/* RIGHT COLUMN - Asistencia en Prensa */} 
-
-                  <div style={styles.actionsColumn}>  
-
-                    <div style={{ ...styles.actionHeader, background: 'rgba(0,200,255,0.15)', border: '1px solid rgba(0,200,255,0.3)' }}>  
-
-                      <span style={{ ...styles.actionHeaderText, color: '#00c8ff' }}>Asistencia en Prensa:</span>  
-
-                    </div>  
-
- 
-
-                    {/* Motivo dropdown populated from tbl_asistencia_prensa */} 
-
-                    <SelectBox  
-
-                      label="Motivo: *"  
-
-                      value={asistenciaData.motivo}  
-
-                      onChange={(e) => setAsistenciaData({...asistenciaData, motivo: e.target.value})} 
-
-                    > 
-
-                      <option value="">Seleccionar Motivo</option> 
-
-                      {asistenciaMotivos.map(m => ( 
-
-                        <option key={m.id} value={m.id}>{m.description}</option> 
-
-                      ))} 
-
-                    </SelectBox> 
-
- 
-
-                    <TextArea  
-
-                      label="Comentarios (Supervisor / Operador):"  
-
-                      value={asistenciaData.comentarios}  
-
-                      onChange={(e) => setAsistenciaData({...asistenciaData, comentarios: e.target.value})}  
-
-                      h={100}  
-
-                      mt={12}  
-
-                    /> 
-
- 
-
-                    {/* Employee input for Asistencia en Prensa */} 
-
-                    <InputBox  
-
-                      label="Ejecutado por: *"  
-
-                      value={asistenciaData.empleado}  
-
-                      onChange={(e) => setAsistenciaData({...asistenciaData, empleado: e.target.value})}  
-
-                      placeholder="Nombre del empleado" 
-
-                      mt={12} 
-
-                    /> 
-
- 
-
-                    {/* Save button for Asistencia en Prensa */} 
-
-                    <button  
-
-                      onClick={handleSubmitAsistencia} 
-
-                      disabled={savingAsistencia} 
-
-                      style={{ 
-
-                        ...getButtonStyle(savingAsistencia, '#00c8ff'), 
-
-                        marginTop: 12 
-
-                      }} 
-
-                    >  
-
-                      {savingAsistencia ? 'Guardando...' : 'Guardar Asistencia'} 
-
-                    </button>  
-
-                  </div>  
+                  <span style={{ color: '#64ff64', fontSize: 11, fontWeight: 600 }}>{h.nivel_setup}</span>  
 
                 </div>  
 
-              ) : (  
+              )}  
 
-                <div style={styles.historyContainer}>  
+              {h.grupo && (  
 
-                  {loadingHistory ? (  
+                <div style={{ background: 'rgba(100,200,255,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,200,255,0.2)' }}>  
 
-                    <div className="loading" style={styles.historyLoading}>Cargando historial...</div>  
+                  <span style={{ color: '#888', fontSize: 9 }}>Grupo: </span>  
 
-                  ) : history.length > 0 ? (  
-
-                    <div style={styles.historyList}>  
-
-                      {history.map((h, i) => (  
-
-                        <div key={i} style={{ 
-
-                          ...styles.historyItem, 
-
-                          borderLeft: `3px solid ${h.tipo_registro === 'asistencia_prensa' ? '#00c8ff' : '#00ff88'}` 
-
-                        }}>  
-
-                          <div style={styles.historyItemHeader}>  
-
-                            <span style={{ 
-
-                              ...styles.historyItemType, 
-
-                              color: h.tipo_registro === 'asistencia_prensa' ? '#00c8ff' : '#00ff88' 
-
-                            }}> 
-
-                              {h.tipo_registro === 'asistencia_prensa' ? 'Asistencia' : 'Baja Troquel'}: {h.action_type} 
-
-                            </span>  
-
-                            <span style={styles.historyItemDate}>{new Date(h.created_at).toLocaleString()}</span>  
-
-                          </div>  
-
-                          {h.falla_description && ( 
-
-                            <div style={styles.historyItemFalla}>Falla: {h.falla_description}</div> 
-
-                          )} 
-
-                          {h.motivo_description && ( 
-
-                            <div style={{ fontSize: 10, color: '#00c8ff', marginTop: 4 }}> 
-
-                              Motivo: {h.motivo_description} 
-
-                            </div> 
-
-                          )} 
-
-                          {h.comentarios && ( 
-
-                            <div style={styles.historyItemComment}>{h.comentarios}</div> 
-
-                          )} 
-
-                          {h.empleado && ( 
-
-                            <div style={{  
-
-                              marginTop: 6,  
-
-                              fontSize: 10,  
-
-                              color: '#ffc800', 
-
-                              display: 'flex', 
-
-                              alignItems: 'center', 
-
-                              gap: 4 
-
-                            }}> 
-
-                              <span>👤</span> 
-
-                              <span>{h.empleado}</span> 
-
-                            </div> 
-
-                          )} 
-
-                          {(h.nivel_setup || h.grupo) && ( 
-
-                            <div style={{  
-
-                              marginTop: 4,  
-
-                              fontSize: 9,  
-
-                              color: '#888', 
-
-                              display: 'flex', 
-
-                              gap: 12 
-
-                            }}> 
-
-                              {h.nivel_setup && <span>Nivel: {h.nivel_setup}</span>} 
-
-                              {h.grupo && <span>Grupo: {h.grupo}</span>} 
-
-                            </div> 
-
-                          )} 
-
-                        </div>  
-
-                      ))}  
-
-                    </div>  
-
-                  ) : (  
-
-                    <div style={styles.historyEmpty}>No hay historial disponible</div>  
-
-                  )}  
+                  <span style={{ color: '#64c8ff', fontSize: 11, fontWeight: 600 }}>{h.grupo}</span>  
 
                 </div>  
 
@@ -1402,475 +1244,1370 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
 
             </div>  
 
-          </div>  
+          )}  
 
         </div>  
 
+      </div>  
+
+    );  
+
+  };  
+
  
 
-        {/* Footer */}  
+  return (   
 
-        <div style={styles.modalFooter}>  
+    <div onClick={onClose} style={modalStyles.overlay}>   
 
-          <div style={styles.modalFooterIcon}>  
+      <div onClick={e => e.stopPropagation()} style={modalStyles.modal}>   
+
+        {/* Header */}   
+
+        <div style={{  
+
+          display: 'flex',  
+
+          justifyContent: 'space-between',  
+
+          alignItems: 'center',  
+
+          padding: '14px 20px',  
+
+          borderBottom: '1px solid rgba(0,255,136,0.2)',  
+
+          background: 'rgba(0,255,136,0.05)',  
+
+        }}>   
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>  
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>  
+
+              <span style={{ color: '#888', fontSize: 12 }}>Estatus:</span>   
+
+              <span style={{  
+
+                color: statusColor,  
+
+                fontWeight: 700,  
+
+                fontSize: 13,  
+
+                textShadow: `0 0 10px ${statusColor}`,  
+
+                textTransform: 'uppercase',  
+
+              }}>{item.status}</span>  
+
+            </div>  
+
+            <div style={{  
+
+              background: 'rgba(255,200,0,0.15)',  
+
+              border: '1px solid rgba(255,200,0,0.3)',  
+
+              borderRadius: 6,  
+
+              padding: '4px 12px',  
+
+              fontSize: 11,  
+
+              color: '#ffc800',  
+
+            }}>  
+
+              ⚠️ Al guardar, el estado cambiará a "Reparando"  
+
+            </div>  
+
+          </div>  
+
+          <button onClick={onClose} style={{  
+
+            background: 'transparent',  
+
+            border: 'none',  
+
+            color: '#888',  
+
+            fontSize: 24,  
+
+            cursor: 'pointer',  
+
+            padding: '0 8px',  
+
+            lineHeight: 1,  
+
+          }}>×</button>   
+
+        </div>   
+
+ 
+
+        {/* Contenido */}   
+
+        <div style={modalStyles.content}>   
+
+          {/* Panel izquierdo */}   
+
+          <div style={modalStyles.leftPanel}>   
+
+            {/* Image from database or placeholder */}  
+
+            <div style={{  
+
+              width: '100%',  
+
+              height: '140px',  
+
+              borderRadius: 8,  
+
+              overflow: 'hidden',  
+
+              marginBottom: 12,  
+
+              border: '1px solid rgba(0,255,136,0.2)',  
+
+            }}>   
+
+              {hasImage ? (  
+
+                <img   
+
+                  src={item.imageUrl}   
+
+                  alt={`Troquel ${item.id}`}  
+
+                  onError={() => setImageError(true)}  
+
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}  
+
+                />  
+
+              ) : (  
+
+                <div style={{  
+
+                  width: '100%',  
+
+                  height: '100%',  
+
+                  display: 'flex',  
+
+                  flexDirection: 'column',  
+
+                  alignItems: 'center',  
+
+                  justifyContent: 'center',  
+
+                  background: 'rgba(0,0,0,0.3)',  
+
+                }}>  
+ 
+
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>Sin imagen</span>  
+
+                </div>  
+
+              )}  
+
+            </div>   
+
+ 
+
+            <div style={{  
+
+              textAlign: 'center',  
+
+              marginBottom: 12,  
+
+              padding: '10px',  
+
+              background: 'rgba(0,255,136,0.1)',  
+
+              borderRadius: 8,  
+
+              border: '1px solid rgba(0,255,136,0.2)',  
+
+            }}>   
+
+              <div style={{ color: '#00ff88', fontSize: 22, fontWeight: 800, textShadow: '0 0 20px rgba(0,255,136,0.5)' }}>{item.id}</div>   
+
+              <div style={{ color: '#888', fontSize: 12 }}>{item.model || '-'}</div>   
+
+            </div>   
+
+ 
+
+            <div style={{  
+
+              background: 'rgba(0,0,0,0.3)',  
+
+              borderRadius: 8,  
+
+              border: '1px solid rgba(0,255,136,0.15)',  
+
+              overflow: 'hidden',  
+
+              marginBottom: 12,  
+
+            }}>   
+
+              <div style={{  
+
+                background: 'rgba(0,255,136,0.1)',  
+
+                padding: '8px 12px',  
+
+                fontSize: 11,  
+
+                fontWeight: 600,  
+
+                color: '#00ff88',  
+
+                textTransform: 'uppercase',  
+
+                letterSpacing: 0.5,  
+
+              }}>Información del Troquel</div>   
+
+              <div style={{ padding: '8px 12px' }}>   
+
+                {[   
+
+                  ['Golpes:', item.golpes],    
+
+                  ['Golpes Acum:', item.golpesAcum],    
+
+                  ['Capacidad:', item.capacidadGolpes],    
+
+                  ['Rectificaciones:', item.rectificaciones]   
+
+                ].map(([l, v], i) => (   
+
+                  <div key={i} style={{  
+
+                    display: 'flex',  
+
+                    justifyContent: 'space-between',  
+
+                    padding: '4px 0',  
+
+                    borderBottom: i < 3 ? '1px solid rgba(0,255,136,0.1)' : 'none',  
+
+                  }}>   
+
+                    <span style={{ color: '#888', fontSize: 10 }}>{l}</span>   
+
+                    <span style={{ color: '#fff', fontSize: 10, fontWeight: 500 }}>{v || '-'}</span>   
+
+                  </div>   
+
+                ))}   
+
+              </div>   
+
+            </div>   
+
+          </div>   
+
+ 
+
+          {/* Panel derecho */}   
+
+          <div style={modalStyles.rightPanel}>   
+
+            <div style={{  
+
+              display: 'flex',  
+
+              borderBottom: '1px solid rgba(0,255,136,0.2)',  
+
+            }}>   
+
+              {['acciones', 'historial'].map(tab => (   
+
+                <button    
+
+                  key={tab}    
+
+                  className="tab-btn"    
+
+                  onClick={() => setActiveTab(tab)}    
+
+                  style={{  
+
+                    flex: 1,  
+
+                    padding: '12px 20px',  
+
+                    background: activeTab === tab ? 'rgba(0,255,136,0.1)' : 'transparent',  
+
+                    border: 'none',  
+
+                    borderBottom: activeTab === tab ? '2px solid #00ff88' : '2px solid transparent',  
+
+                    color: activeTab === tab ? '#00ff88' : '#888',  
+
+                    fontSize: 12,  
+
+                    fontWeight: 600,  
+
+                    textTransform: 'uppercase',  
+
+                    letterSpacing: 1,  
+
+                    cursor: 'pointer',  
+
+                    transition: 'all 0.2s ease',  
+
+                  }}   
+
+                >   
+
+                  {tab}   
+
+                </button>   
+
+              ))}   
+
+            </div>   
+
+ 
+
+            <div style={modalStyles.tabContent}>   
+
+              {activeTab === 'acciones' ? (   
+
+                <div style={modalStyles.actionsForm}>   
+
+                  {/* LEFT COLUMN - Bajar Troquel */}  
+
+                  <div style={modalStyles.actionsColumn}>   
+
+                    <div style={{  
+
+                      background: 'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.1))',  
+
+                      border: '1px solid rgba(0,255,136,0.3)',  
+
+                      borderRadius: 8,  
+
+                      padding: '10px 14px',  
+
+                      marginBottom: 12,  
+
+                    }}>   
+
+                      <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Bajar Troquel por:</span>   
+
+                    </div>   
+
+ 
+
+                    {/* Folio input */}  
+
+                    <InputBox   
+
+                      label="Folio: *"   
+
+                      value={bajaTroquelData.folio}   
+
+                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, folio: e.target.value})}   
+
+                      placeholder="Número de folio"  
+
+                    />  
+
+ 
+
+                    {/* Action type radio buttons */}  
+
+                    <div style={{ marginTop: 10 }}>  
+
+                      {[   
+
+                        { id: 'limpieza', label: 'Limpieza General' },    
+
+                        { id: 'cambio', label: 'Cambio de Modelo', select: true },    
+
+                        { id: 'falla', label: 'Falla de Troquel', select: true }   
+
+                      ].map(opt => (   
+
+                        <label key={opt.id} style={{  
+
+                          display: 'block',  
+
+                          padding: '8px 10px',  
+
+                          marginBottom: 4,  
+
+                          background: action === opt.id ? 'rgba(0,255,136,0.1)' : 'transparent',  
+
+                          border: `1px solid ${action === opt.id ? 'rgba(0,255,136,0.3)' : 'rgba(255,255,255,0.1)'}`,  
+
+                          borderRadius: 6,  
+
+                          cursor: 'pointer',  
+
+                          transition: 'all 0.2s ease',  
+
+                        }}>   
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>   
+
+                            <input    
+
+                              type="radio"    
+
+                              name="act"    
+
+                              checked={action === opt.id}    
+
+                              onChange={() => setAction(opt.id)}    
+
+                              style={{ accentColor: '#00ff88' }}    
+
+                            />   
+
+                            <span style={{ color: '#fff', fontSize: 11 }}>{opt.label}</span>   
+
+                          </div>   
+
+ 
+
+                          {opt.select && action === opt.id && (   
+
+                            <select    
+
+                              className="form-el"    
+
+                              value={opt.id === 'cambio' ? bajaTroquelData.modelo_nuevo : bajaTroquelData.falla_id}   
+
+                              onChange={(e) => setBajaTroquelData({  
+
+                                ...bajaTroquelData,   
+
+                                [opt.id === 'cambio' ? 'modelo_nuevo' : 'falla_id']: e.target.value  
+
+                              })}   
+
+                              style={{  
+
+                                width: '100%',  
+
+                                marginTop: 8,  
+
+                                padding: '6px 8px',  
+
+                                background: 'rgba(0,0,0,0.3)',  
+
+                                border: '1px solid rgba(0,255,136,0.3)',  
+
+                                borderRadius: 4,  
+
+                                color: '#fff',  
+
+                                fontSize: 10,  
+
+                              }}   
+
+                            >   
+
+                              {opt.id === 'cambio' ? (   
+
+                                <option value="">Seleccionar Modelo</option>   
+
+                              ) : (   
+
+                                <>   
+
+                                  <option value="">Seleccionar Falla</option>   
+
+                                  {fallas.map(f => (   
+
+                                    <option key={f.id} value={f.id}>{f.description}</option>   
+
+                                  ))}   
+
+                                </>   
+
+                              )}   
+
+                            </select>   
+
+                          )}   
+
+                        </label>   
+
+                      ))}   
+
+                    </div>  
+
+ 
+
+                    {/* Two columns for Nivel and Grupo */}  
+
+                    <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>  
+
+                      <div style={{ flex: 1 }}>  
+
+                        <SelectBox   
+
+                          label="Nivel:"   
+
+                          value={bajaTroquelData.nivel_setup}   
+
+                          onChange={(e) => setBajaTroquelData({...bajaTroquelData, nivel_setup: e.target.value})}  
+
+                        >   
+
+                          <option value="">Seleccionar</option>   
+
+                          <option value="1">Nivel 1</option>   
+
+                          <option value="2">Nivel 2</option>   
+
+                          <option value="3">Nivel 3</option>   
+
+                        </SelectBox>  
+
+                      </div>  
+
+                      <div style={{ flex: 1 }}>  
+
+                        <SelectBox   
+
+                          label="Grupo:"   
+
+                          value={bajaTroquelData.grupo}   
+
+                          onChange={(e) => setBajaTroquelData({...bajaTroquelData, grupo: e.target.value})}  
+
+                        >   
+
+                          <option value="1">1</option>   
+
+                          <option value="2">2</option>   
+
+                          <option value="3">3</option>   
+
+                        </SelectBox>  
+
+                      </div>  
+
+                    </div>  
+
+ 
+
+                    <TextArea   
+
+                      label="Comentarios:"   
+
+                      value={bajaTroquelData.comentarios}   
+
+                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, comentarios: e.target.value})}   
+
+                      h={50}   
+
+                      mt={10}   
+
+                    />   
+
+ 
+
+                    <InputBox   
+
+                      label="Ejecutado por: *"   
+
+                      value={bajaTroquelData.empleado}   
+
+                      onChange={(e) => setBajaTroquelData({...bajaTroquelData, empleado: e.target.value})}   
+
+                      placeholder="Nombre del empleado"  
+
+                      mt={10}  
+
+                    />  
+
+ 
+
+                    <button   
+
+                      onClick={handleSubmitBajaTroquel}   
+
+                      disabled={savingBaja}  
+
+                      style={getButtonStyle(savingBaja)}  
+
+                    >   
+
+                      {savingBaja ? 'Guardando...' : 'Guardar Baja Troquel'}  
+
+                    </button>  
+
+                  </div>   
+
+ 
+
+                  {/* RIGHT COLUMN - Asistencia en Prensa */}  
+
+                  <div style={modalStyles.actionsColumn}>   
+
+                    <div style={{  
+
+                      background: 'linear-gradient(135deg, rgba(0,200,255,0.2), rgba(0,200,255,0.1))',  
+
+                      border: '1px solid rgba(0,200,255,0.3)',  
+
+                      borderRadius: 8,  
+
+                      padding: '10px 14px',  
+
+                      marginBottom: 12,  
+
+                    }}>   
+
+                      <span style={{ color: '#00c8ff', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Asistencia en Prensa:</span>   
+
+                    </div>   
+
+ 
+
+                    {/* Folio input */}  
+
+                    <InputBox   
+
+                      label="Folio: *"   
+
+                      value={asistenciaData.folio}   
+
+                      onChange={(e) => setAsistenciaData({...asistenciaData, folio: e.target.value})}   
+
+                      placeholder="Número de folio"  
+
+                    />  
+
+ 
+
+                    <SelectBox   
+
+                      label="Motivo: *"   
+
+                      value={asistenciaData.motivo}   
+
+                      onChange={(e) => setAsistenciaData({...asistenciaData, motivo: e.target.value})}  
+
+                      mt={10}  
+
+                    >  
+
+                      <option value="">Seleccionar Motivo</option>  
+
+                      {asistenciaMotivos.map(m => (  
+
+                        <option key={m.id} value={m.id}>{m.description}</option>  
+
+                      ))}  
+
+                    </SelectBox>  
+
+ 
+
+                    <TextArea   
+
+                      label="Comentarios (Supervisor / Operador):"   
+
+                      value={asistenciaData.comentarios}   
+
+                      onChange={(e) => setAsistenciaData({...asistenciaData, comentarios: e.target.value})}   
+
+                      h={120}   
+
+                      mt={10}   
+
+                    />  
+
+ 
+
+                    <InputBox   
+
+                      label="Ejecutado por: *"   
+
+                      value={asistenciaData.empleado}   
+
+                      onChange={(e) => setAsistenciaData({...asistenciaData, empleado: e.target.value})}   
+
+                      placeholder="Nombre del empleado"  
+
+                      mt={10}  
+
+                    />  
+
+ 
+
+                    <button   
+
+                      onClick={handleSubmitAsistencia}  
+
+                      disabled={savingAsistencia}  
+
+                      style={getButtonStyle(savingAsistencia, '#00c8ff')}  
+
+                    >   
+
+                      {savingAsistencia ? 'Guardando...' : 'Guardar Asistencia'}  
+
+                    </button>   
+
+                  </div>   
+
+                </div>   
+
+              ) : (   
+
+                /* HISTORY TAB */  
+
+                <div style={{ height: '100%', overflowY: 'auto', padding: '4px' }}>  
+
+                  {loadingHistory ? (   
+
+                    <div style={{  
+
+                      display: 'flex',  
+
+                      alignItems: 'center',  
+
+                      justifyContent: 'center',  
+
+                      height: '100%',  
+
+                      color: '#00ff88',  
+
+                      fontSize: 14,  
+
+                    }}>  
+
+                      <div style={{ textAlign: 'center' }}>  
+
+                        <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>  
+
+                        Cargando historial...  
+
+                      </div>  
+
+                    </div>  
+
+                  ) : history.length > 0 ? (   
+
+                    <div>  
+
+                      <div style={{  
+
+                        display: 'flex',  
+
+                        justifyContent: 'space-between',  
+
+                        alignItems: 'center',  
+
+                        marginBottom: 14,  
+
+                        padding: '10px 14px',  
+
+                        background: 'rgba(255,255,255,0.05)',  
+
+                        borderRadius: 8,  
+
+                      }}>  
+
+                        <span style={{ color: '#fff', fontSize: 12, fontWeight: 600 }}>  
+
+                           Total: {history.length} registros  
+
+                        </span>  
+
+                        <div style={{ display: 'flex', gap: 12 }}>  
+
+                          <span style={{ color: '#00ff88', fontSize: 11 }}>  
+
+                             Bajas: {history.filter(h => h.tipo_registro === 'baja_troquel').length}  
+
+                          </span>  
+
+                          <span style={{ color: '#00c8ff', fontSize: 11 }}>  
+
+                            Asistencias: {history.filter(h => h.tipo_registro === 'asistencia_prensa').length}  
+
+                          </span>  
+
+                        </div>  
+
+                      </div>  
+
+ 
+
+                      {history.map((h, i) => (  
+
+                        <HistoryItem key={h.id || i} h={h} />  
+
+                      ))}  
+
+                    </div>  
+
+                  ) : (   
+
+                    <div style={{  
+
+                      display: 'flex',  
+
+                      alignItems: 'center',  
+
+                      justifyContent: 'center',  
+
+                      height: '100%',  
+
+                      color: 'rgba(255,255,255,0.3)',  
+
+                      fontSize: 14,  
+
+                    }}>  
+
+                      <div style={{ textAlign: 'center' }}>  
+
+                        <div>No hay historial disponible</div>  
+
+                        <div style={{ fontSize: 12, marginTop: 8, color: 'rgba(255,255,255,0.2)' }}>  
+
+                          Los registros aparecerán aquí después de guardar acciones  
+
+                        </div>  
+
+                      </div>  
+
+                    </div>  
+
+                  )}   
+
+                </div>   
+
+              )}   
+
+            </div>   
+
+          </div>   
+
+        </div>   
+
+ 
+
+        {/* Footer */}   
+
+        <div style={{  
+
+          display: 'flex',  
+
+          justifyContent: 'space-between',  
+
+          alignItems: 'center',  
+
+          padding: '12px 20px',  
+
+          borderTop: '1px solid rgba(0,255,136,0.2)',  
+
+          background: 'rgba(0,0,0,0.2)',  
+
+        }}>   
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>  
 
             <span style={{ fontSize: 14 }}>⚙</span>  
 
+            <span style={{ color: '#888', fontSize: 11 }}>E-Kanban Tool Room</span>  
+
           </div>  
 
-          <button className="close-btn" onClick={onClose} style={styles.modalCloseBtn}>  
+          <button onClick={onClose} style={{  
 
-            Cerrar (Esc)  
+            background: 'rgba(255,255,255,0.1)',  
 
-          </button>  
+            border: '1px solid rgba(255,255,255,0.2)',  
 
-        </div>  
+            borderRadius: 6,  
 
-      </div>  
+            padding: '8px 20px',  
 
-    </div>  
+            color: '#fff',  
 
-  );  
+            fontSize: 11,  
 
-});  
+            cursor: 'pointer',  
 
- 
+            transition: 'all 0.2s ease',  
 
-// Componente principal del ekanban  
+          }}>   
 
-const EKanban = ({ onLogoClick }) => {  
+            Cerrar (Esc)   
 
-  const [selectedItem, setSelectedItem] = useState(null);  
+          </button>   
 
-  const [searchQuery, setSearchQuery] = useState('');  
+        </div>   
 
-  const [troqueles, setTroqueles] = useState({});  
+      </div>   
 
-  const [priorityRepairs, setPriorityRepairs] = useState([]);  
+    </div>   
 
-  const [troquelesSum, setTroquelesSum] = useState([]);  
+  );   
 
-  const [fallas, setFallas] = useState([]); 
-
-  const [asistenciaMotivos, setAsistenciaMotivos] = useState([]); 
-
-  const [loading, setLoading] = useState(true);  
-
-  const [error, setError] = useState(null); 
-
-  const [logoHovered, setLogoHovered] = useState(false); 
+});   
 
  
 
-  const fetchData = useCallback(async () => {  
+// Componente principal del ekanban   
 
-    try {  
+const EKanban = ({ onLogoClick }) => {   
 
-      setLoading(true);  
+  const [selectedItem, setSelectedItem] = useState(null);   
 
-      const [troquelsRes, priorityRes, summaryRes, fallasRes, asistenciaRes] = await Promise.all([  
+  const [searchQuery, setSearchQuery] = useState('');   
 
-        fetch(`${API_BASE}/troqueles`),  
+  const [troqueles, setTroqueles] = useState({});   
 
-        fetch(`${API_BASE}/priority-repairs`),  
+  const [priorityRepairs, setPriorityRepairs] = useState([]);   
 
-        fetch(`${API_BASE}/troqueles-summary`),  
+  const [troquelesSum, setTroquelesSum] = useState([]);   
 
-        fetch(`${API_BASE}/fallas`), 
+  const [fallas, setFallas] = useState([]);  
 
-        fetch(`${API_BASE}/asistencia-prensa`) 
+  const [asistenciaMotivos, setAsistenciaMotivos] = useState([]);  
+
+  const [loading, setLoading] = useState(true);   
+
+  const [error, setError] = useState(null);  
+
+  const [logoHovered, setLogoHovered] = useState(false);  
+
+ 
+
+  const fetchData = useCallback(async () => {   
+
+    try {   
+
+      setLoading(true);   
+
+      const [troquelsRes, priorityRes, summaryRes, fallasRes, asistenciaRes] = await Promise.all([   
+
+        fetch(`${API_BASE}/troqueles`),   
+
+        fetch(`${API_BASE}/priority-repairs`),   
+
+        fetch(`${API_BASE}/troqueles-summary`),   
+
+        fetch(`${API_BASE}/fallas`),  
+
+        fetch(`${API_BASE}/asistencia-prensa`)  
+
+      ]);   
+
+ 
+
+      if (!troquelsRes.ok || !priorityRes.ok || !summaryRes.ok || !fallasRes.ok) {   
+
+        throw new Error('Failed to fetch data');   
+
+      }   
+
+ 
+
+      const [troquelsData, priorityData, summaryData, fallasData, asistenciaData] = await Promise.all([   
+
+        troquelsRes.json(),   
+
+        priorityRes.json(),   
+
+        summaryRes.json(),   
+
+        fallasRes.json(),  
+
+        asistenciaRes.ok ? asistenciaRes.json() : []  
+
+      ]);   
+
+ 
+
+      setTroqueles(troquelsData);   
+
+      setPriorityRepairs(priorityData);   
+
+      setTroquelesSum(summaryData);   
+
+      setFallas(fallasData);  
+
+      setAsistenciaMotivos(asistenciaData);  
+
+      setError(null);   
+
+ 
+
+    } catch (err) {   
+
+      console.error('Error fetching data:', err);   
+
+      setError('Error connecting to server. Using fallback data.');   
+
+ 
+
+      setTroqueles({   
+
+        2025: [   
+
+          { id: 'T951', name: 'Alpha', status: 'En prensa', model: 'G3-VSS', golpes: '257,540', golpesAcum: '121,442,752', capacidadGolpes: '250,000,000', rectificaciones: '15', prensas: [], imageUrl: null }   
+
+        ]   
+
+      });   
+
+ 
+
+      setPriorityRepairs([{ priority: 1, name: 'Alpha' }]);   
+
+ 
+
+      setTroquelesSum([   
+
+        { label: 'UP', count: '-', goal: '-', perf: '-' },    
+
+        { label: 'BACKUP', count: '-', goal: '-', perf: '-' },    
+
+        { label: 'TOTAL', count: '-', goal: '-', perf: '-' }   
+
+      ]);   
+
+ 
+
+      setFallas([]);  
+
+        
+
+      setAsistenciaMotivos([  
+
+        { id: 1, description: 'Mantenimiento' },  
+
+        { id: 2, description: 'Ajuste' },  
+
+        { id: 3, description: 'Otro' }  
 
       ]);  
 
  
 
-      if (!troquelsRes.ok || !priorityRes.ok || !summaryRes.ok || !fallasRes.ok) {  
+    } finally {   
 
-        throw new Error('Failed to fetch data');  
+      setLoading(false);   
 
-      }  
+    }   
 
- 
-
-      const [troquelsData, priorityData, summaryData, fallasData, asistenciaData] = await Promise.all([  
-
-        troquelsRes.json(),  
-
-        priorityRes.json(),  
-
-        summaryRes.json(),  
-
-        fallasRes.json(), 
-
-        asistenciaRes.ok ? asistenciaRes.json() : [] 
-
-      ]);  
+  }, []);   
 
  
 
-      setTroqueles(troquelsData);  
+  useEffect(() => {   
 
-      setPriorityRepairs(priorityData);  
+    injectStyles();   
 
-      setTroquelesSum(summaryData);  
+    fetchData();   
 
-      setFallas(fallasData); 
-
-      setAsistenciaMotivos(asistenciaData); 
-
-      setError(null);  
+  }, [fetchData]);   
 
  
 
-    } catch (err) {  
+  const handleItemClick = useCallback((item) => setSelectedItem(item), []);   
 
-      console.error('Error fetching data:', err);  
+  const handleClose = useCallback(() => setSelectedItem(null), []);   
 
-      setError('Error connecting to server. Using fallback data.');  
-
- 
-
-      // Información en caso de falla en conexión 
-
-      setTroqueles({  
-
-        2025: [  
-
-          { id: 'T951', name: 'Alpha', status: 'En prensa', model: 'G3-VSS', golpes: '257,540', golpesAcum: '121,442,752', capacidadGolpes: '250,000,000', rectificaciones: '15', prensas: [], imageUrl: null }  
-
-        ]  
-
-      });  
+  const years = Object.keys(troqueles).sort((a, b) => a - b);   
 
  
 
-      setPriorityRepairs([{ priority: 1, name: 'Alpha' }]);  
+  const handleLogoClickInternal = useCallback(() => {  
 
- 
+    if (onLogoClick) {  
 
-      setTroquelesSum([  
-
-        { label: 'UP', count: '-', goal: '-', perf: '-' },   
-
-        { label: 'BACKUP', count: '-', goal: '-', perf: '-' },   
-
-        { label: 'TOTAL', count: '-', goal: '-', perf: '-' }  
-
-      ]);  
-
- 
-
-      setFallas([]); 
-
-       
-
-      // Fallback asistencia motivos 
-
-      setAsistenciaMotivos([ 
-
-        { id: 1, description: 'Mantenimiento' }, 
-
-        { id: 2, description: 'Ajuste' }, 
-
-        { id: 3, description: 'Otro' } 
-
-      ]); 
-
- 
-
-    } finally {  
-
-      setLoading(false);  
+      onLogoClick();  
 
     }  
 
-  }, []);  
+  }, [onLogoClick]);  
 
  
 
-  useEffect(() => {  
+  // Determine which modal to show based on status 
 
-    injectStyles();  
-
-    fetchData();  
-
-  }, [fetchData]);  
+  const isEnPrensa = selectedItem?.status === 'En prensa'; 
 
  
 
-  const handleItemClick = useCallback((item) => setSelectedItem(item), []);  
+  return (   
 
-  const handleClose = useCallback(() => setSelectedItem(null), []);  
+    <div style={styles.container}>   
 
-  const years = Object.keys(troqueles).sort((a, b) => a - b);  
-
- 
-
-  // Manejo de click en logo para feedback visual 
-
-  const handleLogoClickInternal = useCallback(() => { 
-
-    if (onLogoClick) { 
-
-      onLogoClick(); 
-
-    } 
-
-  }, [onLogoClick]); 
+      <div style={styles.gridOverlay} />   
 
  
 
-  return (  
+      <header style={styles.header}>   
 
-    <div style={styles.container}>  
+        <div>   
 
-      {/* Overlay de grid */}  
+          <div    
 
-      <div style={styles.gridOverlay} />  
+            className="logo-btn"   
 
- 
+            onClick={handleLogoClickInternal}  
 
-      {/* Header */}  
+            onMouseEnter={() => setLogoHovered(true)}  
 
-      <header style={styles.header}>  
+            onMouseLeave={() => setLogoHovered(false)}  
 
-        {/* Se puede hacer clic en logo */}  
+            title="Acceso Administrativo - Click para iniciar sesión"   
 
-        <div>  
+            style={{  
 
-          <div   
+              ...styles.logoButton,  
 
-            className="logo-btn"  
+              transform: logoHovered ? 'scale(1.08)' : 'scale(1)',  
 
-            onClick={handleLogoClickInternal} 
+              boxShadow: logoHovered   
 
-            onMouseEnter={() => setLogoHovered(true)} 
+                ? '0 0 30px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.3)'   
 
-            onMouseLeave={() => setLogoHovered(false)} 
+                : '0 0 20px rgba(0,255,136,0.4)',  
 
-            title="Acceso Administrativo - Click para iniciar sesión"  
+              cursor: 'pointer',  
 
-            style={{ 
+              transition: 'all 0.3s ease',  
 
-              ...styles.logoButton, 
+            }}   
 
-              transform: logoHovered ? 'scale(1.08)' : 'scale(1)', 
+          >   
 
-              boxShadow: logoHovered  
+            <span style={{  
 
-                ? '0 0 30px rgba(0,255,136,0.6), 0 0 60px rgba(0,255,136,0.3)'  
+              ...styles.logoIcon,  
 
-                : '0 0 20px rgba(0,255,136,0.4)', 
+              fontSize: 22,  
 
-              cursor: 'pointer', 
+              fontWeight: 800,  
 
-              transition: 'all 0.3s ease', 
+              color: '#0a0f0d',  
 
-            }}  
+              textShadow: '0 1px 2px rgba(0,0,0,0.2)',  
 
-          >  
-
-            <span style={{ 
-
-              ...styles.logoIcon, 
-
-              fontSize: 22, 
-
-              fontWeight: 800, 
-
-              color: '#0a0f0d', 
-
-              textShadow: '0 1px 2px rgba(0,0,0,0.2)', 
-
-            }}>⚙</span> 
-
-          </div> 
-
-          {/* Tooltips de admin */} 
-
-          {logoHovered && ( 
-
-            <div style={{ 
-
-              position: 'absolute', 
-
-              top: '65px', 
-
-              left: '24px', 
-
-              background: 'rgba(0,20,10,0.95)', 
-
-              color: '#00ff88', 
-
-              padding: '8px 14px', 
-
-              borderRadius: 8, 
-
-              fontSize: 11, 
-
-              fontWeight: 500, 
-
-              border: '1px solid #00ff88', 
-
-              boxShadow: '0 0 20px rgba(0,255,136,0.4)', 
-
-              zIndex: 100, 
-
-              whiteSpace: 'nowrap', 
-
-              animation: 'fadeIn 0.2s ease', 
-
-            }}> 
-
-              Panel de Administración 
-
-              <div style={{ 
-
-                position: 'absolute', 
-
-                top: -6, 
-
-                left: 20, 
-
-                width: 0, 
-
-                height: 0, 
-
-                borderLeft: '6px solid transparent', 
-
-                borderRight: '6px solid transparent', 
-
-                borderBottom: '6px solid #00ff88', 
-
-              }} /> 
-
-            </div> 
-
-          )} 
-
-        </div>  
-
- 
-
-        <h1 style={styles.title}>  
-
-          <span style={styles.titleHighlight}>E-Kanban</span> Tool Room  
-
-        </h1>  
-
- 
-
-        <div style={styles.searchContainer}>  
-
-          <div style={styles.searchWrapper}>  
-
-            <input  
-
-              type="text"  
-
-              className="search-input"  
-
-              style={styles.searchInput}  
-
-              placeholder="Buscar maquinas o troqueles..."  
-
-              value={searchQuery}  
-
-              onChange={e => setSearchQuery(e.target.value)}  
-
-            />  
+            }}>⚙</span>  
 
           </div>  
 
-        </div>  
+          {logoHovered && (  
 
-      </header>  
+            <div style={{  
+
+              position: 'absolute',  
+
+              top: '65px',  
+
+              left: '24px',  
+
+              background: 'rgba(0,20,10,0.95)',  
+
+              color: '#00ff88',  
+
+              padding: '8px 14px',  
+
+              borderRadius: 8,  
+
+              fontSize: 11,  
+
+              fontWeight: 500,  
+
+              border: '1px solid #00ff88',  
+
+              boxShadow: '0 0 20px rgba(0,255,136,0.4)',  
+
+              zIndex: 100,  
+
+              whiteSpace: 'nowrap',  
+
+              animation: 'fadeIn 0.2s ease',  
+
+            }}>  
+
+              Panel de Administración  
+
+              <div style={{  
+
+                position: 'absolute',  
+
+                top: -6,  
+
+                left: 20,  
+
+                width: 0,  
+
+                height: 0,  
+
+                borderLeft: '6px solid transparent',  
+
+                borderRight: '6px solid transparent',  
+
+                borderBottom: '6px solid #00ff88',  
+
+              }} />  
+
+            </div>  
+
+          )}  
+
+        </div>   
 
  
 
-      {/* Error */}  
+        <h1 style={styles.title}>   
 
-      {error && (  
+          <span style={styles.titleHighlight}>E-Kanban</span> Tool Room   
 
-        <div style={styles.errorBanner}>  
-
-          {error}  
-
-        </div>  
-
-      )}  
+        </h1>   
 
  
 
-      {/* Kanban */}  
+        <div style={styles.searchContainer}>   
 
-      <div className="kanban-scroll" style={styles.kanbanScroll}>  
+          <div style={styles.searchWrapper}>   
 
-        {loading ? (  
+            <input   
 
-          <div className="loading" style={styles.loadingContainer}>  
+              type="text"   
 
-            Cargando Información...  
+              className="search-input"   
 
-          </div>  
+              style={styles.searchInput}   
 
-        ) : (  
+              placeholder="Buscar maquinas o troqueles..."   
 
-          <div style={styles.kanbanContainer}>  
+              value={searchQuery}   
 
-            {years.map(year => (  
+              onChange={e => setSearchQuery(e.target.value)}   
 
-              <KanbanColumn key={year} year={year} items={troqueles[year] || []} onItemClick={handleItemClick} />  
+            />   
 
-            ))}  
+          </div>   
 
-          </div>  
+        </div>   
 
-        )}  
-
-      </div>  
+      </header>   
 
  
 
-      {/* Paneles inferiores */}  
+      {error && (   
 
-      <div style={styles.bottomPanels}>  
+        <div style={styles.errorBanner}>   
 
-        <TroquelesTable data={troquelesSum} />  
+          {error}   
 
-        <PriorityRepairs data={priorityRepairs} />  
+        </div>   
 
-        <StatusLegend />  
-
-      </div>  
+      )}   
 
  
 
-      {/* Modal */}  
+      <div className="kanban-scroll" style={styles.kanbanScroll}>   
+
+        {loading ? (   
+
+          <div className="loading" style={styles.loadingContainer}>   
+
+            Cargando Información...   
+
+          </div>   
+
+        ) : (   
+
+          <div style={styles.kanbanContainer}>   
+
+            {years.map(year => (   
+
+              <KanbanColumn key={year} year={year} items={troqueles[year] || []} onItemClick={handleItemClick} />   
+
+            ))}   
+
+          </div>   
+
+        )}   
+
+      </div>   
+
+ 
+
+      <div style={styles.bottomPanels}>   
+
+        <TroquelesTable data={troquelesSum} />   
+
+        <PriorityRepairs data={priorityRepairs} />   
+
+        <StatusLegend />   
+
+      </div>   
+
+ 
+
+      {/* Conditional Modal Rendering based on status */} 
 
       {selectedItem && ( 
 
-        <DetailModal  
+        isEnPrensa ? ( 
 
-          item={selectedItem}  
+          // Show DetailModal for "En prensa" status 
 
-          fallas={fallas}  
+          <DetailModal   
 
-          asistenciaMotivos={asistenciaMotivos} 
+            item={selectedItem}   
 
-          onClose={handleClose}  
+            fallas={fallas}   
 
-          onSaveAction={fetchData}  
+            asistenciaMotivos={asistenciaMotivos}  
 
-        /> 
+            onClose={handleClose}   
 
-      )}  
+            onSaveAction={fetchData}   
 
-    </div>  
+          /> 
 
-  );  
+        ) : ( 
 
-};  
+          // Show RepairModal for all other statuses 
+
+          <RepairModal 
+
+            item={selectedItem} 
+
+            fallas={fallas} 
+
+            onClose={handleClose} 
+
+            onSaveAction={fetchData} 
+
+          /> 
+
+        ) 
+
+      )} 
+
+    </div>   
+
+  );   
+
+};   
 
  
 
