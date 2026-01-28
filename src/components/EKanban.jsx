@@ -1,461 +1,232 @@
- 
-
 import React, { useState, useEffect, memo, useCallback } from 'react';   
 
- 
-
 import {    
-
   statusColors,    
-
   statuses,    
-
   injectStyles,    
-
   styles    
-
 } from '../styles/EKanban.styles';   
 
- 
-
 // Import the new RepairModal component 
-
 import RepairModal from './RepairModal'; 
 
- 
-
 const API_BASE = 'http://localhost:3001/api';   
-
 const MAX_ITEMS = 8;   
 
- 
-
 // Item del componente de kanban  
-
 const KanbanItem = memo(({ item, onClick }) => {   
-
   const [hovered, setHovered] = useState(false);   
-
- 
-
   return (   
-
     <div   
-
       className="ki"   
-
       onClick={() => onClick(item)}   
-
       onMouseEnter={() => setHovered(true)}   
-
       onMouseLeave={() => setHovered(false)}   
-
       style={styles.kanbanItem}   
-
     >   
 
       {hovered && (   
-
         <div style={styles.kanbanItemTooltip}>   
-
           {item.id} - {item.name}   
-
           <div style={styles.kanbanItemTooltipArrow} />   
-
         </div>   
-
       )}   
-
       <div style={styles.kanbanItemId}>{item.id}</div>   
-
       <div style={styles.kanbanItemName}>{item.name}</div>   
-
     </div>   
-
   );   
-
 });   
 
- 
-
 // Columna del componente de kanban  
-
 const KanbanColumn = memo(({ year, items, onItemClick }) => {   
-
   const display = items.slice(0, MAX_ITEMS);   
-
   return (   
-
     <div className="col-card" style={styles.column}>   
-
       <div style={styles.columnHeader}>   
-
         <span>{year}</span>   
-
         <span style={styles.columnCount}>{items.length}</span>   
-
       </div>   
-
       <div style={styles.columnItems}>   
-
         {display.length > 0 ? display.map(item => (   
-
           <KanbanItem key={item.id} item={item} onClick={onItemClick} />   
-
         )) : (   
-
-         <div style={styles.columnEmpty}>No items</div>   
-
+          <div style={styles.columnEmpty}>No items</div>   
         )}   
 
         {items.length > MAX_ITEMS && (   
-
           <div style={styles.columnMore}>   
-
             +{items.length - MAX_ITEMS} more   
-
           </div>   
-
         )}   
-
       </div>   
-
     </div>   
-
   );   
-
 });   
 
- 
-
 // Componente de tabla de troqueles   
-
 const TroquelesTable = memo(({ data }) => (   
-
   <div style={styles.panel}>   
-
     <h3 style={styles.panelTitle}>Troqueles</h3>   
-
     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>   
-
       <thead>   
-
         <tr>   
-
           {['', '#', 'GOAL', 'PERF'].map((h, i) => (   
-
             <th key={i} style={{    
-
               ...styles.tableHeader,    
-
               textAlign: i === 0 ? 'left' : 'center'    
-
             }}>{h}</th>   
-
           ))}   
-
         </tr>   
-
       </thead>   
-
       <tbody>   
-
         {data.map((r, i) => (   
-
           <tr key={r.label} style={{ borderBottom: i < 2 ? '1px solid rgba(0,255,136,0.1)' : 'none' }}>   
-
             <td style={{ ...styles.tableCell, fontWeight: 600, color: '#fff' }}>{r.label}</td>   
-
             <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.count}</td>   
-
             <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.goal}</td>   
-
             <td style={{ ...styles.tableCell, textAlign: 'center', color: '#ccc' }}>{r.perf}</td>   
-
           </tr>   
-
         ))}   
-
       </tbody>   
-
     </table>   
-
   </div>   
-
 ));   
-
- 
 
 // Componente de prioridades de reparacion  
-
 const PriorityRepairs = memo(({ data }) => (   
-
   <div style={{ ...styles.panel, ...styles.priorityPanel }}>   
-
     <h3 style={{ ...styles.panelTitle, ...styles.priorityTitle }}>   
-
       <span style={styles.priorityIndicator} />   
-
       Prioridad de Reparación   
-
     </h3>   
-
     <div style={styles.priorityItems}>   
-
       {data.map(item => (   
-
         <div key={item.priority} className="pri" style={styles.priorityItem}>   
-
           <span style={styles.priorityBadge(item.priority)}>{item.priority}</span>   
-
           <span style={styles.priorityName}>{item.name}</span>   
-
         </div>   
-
       ))}   
-
     </div>   
-
   </div>   
-
 ));   
-
- 
 
 // Componente de leyenda de estatus   
-
 const StatusLegend = memo(() => (   
-
   <div style={styles.panel}>   
-
     <h3 style={styles.panelTitle}>Estado</h3>   
-
     <div style={styles.statusGrid}>   
-
       {statuses.map(s => (   
-
         <div key={s.name} style={styles.statusItem}>   
-
           <div style={styles.statusColor(s.color)} />   
-
           <span style={styles.statusName}>{s.name}</span>   
-
         </div>   
-
       ))}   
-
     </div>   
-
   </div>   
-
 ));   
 
- 
-
 // Custom modal styles for larger modal  
-
 const modalStyles = {  
-
   overlay: {  
-
     position: 'fixed',  
-
     top: 0,  
-
     left: 0,  
-
     right: 0,  
-
     bottom: 0,  
-
     background: 'rgba(0,0,0,0.85)',  
-
     backdropFilter: 'blur(8px)',  
-
     display: 'flex',  
-
     alignItems: 'center',  
-
     justifyContent: 'center',  
-
     zIndex: 1000,  
-
     padding: '20px',  
-
   },  
-
   modal: {  
-
     background: 'linear-gradient(145deg, rgba(15,25,20,0.98), rgba(10,15,13,0.98))',  
-
     borderRadius: 16,  
-
     border: '1px solid rgba(0,255,136,0.3)',  
-
     boxShadow: '0 0 60px rgba(0,255,136,0.2), 0 25px 50px rgba(0,0,0,0.5)',  
-
     width: '95vw',  
-
     maxWidth: '1400px',  
-
     height: '90vh',  
-
     maxHeight: '850px',  
-
     display: 'flex',  
-
     flexDirection: 'column',  
-
     overflow: 'hidden',  
-
   },  
-
   content: {  
-
     display: 'flex',  
-
     flex: 1,  
-
     overflow: 'hidden',  
-
     gap: 0,  
-
   },  
-
   leftPanel: {  
-
     width: '280px',  
-
     minWidth: '280px',  
-
     borderRight: '1px solid rgba(0,255,136,0.2)',  
-
     padding: '16px',  
-
     overflowY: 'auto',  
-
     background: 'rgba(0,0,0,0.2)',  
-
   },  
-
   rightPanel: {  
-
     flex: 1,  
-
     display: 'flex',  
-
     flexDirection: 'column',  
-
     overflow: 'hidden',  
-
     minWidth: 0,  
-
   },  
-
   tabContent: {  
-
     flex: 1,  
-
     overflow: 'hidden',  
-
     padding: '16px',  
-
   },  
-
   actionsForm: {  
-
     display: 'flex',  
-
     gap: '20px',  
-
     height: '100%',  
-
   },  
-
   actionsColumn: {  
-
     flex: 1,  
-
     display: 'flex',  
-
     flexDirection: 'column',  
-
     background: 'rgba(0,0,0,0.2)',  
-
     borderRadius: 12,  
-
     padding: '14px',  
-
     overflow: 'hidden',  
-
   },  
-
 };  
 
- 
-
 // Componente de modal de detalles para "En prensa" status 
-
 const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveAction }) => {   
-
   const [activeTab, setActiveTab] = useState('acciones');   
-
   const [action, setAction] = useState('limpieza');   
 
-    
-
   // Form data for Bajar Troquel (left column)  
-
   const [bajaTroquelData, setBajaTroquelData] = useState({   
-
     folio: '',  
-
     falla_id: '',   
-
     modelo_nuevo: '',   
-
     nivel_setup: '',   
-
     grupo: '1',   
-
     comentarios: '',  
-
     empleado: ''  
-
   });  
 
- 
-
-  // Form data for Asistencia en Prensa (right column)  
-
+  //form de info en asistencia en prensa
   const [asistenciaData, setAsistenciaData] = useState({  
-
     folio: '',  
-
     motivo: '',   
-
     comentarios: '',  
-
     empleado: ''  
-
   });   
 
- 
-
   const [history, setHistory] = useState([]);   
-
   const [loadingHistory, setLoadingHistory] = useState(false);  
-
   const [imageError, setImageError] = useState(false);  
-
   const [savingBaja, setSavingBaja] = useState(false);  
-
   const [savingAsistencia, setSavingAsistencia] = useState(false);  
 
- 
-
   // Load history when tab changes  
-
   const loadHistory = useCallback(() => {  
 
     if (item) {  
