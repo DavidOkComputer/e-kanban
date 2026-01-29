@@ -404,7 +404,7 @@ const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, chil
 
                 <div style={sectionStyles.headerLeft}>   
 
-                    <div style={sectionStyles.icon}>{icon || '📋'}</div>   
+                    <div style={sectionStyles.icon}>{icon || ''}</div>   
 
                     <span style={sectionStyles.title}>{title}</span>   
 
@@ -1656,8 +1656,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                         title="Información Básica"   
 
-                        icon="📋" 
-
                         isExpanded={expandedSections.basicInfo}   
 
                         onToggle={toggleBasicInfo}   
@@ -1897,8 +1895,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
                     <CollapsibleSection   
 
                         title="Métricas de Producción"   
-
-                        icon="📊" 
 
                         isExpanded={expandedSections.production}   
 
@@ -2162,8 +2158,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                         title="Detalles Técnicos"   
 
-                        icon="🔧" 
-
                         isExpanded={expandedSections.technical}   
 
                         onToggle={toggleTechnical}   
@@ -2314,7 +2308,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                         title="Números de Parte"   
 
-                        icon="🏷️" 
 
                         isExpanded={expandedSections.partNumbers}   
 
@@ -2492,7 +2485,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                         title="Imagen del Troquel"   
 
-                        icon="🖼️" 
 
                         isExpanded={expandedSections.image}   
 
@@ -2605,17 +2597,11 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
  
 
                     {/* Sección de notas */}   
-
                     <CollapsibleSection   
-
                         title="Observaciones"   
-
-                        icon="📝" 
-
+                        icon="" 
                         isExpanded={expandedSections.notes}   
-
                         onToggle={toggleNotes}   
-
                     >   
 
                         <div style={styles.inputGroup}>   
