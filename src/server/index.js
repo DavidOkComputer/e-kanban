@@ -792,1415 +792,719 @@ app.post('/api/troqueles/:id/action', async (req, res) => {
       SELECT id_troquel as troquel_id, nombre, modelo, estado as status, prensa_asignada as prensa_actual  
       FROM tbl_troqueles WHERE id_troquel = ? 
     `, [req.params.id]); 
-     
+    
     if (troquelInfo.length === 0) { 
       await connection.rollback(); 
       return res.status(404).json({ error: 'Troquel not found' }); 
     } 
 
-     
-
     const troquel = troquelInfo[0]; 
 
-     
-
     //obtener la descripcion si es que aplica
-
     let falla_descripcion = null; 
 
     if (falla_id) { 
-
       const [falla] = await connection.query(` 
-
         SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ? 
-
       `, [falla_id]); 
-
       if (falla.length > 0) { 
-
         falla_descripcion = falla[0].descripcion; 
-
       } 
-
     } 
 
-     
-
     //insertar al historial
-
     const [historyResult] = await connection.query(` 
-
       INSERT INTO tbl_historial ( 
-
         troquel_id, tipo_registro, action_type, id_falla, modelo_nuevo, 
-
         folio, comentarios, empleado, nivel_setup, grupo, creado_el 
-
       ) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?, NOW()) 
-
     `, [req.params.id, tipo_accion, falla_id || null, modelo_nuevo_id || null, 
-
         folio, comentarios || null, empleado, nivel || null, grupo || null]); 
 
-     
-
     //actualizar el estado del troquel
-
     if (new_status) { 
-
       await connection.query(` 
-
         UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ? 
-
       `, [new_status, req.params.id]); 
 
-       
-
       // si se cambia a reparando, crear nuevo ciclo de reapracion
-
       if (new_status === 'Reparando') { 
 
         //mapear el tipo de accion a motivo de entrada enum
-
         let motivo_entrada = 'Otro'; 
-
         if (tipo_accion === 'Falla de Troquel') motivo_entrada = 'Falla de Troquel'; 
-
         else if (tipo_accion === 'Limpieza General') motivo_entrada = 'Limpieza General'; 
-
         else if (tipo_accion === 'Cambio de Modelo') motivo_entrada = 'Cambio de Modelo'; 
 
-         
-
         //revisar si hay ciclos activos 
-
         const [existingCycle] = await connection.query(` 
-
           SELECT id FROM tbl_ciclos_reparacion  
-
           WHERE troquel_id = ? AND ciclo_activo = TRUE 
-
         `, [req.params.id]); 
 
-         
-
         if (existingCycle.length === 0) { 
-
           //crear nuevo ciclo de reparacion
-
           await connection.query(` 
-
             INSERT INTO tbl_ciclos_reparacion ( 
-
               troquel_id, troquel_nombre, modelo, 
-
               fecha_inicio_reparacion, motivo_entrada, 
-
               falla_id, falla_descripcion, folio_entrada, 
-
               empleado_registro, comentarios_entrada, status_anterior, 
-
               prensa_origen, nivel_reparacion, grupo_reparacion, 
-
               fecha_bajado, ciclo_activo 
-
             ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
-
           `, [ 
-
             req.params.id, 
-
             troquel.nombre, 
-
             troquel.modelo, 
-
             motivo_entrada, 
-
             falla_id || null, 
-
             falla_descripcion, 
-
             folio, 
-
             empleado, 
-
             comentarios || null, 
-
             troquel.status, 
-
             troquel.prensa_actual, 
-
             nivel || null, 
-
             grupo || null 
-
           ]); 
-
         } 
-
       } 
-
     } 
-
-     
 
     await connection.commit(); 
 
-     
-
     res.json({  
-
       success: true,  
-
       history_id: historyResult.insertId  
-
     }); 
-
   } catch (error) { 
-
     await connection.rollback(); 
-
     console.error('Error recording action:', error); 
-
     res.status(500).json({ error: 'Error recording action' }); 
-
   } finally { 
-
     connection.release(); 
-
   } 
-
 }); 
 
- 
-
 app.post('/api/troqueles', async (req, res) => { 
-
   try { 
-
     const { 
-
       id_troquel, 
-
       nombre, 
-
       estado = 'Pendiente', 
-
       año, 
-
       modelo, 
-
       golpes = '-', 
-
       golpes_acum = '-', 
-
       capacidad_golpes = '-', 
-
       rectificaciones = '0', 
-
       tipo_troquel = 'Null', 
-
       ubicacion, 
-
       prensa_asignada, 
-
       numero_serie, 
-
       proveedor, 
-
       peso_kg, 
-
       dimensiones, 
-
       material_base, 
-
       num_estaciones, 
-
       cavidades, 
-
       color, 
-
       ciclos, 
-
       n_parte_1, 
-
       n_parte_2, 
-
       n_parte_3, 
-
       n_parte_4, 
-
       n_parte_5, 
-
       n_parte_6, 
-
       comentarios, 
-
       image_url 
-
     } = req.body; 
 
- 
-
     if (!id_troquel || !nombre || !año) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'ID, nombre y año son requeridos' 
-
       }); 
-
     } 
 
- 
-
     const id = id_troquel.trim().toUpperCase(); 
-
- 
-
     const [existing] = await pool.query( 
-
       'SELECT id_troquel FROM tbl_troqueles WHERE id_troquel = ?', 
-
       [id] 
-
     ); 
 
     if (existing.length > 0) { 
-
       return res.status(409).json({ 
-
         success: false, 
-
         message: 'Ya existe un troquel con ese ID' 
-
       }); 
-
     } 
 
- 
-
     await pool.query(`   
-
       INSERT INTO tbl_troqueles (   
-
         id_troquel, nombre, estado, año, modelo,   
-
         golpes, golpes_acum, capacidad_golpes, rectificaciones,   
-
         tipo_troquel, ubicacion, prensa_asignada, numero_serie,   
-
         proveedor, peso_kg, dimensiones, material_base,   
-
         num_estaciones, cavidades, color, ciclos,  
-
         n_parte_1, n_parte_2, n_parte_3, n_parte_4, n_parte_5, n_parte_6,  
-
         comentarios, image_url   
-
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)   
-
     `, [ 
-
       id, nombre, estado, año, modelo, 
-
       golpes, golpes_acum, capacidad_golpes, rectificaciones, 
-
       tipo_troquel, ubicacion, prensa_asignada, numero_serie, 
-
       proveedor, peso_kg, dimensiones, material_base, 
-
       num_estaciones, cavidades, color, ciclos, 
-
       n_parte_1, n_parte_2, n_parte_3, n_parte_4, n_parte_5, n_parte_6, 
-
       comentarios, image_url 
-
     ]); 
-
- 
 
     res.status(201).json({ 
-
       success: true, 
-
       message: 'Troquel registrado exitosamente', 
-
       id: id 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error creating troquel:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.put('/api/troqueles/:id', async (req, res) => { 
-
   try { 
-
     const id = req.params.id; 
 
- 
-
     const [existing] = await pool.query( 
-
       'SELECT * FROM tbl_troqueles WHERE id_troquel = ?', 
-
       [id] 
-
     ); 
 
     if (existing.length === 0) { 
-
       return res.status(404).json({ 
-
         success: false, 
-
         message: 'Troquel no encontrado' 
-
       }); 
-
     } 
-
- 
 
     const current = existing[0]; 
-
     const { 
-
       nombre = current.nombre, 
-
       estado = current.estado, 
-
       año = current.año, 
-
       modelo = current.modelo, 
-
       golpes = current.golpes, 
-
       golpes_acum = current.golpes_acum, 
-
       capacidad_golpes = current.capacidad_golpes, 
-
       rectificaciones = current.rectificaciones, 
-
       tipo_troquel = current.tipo_troquel, 
-
       ubicacion = current.ubicacion, 
-
       prensa_asignada = current.prensa_asignada, 
-
       numero_serie = current.numero_serie, 
-
       proveedor = current.proveedor, 
-
       peso_kg = current.peso_kg, 
-
       dimensiones = current.dimensiones, 
-
       material_base = current.material_base, 
-
       num_estaciones = current.num_estaciones, 
-
       cavidades = current.cavidades, 
-
       color = current.color, 
-
       ciclos = current.ciclos, 
-
       n_parte_1 = current.n_parte_1, 
-
       n_parte_2 = current.n_parte_2, 
-
       n_parte_3 = current.n_parte_3, 
-
       n_parte_4 = current.n_parte_4, 
-
       n_parte_5 = current.n_parte_5, 
-
       n_parte_6 = current.n_parte_6, 
-
       comentarios = current.comentarios, 
-
       image_url = current.image_url 
-
     } = req.body; 
 
- 
-
     await pool.query(`   
-
       UPDATE tbl_troqueles SET   
-
         nombre = ?, estado = ?, año = ?, modelo = ?,   
-
         golpes = ?, golpes_acum = ?, capacidad_golpes = ?, rectificaciones = ?,   
-
         tipo_troquel = ?, ubicacion = ?, prensa_asignada = ?, numero_serie = ?,   
-
         proveedor = ?, peso_kg = ?, dimensiones = ?, material_base = ?,   
-
         num_estaciones = ?, cavidades = ?, color = ?, ciclos = ?,  
-
         n_parte_1 = ?, n_parte_2 = ?, n_parte_3 = ?, n_parte_4 = ?, n_parte_5 = ?, n_parte_6 = ?,  
-
         comentarios = ?, image_url = ?   
-
       WHERE id_troquel = ?   
-
     `, [ 
-
       nombre, estado, año, modelo, 
-
       golpes, golpes_acum, capacidad_golpes, rectificaciones, 
-
       tipo_troquel, ubicacion, prensa_asignada, numero_serie, 
-
       proveedor, peso_kg, dimensiones, material_base, 
-
       num_estaciones, cavidades, color, ciclos, 
-
       n_parte_1, n_parte_2, n_parte_3, n_parte_4, n_parte_5, n_parte_6, 
-
       comentarios, image_url, 
-
       id 
-
     ]); 
 
- 
-
     await logChange(pool, id, 'update', JSON.stringify(current), JSON.stringify(req.body)); 
-
- 
-
     res.json({ 
-
       success: true, 
-
       message: 'Troquel actualizado exitosamente' 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error updating troquel:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.patch('/api/troqueles/:id/status', async (req, res) => { 
-
   try { 
-
     const { status } = req.body; 
-
     await pool.query( 
-
       'UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ?', 
-
       [status, req.params.id] 
-
     ); 
-
     res.json({ success: true }); 
-
   } catch (error) { 
-
     console.error('Error updating status:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
 
- 
-
 app.delete('/api/troqueles/:id', async (req, res) => { 
-
   try { 
-
     const id = req.params.id; 
-
- 
-
     const [existing] = await pool.query( 
-
       'SELECT id_troquel, nombre FROM tbl_troqueles WHERE id_troquel = ?', 
-
       [id] 
-
     ); 
 
     if (existing.length === 0) { 
-
       return res.status(404).json({ 
-
         success: false, 
-
         message: 'Troquel no encontrado' 
-
       }); 
-
     } 
-
- 
-
     await pool.query('DELETE FROM tbl_troqueles WHERE id_troquel = ?', [id]); 
 
- 
-
     res.json({ 
-
       success: true, 
-
       message: `Troquel ${id} eliminado correctamente` 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error deleting troquel:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.get('/api/estadisticas', async (req, res) => { 
-
   try { 
-
     const [total] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles'); 
-
     const [activos] = await pool.query( 
-
       "SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado IN ('En prensa', 'Listo')" 
-
     ); 
-
     const [reparando] = await pool.query( 
-
       "SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'Reparando'" 
-
     ); 
-
     const [pendientes] = await pool.query( 
-
       "SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'Pendiente'" 
-
     ); 
 
     res.json({ 
-
       total: total[0].count, 
-
       activos: activos[0].count, 
-
       reparando: reparando[0].count, 
-
       pendientes: pendientes[0].count 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error fetching estadisticas:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.get('/api/priority-repairs', async (req, res) => { 
-
   try { 
-
     const [repairs] = await pool.query(`   
-
       SELECT pr.prioridad, t.id_troquel, t.nombre   
-
       FROM tbl_prioridad_reparacion pr   
-
       JOIN tbl_troqueles t ON pr.id_troquel = t.id_troquel   
-
       ORDER BY pr.prioridad   
-
     `); 
-
     res.json(repairs.map(r => ({ 
-
       priority: r.prioridad, 
-
       id: r.id_troquel, 
-
       name: r.nombre 
-
     }))); 
-
   } catch (error) { 
-
     console.error('Error fetching priority repairs:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
 
- 
-
 app.get('/api/troqueles-summary', async (req, res) => { 
-
   try { 
-
     const [tables] = await pool.query("SHOW TABLES LIKE 'tbl_resumen_troqueles'"); 
-
     if (tables.length > 0) { 
-
       const [summary] = await pool.query( 
-
         'SELECT etiqueta, count, goal, perf FROM tbl_resumen_troqueles ORDER BY FIELD(etiqueta, "UP", "BACKUP", "TOTAL")' 
-
       ); 
-
       res.json(summary.map(s => ({ 
-
         label: s.etiqueta, 
-
         count: s.count, 
-
         goal: s.goal, 
-
         perf: s.perf 
-
       }))); 
 
     } else { 
-
       const [total] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles'); 
-
       const [up] = await pool.query("SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'En prensa'"); 
-
       const [backup] = await pool.query("SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'Listo-BackUp'"); 
-
       res.json([ 
-
         { label: 'UP', count: up[0].count, goal: null, perf: null }, 
-
         { label: 'BACKUP', count: backup[0].count, goal: null, perf: null }, 
-
         { label: 'TOTAL', count: total[0].count, goal: null, perf: null } 
-
       ]); 
-
     } 
-
   } catch (error) { 
-
     console.error('Error fetching summary:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
 
- 
-
 app.get('/api/fallas', async (req, res) => { 
-
   try { 
-
     const [fallas] = await pool.query( 
-
       'SELECT id_fallas_catalogo, descripcion FROM tbl_fallas_catalogo WHERE activo = TRUE ORDER BY descripcion' 
-
     ); 
-
     res.json(fallas.map(f => ({ 
-
       id: f.id_fallas_catalogo, 
-
       description: f.descripcion 
-
     }))); 
 
   } catch (error) { 
-
     console.error('Error fetching fallas:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.post('/api/actions/baja-troquel', async (req, res) => { 
-
   try { 
-
     const { 
-
       troquel_id, 
-
       action_type, 
-
       folio, 
-
       falla_id, 
-
       modelo_nuevo, 
-
       nivel_setup, 
-
       grupo, 
-
       comentarios, 
-
       empleado 
-
     } = req.body; 
 
- 
-
     if (!troquel_id) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'ID de troquel requerido' 
-
       }); 
-
     } 
-
- 
 
     if (!empleado || !empleado.trim()) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'Nombre del empleado requerido' 
-
       }); 
-
     } 
-
- 
 
     if (!folio || !folio.trim()) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'Número de folio requerido' 
-
       }); 
-
     } 
-
- 
 
     //insertar a la tabla de historial
-
     const [result] = await pool.query(`   
-
       INSERT INTO tbl_historial (   
-
         troquel_id,   
-
         tipo_registro,  
-
         action_type,  
-
         folio,  
-
         id_falla,   
-
         modelo_nuevo,   
-
         nivel_setup,   
-
         grupo,   
-
         comentarios,  
-
         empleado  
-
       ) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?)   
-
     `, [ 
-
       troquel_id, 
-
       action_type, 
-
       folio.trim(), 
-
       falla_id || null, 
-
       modelo_nuevo || null, 
-
       nivel_setup || null, 
-
       grupo || null, 
-
       comentarios || null, 
-
       empleado.trim() 
-
     ]); 
 
- 
-
-    //actualizar el estado de troquel a reparando
-
+     //actualizar el estado de troquel a reparando
     await pool.query( 
-
       "UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?", 
-
       [troquel_id] 
-
     ); 
 
- 
-
     res.json({ 
-
       success: true, 
-
       message: 'Baja de troquel registrada exitosamente. Estado cambiado a "Reparando"', 
-
       id: result.insertId 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error creating baja troquel:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
 
- 
-
-
 app.post('/api/actions/asistencia-prensa', async (req, res) => { 
-
   try { 
-
     const { 
-
       troquel_id, 
-
       folio, 
-
       motivo_id, 
-
       comentarios, 
-
       empleado 
-
     } = req.body; 
 
- 
-
     if (!troquel_id) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'ID de troquel requerido' 
-
       }); 
-
     } 
-
- 
 
     if (!empleado || !empleado.trim()) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'Nombre del empleado requerido' 
-
       }); 
-
     } 
-
- 
 
     if (!folio || !folio.trim()) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'Número de folio requerido' 
-
       }); 
-
     } 
-
- 
 
     if (!motivo_id) { 
-
       return res.status(400).json({ 
-
         success: false, 
-
         message: 'Motivo de asistencia requerido' 
-
       }); 
-
     } 
 
- 
-
     //obtener la descripcion de motivo para el tipo de accion
-
     let motivoDescription = 'Asistencia en Prensa'; 
-
     try { 
-
       const [motivos] = await pool.query( 
-
         'SELECT descripcion FROM tbl_asistencia_prensa WHERE id_asistencia_prensa = ?', 
-
         [motivo_id] 
-
       ); 
 
       if (motivos.length > 0) { 
-
         motivoDescription = motivos[0].descripcion; 
-
       } 
-
     } catch (e) { 
-
       console.log('Could not get motivo description:', e.message); 
-
     } 
 
- 
-
     //insertar a la tabla de historial
-
     const [result] = await pool.query(`   
-
       INSERT INTO tbl_historial (   
-
         troquel_id,   
-
         tipo_registro,  
-
         action_type,  
-
         folio,  
-
         id_motivo_asistencia,  
-
         comentarios,  
-
         empleado  
-
       ) VALUES (?, 'asistencia_prensa', ?, ?, ?, ?, ?)   
-
     `, [ 
-
       troquel_id, 
-
       motivoDescription, 
-
       folio.trim(), 
-
       motivo_id, 
-
       comentarios || null, 
-
       empleado.trim() 
-
     ]); 
-
- 
 
     //actualizar el estado del troquel a reparando
-
     await pool.query( 
-
       "UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?", 
-
       [troquel_id] 
-
     ); 
 
- 
-
     res.json({ 
-
       success: true, 
-
       message: 'Asistencia en prensa registrada exitosamente. Estado cambiado a "Reparando"', 
-
       id: result.insertId 
-
     }); 
-
   } catch (error) { 
-
     console.error('Error creating asistencia:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 // compatibilidad
-
 app.post('/api/actions', async (req, res) => { 
-
   try { 
-
     const { 
-
       troquel_id, 
-
       action_type, 
-
       folio, 
-
       falla_id, 
-
       modelo_nuevo, 
-
       nivel_setup, 
-
       grupo, 
-
       comentarios, 
-
       motivo, 
-
       comentarios_supervisor, 
-
       empleado_troquel, 
-
       empleado_asistencia 
-
     } = req.body; 
 
- 
-
     const [result] = await pool.query(`   
-
       INSERT INTO tbl_historial (   
-
         troquel_id, tipo_registro, action_type, folio, id_falla, modelo_nuevo,   
-
         nivel_setup, grupo, comentarios, id_motivo_asistencia, comentarios_supervisor,  
-
         empleado  
-
       ) VALUES (?, 'legacy', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)   
-
     `, [ 
-
       troquel_id, action_type, folio || null, falla_id || null, modelo_nuevo, 
-
       nivel_setup, grupo, comentarios, motivo || null, comentarios_supervisor, 
-
       empleado_troquel || empleado_asistencia || null 
-
     ]); 
 
- 
-
     res.json({ 
-
       success: true, 
-
       id: result.insertId 
-
     }); 
 
   } catch (error) { 
-
     console.error('Error creating action:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 //obtener el historial para el troquel
-
 app.get('/api/troqueles/:id/history', async (req, res) => { 
-
   try { 
-
     const [history] = await pool.query(`   
-
       SELECT   
-
         h.*,  
-
         fc.descripcion as falla_descripcion,  
-
         ap.descripcion as motivo_descripcion  
-
       FROM tbl_historial h  
-
       LEFT JOIN tbl_fallas_catalogo fc ON h.id_falla = fc.id_fallas_catalogo   
-
       LEFT JOIN tbl_asistencia_prensa ap ON h.id_falla = ap.id_asistencia_prensa  
-
       WHERE h.troquel_id = ?   
-
       ORDER BY h.creado_el DESC   
-
     `, [req.params.id]); 
 
- 
-
     res.json(history.map(h => ({ 
-
       id: h.id_historial, 
-
       tipo_registro: h.tipo_registro || 'legacy', 
-
       action_type: h.action_type, 
-
       folio: h.folio, 
-
       falla_description: h.falla_descripcion, 
-
       motivo_description: h.motivo_descripcion, 
-
       modelo_nuevo: h.modelo_nuevo, 
-
       nivel_setup: h.nivel_setup, 
-
       grupo: h.grupo, 
-
       comentarios: h.comentarios, 
-
       comentarios_supervisor: h.comentarios_supervisor, 
-
       empleado: h.empleado, 
-
       created_at: h.creado_el 
-
     }))); 
 
   } catch (error) { 
-
     console.error('Error fetching history:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
-
- 
 
 app.get('/api/search', async (req, res) => { 
-
   try { 
-
     const { q } = req.query; 
-
     const searchTerm = `%${q}%`; 
-
     const [results] = await pool.query( 
-
       'SELECT id_troquel, nombre, estado, año, modelo FROM tbl_troqueles WHERE id_troquel LIKE ? OR nombre LIKE ? OR modelo LIKE ?', 
-
       [searchTerm, searchTerm, searchTerm] 
-
     ); 
-
     res.json(results.map(r => ({ 
-
       id: r.id_troquel, 
-
       name: r.nombre, 
-
       status: r.estado, 
-
       year: r.año, 
-
       model: r.modelo 
-
     }))); 
 
   } catch (error) { 
-
     console.error('Error searching:', error); 
-
     res.status(500).json({ 
-
       success: false, 
-
       message: error.message 
-
     }); 
-
   } 
-
 }); 
 
- 
-
 async function logChange(pool, troquelId, campo, valorAnterior, valorNuevo) { 
-
   try { 
-
     await pool.query(`   
-
       INSERT INTO tbl_troqueles_historial (troquel_id, campo_modificado, valor_anterior, valor_nuevo)   
-
       VALUES (?, ?, ?, ?)   
-
     `, [troquelId, campo, valorAnterior, valorNuevo]); 
-
   } catch (error) { 
-
     console.error('Error logging change:', error); 
-
   } 
-
 } 
 
- 
-
 app.listen(PORT, () => { 
-
   console.log(`E-Kanban Toolroom API Server running on port ${PORT}`); 
-
   console.log(`Health check: http://localhost:${PORT}/api/health`); 
-
   console.log(`Troqueles API: http://localhost:${PORT}/api/troqueles`); 
-
   console.log(`Active Cycle: http://localhost:${PORT}/api/troqueles/:id/ciclo-activo`); 
-
   console.log(`Repair History: http://localhost:${PORT}/api/troqueles/:id/ciclos-historial`); 
-
   console.log(`Statistics: http://localhost:${PORT}/api/troqueles/:id/estadisticas`); 
-
 }); 
