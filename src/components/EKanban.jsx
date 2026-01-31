@@ -866,7 +866,7 @@ const TextArea = memo(({ label, value, onChange, h, mt, disabled }) => (
                       placeholder="Número de folio"  
                     />  
 
-                    {/* Action type radio buttons */}  
+                    {/*boton de accion de radio */}  
                     <div style={{ marginTop: 10 }}>  
                       {[   
                         { id: 'limpieza', label: 'Limpieza General' },    
@@ -1221,7 +1221,7 @@ const EKanban = ({ onLogoClick }) => {
       onLogoClick();  
     }  
   }, [onLogoClick]);  
- 
+
   //determinar que modal mostrar basado en el estado
   const isEnPrensa = selectedItem?.status === 'En prensa'; 
   return (   

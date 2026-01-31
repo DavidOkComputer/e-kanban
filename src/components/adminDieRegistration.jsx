@@ -1,1386 +1,1456 @@
-import React, {   
+import React, {    
 
-useState,   
+    useState,    
 
-useCallback,   
+    useCallback,    
 
-useMemo,   
+    useMemo,    
 
-useEffect,   
+    useEffect,    
 
-} from 'react';   
-
- 
-
-import createStyles, {   
-
-getStatusStyle,   
-
-generateYears,   
-
-cssAnimations   
-
-} from '../styles/adminDieRegistration.styles';   
+} from 'react';    
 
  
 
-// Configuración de la API   
+import createStyles, {    
 
-const API_BASE = 'http://localhost/ekanban-toolroom/src/api';   
+    getStatusStyle,    
 
- 
+    generateYears,    
 
-// Mapear datos del formulario al formato de la API   
+    cssAnimations    
 
-const mapFormToApi = (formData) => {   
-
-    return {   
-
-        id_troquel: formData.id?.trim().toUpperCase(),   
-
-        nombre: formData.name?.trim(),   
-
-        estado: formData.status,   
-
-        año: parseInt(formData.year),   
-
-        modelo: formData.model?.trim() || null,   
-
-        golpes: formData.golpes || '-',   
-
-        golpes_acum: formData.golpes_acum || '-',   
-
-        capacidad_golpes: formData.capacidad_golpes || '-',   
-
-        rectificaciones: formData.rectificaciones || '0',   
-
-        tipo_troquel: formData.tipo_troquel || 'Null',   
-
-        ubicacion: formData.ubicacion || null,   
-
-        prensa_asignada: formData.prensa_asignada || null,   
-
-        numero_serie: formData.numero_serie || null,   
-
-        proveedor: formData.proveedor || null,   
-
-        peso_kg: formData.peso_kg || null,   
-
-        dimensiones: formData.dimensiones || null,   
-
-        material_base: formData.material_base || null,   
-
-        num_estaciones: formData.num_estaciones || null,   
-
-        cavidades: formData.cavidades || null,  
-
-        color: formData.color || null,  
-
-        ciclos: formData.ciclos || null,  
-
-        n_parte_1: formData.n_parte_1 || null,  
-
-        n_parte_2: formData.n_parte_2 || null,  
-
-        n_parte_3: formData.n_parte_3 || null,  
-
-        n_parte_4: formData.n_parte_4 || null,  
-
-        n_parte_5: formData.n_parte_5 || null,  
-
-        n_parte_6: formData.n_parte_6 || null,  
-
-        comentarios: formData.notes || null,   
-
-        image_url: formData.image_url || null,   
-
-    };   
-
-};   
+} from '../styles/adminDieRegistration.styles';    
 
  
 
-// Mapear datos de la API al formato del formulario   
+// Configuración de la API    
 
-const mapApiToForm = (apiData) => {   
-
-    return {   
-
-        id: apiData.id || apiData.id_troquel || '',   
-
-        name: apiData.name || apiData.nombre || '',   
-
-        status: apiData.status || apiData.estado || 'Pendiente',   
-
-        year: apiData.year || apiData.año || new Date().getFullYear(),   
-
-        model: apiData.model || apiData.modelo || '',   
-
-        golpes: apiData.golpes || '',   
-
-        golpes_acum: apiData.golpes_acum || '',   
-
-        capacidad_golpes: apiData.capacidad_golpes || '',   
-
-        rectificaciones: apiData.rectificaciones || '0',   
-
-        tipo_troquel: apiData.tipo_troquel || 'Null',   
-
-        ubicacion: apiData.ubicacion || '',   
-
-        prensa_asignada: apiData.prensa_asignada || '',   
-
-        numero_serie: apiData.numero_serie || '',   
-
-        proveedor: apiData.proveedor || '',   
-
-        peso_kg: apiData.peso_kg || '',   
-
-        dimensiones: apiData.dimensiones || '',   
-
-        material_base: apiData.material_base || '',   
-
-        num_estaciones: apiData.num_estaciones || '',   
-
-        cavidades: apiData.cavidades || '',  
-
-        color: apiData.color || '',  
-
-        ciclos: apiData.ciclos || '',  
-
-        n_parte_1: apiData.n_parte_1 || '',  
-
-        n_parte_2: apiData.n_parte_2 || '',  
-
-        n_parte_3: apiData.n_parte_3 || '',  
-
-        n_parte_4: apiData.n_parte_4 || '',  
-
-        n_parte_5: apiData.n_parte_5 || '',  
-
-        n_parte_6: apiData.n_parte_6 || '',  
-
-        notes: apiData.notes || apiData.comentarios || '',   
-
-        image_url: apiData.image_url || '',   
-
-    };   
-
-};   
+const API_BASE = 'http://localhost/ekanban-toolroom/src/api';    
 
  
 
-// Valores por defecto para las opciones (fallback)   
+// Mapear datos del formulario al formato de la API    
 
-const DEFAULT_PRESS_OPTIONS = [   
+const mapFormToApi = (formData) => {    
 
-    { value: '', label: 'Sin asignar' },   
+    return {    
 
-    { value: 'P1', label: 'Prensa 1 (P1)' },   
+        id_troquel: formData.id?.trim().toUpperCase(),    
 
-    { value: 'P2', label: 'Prensa 2 (P2)' },   
+        nombre: formData.name?.trim(),    
 
-    { value: 'P3', label: 'Prensa 3 (P3)' },   
+        estado: formData.status,    
 
-    { value: 'P4', label: 'Prensa 4 (P4)' },   
+        año: parseInt(formData.year),    
 
-    { value: 'P5', label: 'Prensa 5 (P5)' },   
+        modelo: formData.model?.trim() || null,    
 
-    { value: 'P6', label: 'Prensa 6 (P6)' },   
+        golpes: formData.golpes || '-',    
 
-    { value: 'P7', label: 'Prensa 7 (P7)' },   
+        golpes_acum: formData.golpes_acum || '-',    
 
-    { value: 'P8', label: 'Prensa 8 (P8)' },   
+        capacidad_golpes: formData.capacidad_golpes || '-',    
 
-];   
+        rectificaciones: formData.rectificaciones || '0',    
 
- 
+        tipo_troquel: formData.tipo_troquel || 'Null',    
 
-const DEFAULT_DIE_TYPE_OPTIONS = [   
+        ubicacion: formData.ubicacion || null,    
 
-    { value: 'Null', label: 'Sin especificar' },  
+        prensa_asignada: formData.prensa_asignada || null,    
 
-    { value: 'progresivo', label: 'Progresivo' },   
+        numero_serie: formData.numero_serie || null,    
 
-    { value: 'transfer', label: 'Transfer' },   
+        proveedor: formData.proveedor || null,    
 
-    { value: 'simple', label: 'Simple' },  
+        peso_kg: formData.peso_kg || null,    
 
-    { value: 'compuesto', label: 'Compuesto' },  
+        dimensiones: formData.dimensiones || null,    
 
-    { value: 'multiple', label: 'Múltiple' },  
+        material_base: formData.material_base || null,    
 
-];   
+        num_estaciones: formData.num_estaciones || null,    
 
- 
+        cavidades: formData.cavidades || null,   
 
-const DEFAULT_STATUS_OPTIONS = [   
+        color: formData.color || null,   
 
-    { value: 'Pendiente', label: 'Pendiente' },   
+        ciclos: formData.ciclos || null,   
 
-    { value: 'En prensa', label: 'En Prensa' },   
+        n_parte_1: formData.n_parte_1 || null,   
 
-    { value: 'Listo', label: 'Listo' },   
+        n_parte_2: formData.n_parte_2 || null,   
 
-    { value: 'Listo-BackUp', label: 'Listo - BackUp' },   
+        n_parte_3: formData.n_parte_3 || null,   
 
-    { value: 'Reparando', label: 'Reparando' },   
+        n_parte_4: formData.n_parte_4 || null,   
 
-    { value: 'Baja', label: 'Baja / Obsoleto' },   
+        n_parte_5: formData.n_parte_5 || null,   
 
-];   
+        n_parte_6: formData.n_parte_6 || null,   
 
- 
+        comentarios: formData.notes || null,    
 
-// Componente de sección colapsable - Moved outside and memoized 
+        image_url: formData.image_url || null,    
 
-const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {   
+    };    
 
-    const sectionStyles = {   
-
-        container: {   
-
-            marginBottom: '16px',   
-
-            background: 'rgba(0, 0, 0, 0.2)',   
-
-            borderRadius: '12px',   
-
-            border: '1px solid rgba(0, 255, 136, 0.1)',   
-
-            overflow: 'hidden',   
-
-            transition: 'all 0.3s ease',   
-
-        },   
+};    
 
  
 
-        header: {   
+// Mapear datos de la API al formato del formulario    
 
-            display: 'flex',   
+const mapApiToForm = (apiData) => {    
 
-            alignItems: 'center',   
+    return {    
 
-            justifyContent: 'space-between',   
+        id: apiData.id || apiData.id_troquel || '',    
 
-            padding: '16px 20px',   
+        name: apiData.name || apiData.nombre || '',    
 
-            cursor: 'pointer',   
+        status: apiData.status || apiData.estado || 'Pendiente',    
 
-            background: isExpanded ? 'rgba(0, 255, 136, 0.08)' : 'transparent',   
+        year: apiData.year || apiData.año || new Date().getFullYear(),    
 
-            borderBottom: isExpanded ? '1px solid rgba(0, 255, 136, 0.15)' : '1px solid transparent',   
+        model: apiData.model || apiData.modelo || '',    
 
-            transition: 'all 0.3s ease',   
+        golpes: apiData.golpes || '',    
 
-            userSelect: 'none',   
+        golpes_acum: apiData.golpes_acum || '',    
 
-        },   
+        capacidad_golpes: apiData.capacidad_golpes || '',    
 
- 
+        rectificaciones: apiData.rectificaciones || '0',    
 
-        headerLeft: {   
+        tipo_troquel: apiData.tipo_troquel || 'Null',    
 
-            display: 'flex',   
+        ubicacion: apiData.ubicacion || '',    
 
-            alignItems: 'center',   
+        prensa_asignada: apiData.prensa_asignada || '',    
 
-            gap: '12px',   
+        numero_serie: apiData.numero_serie || '',    
 
-        },   
+        proveedor: apiData.proveedor || '',    
 
- 
+        peso_kg: apiData.peso_kg || '',    
 
-        icon: {   
+        dimensiones: apiData.dimensiones || '',    
 
-            width: '32px',   
+        material_base: apiData.material_base || '',    
 
-            height: '32px',   
+        num_estaciones: apiData.num_estaciones || '',    
 
-            background: isExpanded ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 255, 136, 0.1)',   
+        cavidades: apiData.cavidades || '',   
 
-            borderRadius: '8px',   
+        color: apiData.color || '',   
 
-            display: 'flex',   
+        ciclos: apiData.ciclos || '',   
 
-            alignItems: 'center',   
+        n_parte_1: apiData.n_parte_1 || '',   
 
-            justifyContent: 'center',   
+        n_parte_2: apiData.n_parte_2 || '',   
 
-            fontSize: '16px',   
+        n_parte_3: apiData.n_parte_3 || '',   
 
-            transition: 'all 0.3s ease',   
+        n_parte_4: apiData.n_parte_4 || '',   
 
-        },   
+        n_parte_5: apiData.n_parte_5 || '',   
 
- 
+        n_parte_6: apiData.n_parte_6 || '',   
 
-        title: {   
+        notes: apiData.notes || apiData.comentarios || '',    
 
-            fontSize: '14px',   
+        image_url: apiData.image_url || '',    
 
-            fontWeight: 600,   
+    };    
 
-            color: isExpanded ? '#00ff88' : '#aaa',   
-
-            textTransform: 'uppercase',   
-
-            letterSpacing: '1px',   
-
-            transition: 'color 0.3s ease',   
-
-        },   
+};    
 
  
 
-        requiredBadge: {   
+// Valores por defecto para las opciones (fallback)    
 
-            background: 'rgba(255, 107, 107, 0.15)',   
+const DEFAULT_PRESS_OPTIONS = [    
 
-            color: '#ff6b6b',   
+    { value: '', label: 'Sin asignar' },    
 
-            fontSize: '9px',   
+    { value: 'P1', label: 'Prensa 1 (P1)' },    
 
-            padding: '3px 8px',   
+    { value: 'P2', label: 'Prensa 2 (P2)' },    
 
-            borderRadius: '10px',   
+    { value: 'P3', label: 'Prensa 3 (P3)' },    
 
-            fontWeight: 600,   
+    { value: 'P4', label: 'Prensa 4 (P4)' },    
 
-            letterSpacing: '0.5px',   
+    { value: 'P5', label: 'Prensa 5 (P5)' },    
 
-        },   
+    { value: 'P6', label: 'Prensa 6 (P6)' },    
 
- 
+    { value: 'P7', label: 'Prensa 7 (P7)' },    
 
-        chevron: {   
+    { value: 'P8', label: 'Prensa 8 (P8)' },    
 
-            width: '24px',   
-
-            height: '24px',   
-
-            display: 'flex',   
-
-            alignItems: 'center',   
-
-            justifyContent: 'center',   
-
-            color: isExpanded ? '#00ff88' : '#666',   
-
-            transition: 'transform 0.3s ease, color 0.3s ease',   
-
-            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',   
-
-            fontSize: '18px',   
-
-        },   
+];    
 
  
 
-        content: {   
+const DEFAULT_DIE_TYPE_OPTIONS = [    
 
-            maxHeight: isExpanded ? '2000px' : '0',   
+    { value: 'Null', label: 'Sin especificar' },   
 
-            opacity: isExpanded ? 1 : 0,   
+    { value: 'progresivo', label: 'Progresivo' },    
 
-            overflow: 'hidden',   
+    { value: 'transfer', label: 'Transfer' },    
 
-            transition: 'max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease',   
+    { value: 'simple', label: 'Simple' },   
 
-            padding: isExpanded ? '20px' : '0 20px',   
+    { value: 'compuesto', label: 'Compuesto' },   
 
-        },   
+    { value: 'multiple', label: 'Múltiple' },   
 
-    };   
-
- 
-
-    return (   
-
-        <div style={sectionStyles.container}>   
-
-            <div style={sectionStyles.header} onClick={onToggle}>          
-
-                <div style={sectionStyles.headerLeft}>   
-
-                    <div style={sectionStyles.icon}>{icon || ''}</div>   
-
-                    <span style={sectionStyles.title}>{title}</span>   
-
-                    {isRequired && <span style={sectionStyles.requiredBadge}>REQUERIDO</span>}   
-
-                </div>   
-
-                <div style={sectionStyles.chevron}>▼</div>   
-
-            </div>   
-
-            <div style={sectionStyles.content}>   
-
-                {children}   
-
-            </div>   
-
-        </div>   
-
-    );   
-
-}); 
+];    
 
  
 
-CollapsibleSection.displayName = 'CollapsibleSection'; 
+const DEFAULT_STATUS_OPTIONS = [    
+
+    { value: 'Pendiente', label: 'Pendiente' },    
+
+    { value: 'En prensa', label: 'En Prensa' },    
+
+    { value: 'Listo', label: 'Listo' },    
+
+    { value: 'Listo-BackUp', label: 'Listo - BackUp' },    
+
+    { value: 'Reparando', label: 'Reparando' },    
+
+    { value: 'Baja', label: 'Baja / Obsoleto' },    
+
+];    
 
  
 
-const AdminDieRegistration = ({onNavigateBack, user }) => {   
+const DEFAULT_PRESS_STATUS_OPTIONS = [ 
 
-    const styles = useMemo(() => createStyles(), []);   
+    { value: 'Activa', label: 'Activa' }, 
 
-    const years = useMemo(() => generateYears(), []);   
+    { value: 'En mantenimiento', label: 'En Mantenimiento' }, 
+
+    { value: 'Inactiva', label: 'Inactiva' }, 
+
+    { value: 'Fuera de servicio', label: 'Fuera de Servicio' }, 
+
+]; 
+
+ 
+
+// Componente de sección colapsable - Moved outside and memoized  
+
+const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {    
+
+    const sectionStyles = {    
+
+        container: {    
+
+            marginBottom: '16px',    
+
+            background: 'rgba(0, 0, 0, 0.2)',    
+
+            borderRadius: '12px',    
+
+            border: '1px solid rgba(0, 255, 136, 0.1)',    
+
+            overflow: 'hidden',    
+
+            transition: 'all 0.3s ease',    
+
+        },    
+
+ 
+
+        header: {    
+
+            display: 'flex',    
+
+            alignItems: 'center',    
+
+            justifyContent: 'space-between',    
+
+            padding: '16px 20px',    
+
+            cursor: 'pointer',    
+
+            background: isExpanded ? 'rgba(0, 255, 136, 0.08)' : 'transparent',    
+
+            borderBottom: isExpanded ? '1px solid rgba(0, 255, 136, 0.15)' : '1px solid transparent',    
+
+            transition: 'all 0.3s ease',    
+
+            userSelect: 'none',    
+
+        },    
+
+ 
+
+        headerLeft: {    
+
+            display: 'flex',    
+
+            alignItems: 'center',    
+
+            gap: '12px',    
+
+        },    
+
+ 
+
+        icon: {    
+
+            width: '32px',    
+
+            height: '32px',    
+
+            background: isExpanded ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 255, 136, 0.1)',    
+
+            borderRadius: '8px',    
+
+            display: 'flex',    
+
+            alignItems: 'center',    
+
+            justifyContent: 'center',    
+
+            fontSize: '16px',    
+
+            transition: 'all 0.3s ease',    
+
+        },    
+
+ 
+
+        title: {    
+
+            fontSize: '14px',    
+
+            fontWeight: 600,    
+
+            color: isExpanded ? '#00ff88' : '#aaa',    
+
+            textTransform: 'uppercase',    
+
+            letterSpacing: '1px',    
+
+            transition: 'color 0.3s ease',    
+
+        },    
+
+ 
+
+        requiredBadge: {    
+
+            background: 'rgba(255, 107, 107, 0.15)',    
+
+            color: '#ff6b6b',    
+
+            fontSize: '9px',    
+
+            padding: '3px 8px',    
+
+            borderRadius: '10px',    
+
+            fontWeight: 600,    
+
+            letterSpacing: '0.5px',    
+
+        },    
+
+ 
+
+        chevron: {    
+
+            width: '24px',    
+
+            height: '24px',    
+
+            display: 'flex',    
+
+            alignItems: 'center',    
+
+            justifyContent: 'center',    
+
+            color: isExpanded ? '#00ff88' : '#666',    
+
+            transition: 'transform 0.3s ease, color 0.3s ease',    
+
+            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',    
+
+            fontSize: '18px',    
+
+        },    
+
+ 
+
+        content: {    
+
+            maxHeight: isExpanded ? '2000px' : '0',    
+
+            opacity: isExpanded ? 1 : 0,    
+
+            overflow: 'hidden',    
+
+            transition: 'max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease',    
+
+            padding: isExpanded ? '20px' : '0 20px',    
+
+        },    
+
+    };    
+
+ 
+
+    return (    
+
+        <div style={sectionStyles.container}>    
+
+            <div style={sectionStyles.header} onClick={onToggle}>           
+
+                <div style={sectionStyles.headerLeft}>    
+
+                    <div style={sectionStyles.icon}>{icon || ''}</div>    
+
+                    <span style={sectionStyles.title}>{title}</span>    
+
+                    {isRequired && <span style={sectionStyles.requiredBadge}>REQUERIDO</span>}    
+
+                </div>    
+
+                <div style={sectionStyles.chevron}>▼</div>    
+
+            </div>    
+
+            <div style={sectionStyles.content}>    
+
+                {children}    
+
+            </div>    
+
+        </div>    
+
+    );    
+
+});  
+
+ 
+
+CollapsibleSection.displayName = 'CollapsibleSection';  
+
+ 
+
+const AdminDieRegistration = ({onNavigateBack, user }) => {    
+
+    const styles = useMemo(() => createStyles(), []);    
+
+    const years = useMemo(() => generateYears(), []);    
+
+      
+
+    // Estado de la pestaña    
+
+    const [activeTab, setActiveTab] = useState('register');    
+
+      
+
+    // Estado para secciones colapsables    
+
+    const [expandedSections, setExpandedSections] = useState({    
+
+        basicInfo: true,      // Abierta por defecto (requerida)    
+
+        production: false,    
+
+        technical: false,   
+
+        partNumbers: false,   
+
+        image: false,    
+
+        notes: false,    
+
+    });    
+
+ 
+
+    // Estado para opciones de dropdowns (cargadas desde la base de datos)    
+
+    const [pressOptions, setPressOptions] = useState(DEFAULT_PRESS_OPTIONS);    
+
+    const [dieTypeOptions, setDieTypeOptions] = useState(DEFAULT_DIE_TYPE_OPTIONS);    
+
+    const [statusOptions, setStatusOptions] = useState(DEFAULT_STATUS_OPTIONS);    
+
+    const [optionsLoading, setOptionsLoading] = useState(true);    
+
+ 
+
+    // Estado del formulario - Updated to match database schema   
+
+    const [formData, setFormData] = useState({    
+
+        id: '',    
+
+        name: '',    
+
+        status: 'Pendiente',    
+
+        year: new Date().getFullYear(),    
+
+        model: '',    
+
+        golpes: '',    
+
+        golpes_acum: '',    
+
+        capacidad_golpes: '',    
+
+        rectificaciones: '0',    
+
+        image_url: '',    
+
+        notes: '',    
+
+        prensa_asignada: '',    
+
+        tipo_troquel: 'Null',    
+
+        ubicacion: '',    
+
+        proveedor: '',    
+
+        peso_kg: '',    
+
+        dimensiones: '',    
+
+        material_base: '',    
+
+        num_estaciones: '',    
+
+        numero_serie: '',   
+
+        cavidades: '',   
+
+        color: '',   
+
+        ciclos: '',   
+
+        n_parte_1: '',   
+
+        n_parte_2: '',   
+
+        n_parte_3: '',   
+
+        n_parte_4: '',   
+
+        n_parte_5: '',   
+
+        n_parte_6: '',   
+
+    });    
+
+ 
+
+    const [focusedField, setFocusedField] = useState(null);    
+
+    const [isSubmitting, setIsSubmitting] = useState(false);    
+
+    const [message, setMessage] = useState({ type: '', text: '' });    
+
+    const [imagePreview, setImagePreview] = useState(null);    
+
+ 
+
+    // Estado de lista    
+
+    const [dies, setDies] = useState([]);    
+
+    const [isLoading, setIsLoading] = useState(false);    
+
+    const [searchTerm, setSearchTerm] = useState('');    
+
+    const [filterYear, setFilterYear] = useState('');    
+
+    const [filterStatus, setFilterStatus] = useState('');    
+
+ 
+
+    // Estado del modal    
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);    
+
+    const [dieToDelete, setDieToDelete] = useState(null);    
+
+    const [editingDie, setEditingDie] = useState(null);    
+
+ 
+
+    // Estadísticas    
+
+    const [stats, setStats] = useState({    
+
+        total: 0,    
+
+        activos: 0,    
+
+        reparando: 0,    
+
+        pendientes: 0,    
+
+    });    
+
+ 
+
+    // ==================== ESTADOS PARA PRENSAS ==================== 
+
+    const [prensas, setPrensas] = useState([]); 
+
+    const [prensasLoading, setPrensasLoading] = useState(false); 
+
+    const [prensaSearchTerm, setPrensaSearchTerm] = useState(''); 
+
+    const [prensaFilterStatus, setPrensaFilterStatus] = useState(''); 
+
+    const [editingPrensa, setEditingPrensa] = useState(null); 
+
+    const [showDeletePrensaModal, setShowDeletePrensaModal] = useState(false); 
+
+    const [prensaToDelete, setPrensaToDelete] = useState(null); 
 
      
 
-    // Estado de la pestaña   
+    // Formulario de prensa 
 
-    const [activeTab, setActiveTab] = useState('register');   
+    const [prensaFormData, setPrensaFormData] = useState({ 
 
-     
+        identificador_prensa: '', 
 
-    // Estado para secciones colapsables   
+        nombre: '', 
 
-    const [expandedSections, setExpandedSections] = useState({   
+        estado: 'Activa', 
 
-        basicInfo: true,      // Abierta por defecto (requerida)   
+        tonelaje: '', 
 
-        production: false,   
+        marca: '', 
 
-        technical: false,  
+        modelo: '', 
 
-        partNumbers: false,  
+        año_fabricacion: new Date().getFullYear(), 
 
-        image: false,   
+        numero_serie: '', 
 
-        notes: false,   
+        ubicacion: '', 
 
-    });   
+        velocidad_max: '', 
 
- 
+        carrera: '', 
 
-    // Estado para opciones de dropdowns (cargadas desde la base de datos)   
+        area_trabajo: '', 
 
-    const [pressOptions, setPressOptions] = useState(DEFAULT_PRESS_OPTIONS);   
+        fecha_ultimo_mantenimiento: '', 
 
-    const [dieTypeOptions, setDieTypeOptions] = useState(DEFAULT_DIE_TYPE_OPTIONS);   
+        notas: '', 
 
-    const [statusOptions, setStatusOptions] = useState(DEFAULT_STATUS_OPTIONS);   
-
-    const [optionsLoading, setOptionsLoading] = useState(true);   
+    }); 
 
  
 
-    // Estado del formulario - Updated to match database schema  
+    const [prensaExpandedSections, setPrensaExpandedSections] = useState({ 
 
-    const [formData, setFormData] = useState({   
+        basicInfo: true, 
 
-        id: '',   
+        technical: false, 
 
-        name: '',   
+        maintenance: false, 
 
-        status: 'Pendiente',   
+        notes: false, 
 
-        year: new Date().getFullYear(),   
-
-        model: '',   
-
-        golpes: '',   
-
-        golpes_acum: '',   
-
-        capacidad_golpes: '',   
-
-        rectificaciones: '0',   
-
-        image_url: '',   
-
-        notes: '',   
-
-        prensa_asignada: '',   
-
-        tipo_troquel: 'Null',   
-
-        ubicacion: '',   
-
-        proveedor: '',   
-
-        peso_kg: '',   
-
-        dimensiones: '',   
-
-        material_base: '',   
-
-        num_estaciones: '',   
-
-        numero_serie: '',  
-
-        cavidades: '',  
-
-        color: '',  
-
-        ciclos: '',  
-
-        n_parte_1: '',  
-
-        n_parte_2: '',  
-
-        n_parte_3: '',  
-
-        n_parte_4: '',  
-
-        n_parte_5: '',  
-
-        n_parte_6: '',  
-
-    });   
+    }); 
 
  
 
-    const [focusedField, setFocusedField] = useState(null);   
+    // Toggle para secciones colapsables - memoized callbacks  
 
-    const [isSubmitting, setIsSubmitting] = useState(false);   
+    const toggleSection = useCallback((sectionKey) => {  
 
-    const [message, setMessage] = useState({ type: '', text: '' });   
+        setExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));   
 
-    const [imagePreview, setImagePreview] = useState(null);   
+    }, []);    
 
- 
+      
 
-    // Estado de lista   
+    // Expandir todas las secciones    
 
-    const [dies, setDies] = useState([]);   
+    const expandAllSections = useCallback(() => {    
 
-    const [isLoading, setIsLoading] = useState(false);   
+        setExpandedSections({    
 
-    const [searchTerm, setSearchTerm] = useState('');   
+            basicInfo: true,    
 
-    const [filterYear, setFilterYear] = useState('');   
+            production: true,    
 
-    const [filterStatus, setFilterStatus] = useState('');   
+            technical: true,   
 
- 
+            partNumbers: true,   
 
-    // Estado del modal   
+            image: true,    
 
-    const [showDeleteModal, setShowDeleteModal] = useState(false);   
+            notes: true,    
 
-    const [dieToDelete, setDieToDelete] = useState(null);   
+        });    
 
-    const [editingDie, setEditingDie] = useState(null);   
-
- 
-
-    // Estadísticas   
-
-    const [stats, setStats] = useState({   
-
-        total: 0,   
-
-        activos: 0,   
-
-        reparando: 0,   
-
-        pendientes: 0,   
-
-    });   
+    }, []);    
 
  
 
-    // Toggle para secciones colapsables - memoized callbacks 
+    // Colapsar todas las secciones excepto la básica    
 
-    const toggleSection = useCallback((sectionKey) => { 
+    const collapseAllSections = useCallback(() => {    
 
-        setExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));  
+        setExpandedSections({    
 
-    }, []);   
+            basicInfo: true,    
 
-     
+            production: false,    
 
-    // Expandir todas las secciones   
+            technical: false,   
 
-    const expandAllSections = useCallback(() => {   
+            partNumbers: false,   
 
-        setExpandedSections({   
+            image: false,    
 
-            basicInfo: true,   
+            notes: false,    
 
-            production: true,   
+        });    
 
-            technical: true,  
-
-            partNumbers: true,  
-
-            image: true,   
-
-            notes: true,   
-
-        });   
-
-    }, []);   
+    }, []);    
 
  
 
-    // Colapsar todas las secciones excepto la básica   
+    // Toggle para secciones de prensa 
 
-    const collapseAllSections = useCallback(() => {   
+    const togglePrensaSection = useCallback((sectionKey) => { 
 
-        setExpandedSections({   
-
-            basicInfo: true,   
-
-            production: false,   
-
-            technical: false,  
-
-            partNumbers: false,  
-
-            image: false,   
-
-            notes: false,   
-
-        });   
-
-    }, []);   
-
- 
-
-    // Cargar opciones de dropdowns desde la base de datos   
-
-    useEffect(() => {   
-
-        const fetchDropdownOptions = async () => {   
-
-            setOptionsLoading(true);   
-
-            try {   
-
- 
-
-                // Fetch prensas   
-
-                const prensasResponse = await fetch(`${API_BASE}/prensas.php`, {   
-
-                    credentials: 'include',   
-
-                });   
-
-                if (prensasResponse.ok) {   
-
-                    const prensasData = await prensasResponse.json();   
-
-                    if (Array.isArray(prensasData) && prensasData.length > 0) {  
-
-                        setPressOptions(prensasData);  
-
-                    }   
-
-                }	   
-
- 
-
-                // Fetch tipos de troquel   
-
-                const tiposResponse = await fetch(`${API_BASE}/tipos_troquel.php`, {credentials: 'include',});   
-
-                if (tiposResponse.ok) {   
-
-                    const tiposData = await tiposResponse.json();   
-
-                    if (Array.isArray(tiposData) && tiposData.length > 0) {   
-
-                        setDieTypeOptions(tiposData);   
-
-                    }   
-
-                }   
-
- 
-
-                // Fetch estados   
-
-                const estadosResponse = await fetch(`${API_BASE}/estados.php`, {credentials: 'include',});   
-
-                if (estadosResponse.ok) {   
-
-                    const estadosData = await estadosResponse.json();   
-
-                    if (Array.isArray(estadosData) && estadosData.length > 0) {   
-
-                        setStatusOptions(estadosData);   
-
-                    }   
-
-                }   
-
-            } catch (error) {   
-
-                console.error('Error fetching dropdown options:', error);   
-
-            } finally {   
-
-                setOptionsLoading(false);   
-
-            }   
-
-        };   
-
-        fetchDropdownOptions();   
-
-    }, []);   
-
- 
-
-    // Obtener troqueles cuando se cambia a pestaña de administración   
-
-    useEffect(() => {   
-
-        if (activeTab === 'manage') {   
-
-            fetchDies();   
-
-        }   
-
-    }, [activeTab, filterYear, filterStatus]);   
-
- 
-
-    const fetchDies = async () => {   
-
-        setIsLoading(true);   
-
-            try {   
-
-                let url = `${API_BASE}/troqueles.php`;   
-
-                const params = new URLSearchParams();   
-
-                if (filterYear) params.append('year', filterYear);   
-
-                if (filterStatus) params.append('status', filterStatus);   
-
-                     
-
-                //usar el endpoint de busqueda si se aplican los filtros, sino usar el endpoint principal  
-
-                if (params.toString()) {   
-
-                    url = `${API_BASE}/troqueles.php/search?${params.toString()}`;   
-
-                }   
-
- 
-
-                const response = await fetch(url, {credentials: 'include',});   
-
-                 
-
-                //manejar respuestas tanto en objeto como array  
-
-                const handleResponse = (data) => {   
-
-                    if (Array.isArray(data)) { return data;}   
-
-                         
-
-                    //si estan agrupadas por año hacerlo array o aplanar  
-
-                    if (typeof data === 'object' && data !== null) {   
-
-                        const flattened = [];   
-
-                            Object.keys(data).forEach(year => {   
-
-                                if (Array.isArray(data[year])) {   
-
-                                    data[year].forEach(item => {   
-
-                                        flattened.push({   
-
-                                            ...item,   
-
-                                            id_troquel: item.id || item.id_troquel,   
-
-                                            nombre: item.name || item.nombre,   
-
-                                            estado: item.status || item.estado,   
-
-                                            año: item.year || year,   
-
-                                            modelo: item.model || item.modelo,   
-
-                                        });   
-
-                                    });   
-
-                                }   
-
-                            });   
-
-                        return flattened;   
-
-                    }   
-
-                    return [];   
-
-                };   
-
- 
-
-                if (response.ok) {   
-
-                    const data = await response.json();   
-
-                    const diesArray = handleResponse(data);   
-
-                    setDies(diesArray);   
-
-                    setStats({   
-
-                        total: diesArray.length,   
-
-                        activos: diesArray.filter(d =>   
-
-                            d.status === 'En prensa' || d.estado === 'En prensa' ||   
-
-                            d.status === 'Listo' || d.estado === 'Listo'   
-
-                        ).length,   
-
-                        reparando: diesArray.filter(d => d.status === 'Reparando' || d.estado === 'Reparando').length,   
-
-                        pendientes: diesArray.filter(d =>   
-
-                            d.status === 'Pendiente' || d.estado === 'Pendiente'   
-
-                            ).length,   
-
-                    });   
-
-                } else {   
-
-                    const errorData = await response.json().catch(() => ({}));   
-
-                    console.error('Error response:', errorData);   
-
-                    setMessage({ type: 'error', text: errorData.message || 'Error al cargar troqueles' });   
-
-                }   
-
-            } catch (error) {   
-
-                console.error('Error fetching dies:', error);   
-
-                setMessage({ type: 'error', text: 'Error de conexión al servidor' });   
-
-            } finally {   
-
-                setIsLoading(false);   
-
-            }   
-
-    };   
-
- 
-
-    const handleInputChange = useCallback((e) => {   
-
-        const { name, value } = e.target;   
-
-        setFormData(prev => ({...prev, [name]: value }));   
-
-    }, []);   
-
- 
-
-    const handleImageUrlChange = useCallback((e) => {   
-
-        const url = e.target.value;   
-
-        setFormData(prev => ({...prev, image_url: url }));   
-
-        setImagePreview(url || null);   
-
-    }, []);   
-
- 
-
-    const handleImageUpload = useCallback((e) => {   
-
-        const file = e.target.files[0];   
-
-        if (file) {   
-
-            const reader = new FileReader();   
-
-            reader.onloadend = () => {   
-
-                setImagePreview(reader.result);   
-
-                setFormData(prev => ({...prev, image_url: reader.result}));   
-
-            };   
-
-            reader.readAsDataURL(file);   
-
-        }   
-
-    }, []);   
-
- 
-
-    const removeImage = useCallback(() => {   
-
-        setImagePreview(null);   
-
-        setFormData(prev => ({...prev, image_url: ''}));   
-
-    }, []);   
-
- 
-
-    const validateForm = useCallback(() => {   
-
-        if (!formData.id.trim()) return 'El ID del troquel es requerido';   
-
-        if (!formData.name.trim()) return 'El nombre del troquel es requerido';   
-
-        if (!formData.year) return 'El año es requerido';   
-
-        return null;   
-
-    }, [formData]);   
-
- 
-
-    const handleSubmit = useCallback(async (e) => {   
-
-        e.preventDefault();   
-
-        const validationError = validateForm();   
-
-        if (validationError) {   
-
-            setMessage({ type: 'error', text: validationError });   
-
-         
-
-            // Expandir la sección básica si hay error de validación   
-
-            setExpandedSections(prev => ({ ...prev, basicInfo: true }));   
-
-            return;   
-
-        }   
-
- 
-
-        setIsSubmitting(true);   
-
-        setMessage({ type: '', text: '' });   
-
- 
-
-        try {   
-
-            const isEditing = !!editingDie;   
-
-            const troquelId = formData.id.trim().toUpperCase();   
-
-            const url = isEditing   
-
-                ? `${API_BASE}/troqueles.php/${encodeURIComponent(editingDie.id || editingDie.id_troquel)}`   
-
-                : `${API_BASE}/troqueles.php`;   
-
-            const method = isEditing ? 'PUT' : 'POST';   
-
-            const apiData = mapFormToApi(formData);   
-
-            console.log('Sending data to API:', apiData);   
-
-            const response = await fetch(url, {   
-
-                method,   
-
-                headers: { 'Content-Type': 'application/json' },   
-
-                credentials: 'include',   
-
-                body: JSON.stringify(apiData),  
-
-            });   
-
- 
-
-            const responseData = await response.json();   
-
- 
-
-            if (!response.ok) {   
-
-                throw new Error(responseData.message || 'Error al procesar el troquel');   
-
-            }   
-
- 
-
-            const actionText = isEditing ? 'actualizado' : 'registrado';   
-
-            setMessage({ type: 'success', text: `¡Troquel ${troquelId} ${actionText} exitosamente!` });   
-
-            handleReset();   
-
-            setEditingDie(null);   
-
- 
-
-            if (activeTab === 'manage') {fetchDies();}   
-
-        } catch (error) {   
-
-            console.error('Error submitting form:', error);   
-
-            setMessage({ type: 'error', text: error.message || 'Error al procesar el troquel.' });   
-
-        } finally {   
-
-            setIsSubmitting(false);   
-
-        }   
-
-    }, [formData, validateForm, editingDie, activeTab]);   
-
- 
-
-    const handleReset = useCallback(() => {   
-
-        setFormData({   
-
-            id: '',   
-
-            name: '',   
-
-            status: 'Pendiente',   
-
-            year: new Date().getFullYear(),   
-
-            model: '',   
-
-            golpes: '',   
-
-            golpes_acum: '',   
-
-            capacidad_golpes: '',   
-
-            rectificaciones: '0',   
-
-            image_url: '',   
-
-            notes: '',   
-
-            prensa_asignada: '',   
-
-            tipo_troquel: 'Null',   
-
-            ubicacion: '',   
-
-            numero_serie: '',   
-
-            proveedor: '',   
-
-            peso_kg: '',   
-
-            dimensiones: '',   
-
-            material_base: '',   
-
-            num_estaciones: '',  
-
-            cavidades: '',  
-
-            color: '',  
-
-            ciclos: '',  
-
-            n_parte_1: '',  
-
-            n_parte_2: '',  
-
-            n_parte_3: '',  
-
-            n_parte_4: '',  
-
-            n_parte_5: '',  
-
-            n_parte_6: '',  
-
-        });   
-
- 
-
-        setImagePreview(null);   
-
-        setMessage({ type: '', text: '' });   
-
-        setEditingDie(null);   
-
- 
-
-        // Resetear secciones colapsables   
-
-        collapseAllSections();   
-
-    }, [collapseAllSections]);   
-
- 
-
-    const handleEdit = useCallback((die) => {   
-
-        setEditingDie(die);   
-
-        const mappedData = mapApiToForm(die);   
-
-        setFormData(mappedData);   
-
-        setImagePreview(die.image_url || null);   
-
-        setActiveTab('register');   
-
-        setMessage({ type: '', text: '' });   
-
- 
-
-        // Expandir todas las secciones al editar   
-
-        expandAllSections();   
-
-    }, [expandAllSections]);   
-
- 
-
-    const handleDeleteClick = useCallback((die) => {   
-
-        setDieToDelete(die);   
-
-        setShowDeleteModal(true);   
-
-    }, []);   
-
- 
-
-    const handleDeleteConfirm = useCallback(async () => {   
-
-        if (!dieToDelete) return;   
-
-        try {   
-
-            const dieId = dieToDelete.id || dieToDelete.id_troquel;   
-
-            const response = await fetch(`${API_BASE}/troqueles.php/${encodeURIComponent(dieId)}`, {   
-
-                method: 'DELETE',   
-
-                credentials: 'include',   
-
-            });   
-
- 
-
-            const responseData = await response.json();   
-
-            if (response.ok && responseData.success !== false) {   
-
-                setMessage({ type: 'success', text: `Troquel ${dieId} eliminado correctamente` });   
-
-                fetchDies();   
-
-            } else {   
-
-                throw new Error(responseData.message || 'Error al eliminar');   
-
-            }   
-
-        } catch (error) {   
-
-            console.error('Error deleting die:', error);   
-
-            setMessage({ type: 'error', text: error.message || 'Error al eliminar el troquel' });   
-
-        } finally {   
-
-            setShowDeleteModal(false);   
-
-            setDieToDelete(null);   
-
-        }   
-
-    }, [dieToDelete]);   
-
- 
-
-    const filteredDies = useMemo(() => {   
-
-        return dies.filter(die => {   
-
-            const dieId = (die.id || die.id_troquel || '').toLowerCase();   
-
-            const dieName = (die.name || die.nombre || '').toLowerCase();   
-
-            const dieModel = (die.model || die.modelo || '').toLowerCase();   
-
-            const search = searchTerm.toLowerCase();   
-
-            const matchesSearch = !searchTerm ||   
-
-            dieId.includes(search) ||   
-
-            dieName.includes(search) ||   
-
-            dieModel.includes(search);   
-
-            return matchesSearch;   
-
-        });   
-
-    }, [dies, searchTerm]);   
-
- 
-
-    // Stable focus handlers 
-
-    const handleFocus = useCallback((fieldName) => { 
-
-        setFocusedField(fieldName); 
+        setPrensaExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] })); 
 
     }, []); 
 
  
 
-    const handleBlur = useCallback(() => { 
+    const expandAllPrensaSections = useCallback(() => { 
 
-        setFocusedField(null); 
+        setPrensaExpandedSections({ 
+
+            basicInfo: true, 
+
+            technical: true, 
+
+            maintenance: true, 
+
+            notes: true, 
+
+        }); 
 
     }, []); 
 
  
 
-    const getInputStyle = useCallback((fieldName, disabled = false) => {   
+    const collapseAllPrensaSections = useCallback(() => { 
 
-        const baseStyle = { ...styles.input, ...(disabled ? styles.inputDisabled : {}),};   
+        setPrensaExpandedSections({ 
 
- 
+            basicInfo: true, 
 
-        if (focusedField === fieldName) {   
+            technical: false, 
 
-            return { ...baseStyle,   
+            maintenance: false, 
 
-                borderColor: '#00ff88',   
+            notes: false, 
 
-                borderWidth: '1px',   
+        }); 
 
-                borderStyle: 'solid',   
-
-                boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',   
-
-            };   
-
-        }   
+    }, []); 
 
  
 
-        return baseStyle;   
+    // Cargar opciones de dropdowns desde la base de datos    
 
-    }, [focusedField, styles]);   
+    useEffect(() => {    
+
+        const fetchDropdownOptions = async () => {    
+
+            setOptionsLoading(true);    
+
+            try {    
 
  
 
-    const getSelectStyle = useCallback((fieldName) => {   
+                // Fetch prensas    
 
-        const baseStyle = styles.select;   
+                const prensasResponse = await fetch(`${API_BASE}/prensas.php`, {    
+
+                    credentials: 'include',    
+
+                });    
+
+                if (prensasResponse.ok) {    
+
+                    const prensasData = await prensasResponse.json();    
+
+                    if (Array.isArray(prensasData) && prensasData.length > 0) {   
+
+                        setPressOptions(prensasData);   
+
+                    }    
+
+                }	    
+
+ 
+
+                // Fetch tipos de troquel    
+
+                const tiposResponse = await fetch(`${API_BASE}/tipos_troquel.php`, {credentials: 'include',});    
+
+                if (tiposResponse.ok) {    
+
+                    const tiposData = await tiposResponse.json();    
+
+                    if (Array.isArray(tiposData) && tiposData.length > 0) {    
+
+                        setDieTypeOptions(tiposData);    
+
+                    }    
+
+                }    
+
+ 
+
+                // Fetch estados    
+
+                const estadosResponse = await fetch(`${API_BASE}/estados.php`, {credentials: 'include',});    
+
+                if (estadosResponse.ok) {    
+
+                    const estadosData = await estadosResponse.json();    
+
+                    if (Array.isArray(estadosData) && estadosData.length > 0) {    
+
+                        setStatusOptions(estadosData);    
+
+                    }    
+
+                }    
+
+            } catch (error) {    
+
+                console.error('Error fetching dropdown options:', error);    
+
+            } finally {    
+
+                setOptionsLoading(false);    
+
+            }    
+
+        };    
+
+        fetchDropdownOptions();    
+
+    }, []);    
+
+ 
+
+    // Obtener troqueles cuando se cambia a pestaña de administración    
+
+    useEffect(() => {    
+
+        if (activeTab === 'manage') {    
+
+            fetchDies();    
+
+        }    
+
+    }, [activeTab, filterYear, filterStatus]);    
+
+ 
+
+    // Obtener prensas cuando se cambia a pestaña de prensas 
+
+    useEffect(() => { 
+
+        if (activeTab === 'prensas' || activeTab === 'prensas-manage') { 
+
+            fetchPrensas(); 
+
+        } 
+
+    }, [activeTab, prensaFilterStatus]); 
+
+ 
+
+    const fetchDies = async () => {    
+
+        setIsLoading(true);    
+
+            try {    
+
+                let url = `${API_BASE}/troqueles.php`;    
+
+                const params = new URLSearchParams();    
+
+                if (filterYear) params.append('year', filterYear);    
+
+                if (filterStatus) params.append('status', filterStatus);    
+
+                      
+
+                //usar el endpoint de busqueda si se aplican los filtros, sino usar el endpoint principal   
+
+                if (params.toString()) {    
+
+                    url = `${API_BASE}/troqueles.php/search?${params.toString()}`;    
+
+                }    
+
+ 
+
+                const response = await fetch(url, {credentials: 'include',});    
+
+                  
+
+                //manejar respuestas tanto en objeto como array   
+
+                const handleResponse = (data) => {    
+
+                    if (Array.isArray(data)) { return data;}    
+
+                          
+
+                    //si estan agrupadas por año hacerlo array o aplanar   
+
+                    if (typeof data === 'object' && data !== null) {    
+
+                        const flattened = [];    
+
+                        Object.values(data).forEach(yearGroup => {    
+
+                            if (Array.isArray(yearGroup)) {    
+
+                                flattened.push(...yearGroup);    
+
+                            }    
+
+                        });    
+
+                        return flattened;    
+
+                    }    
+
+                    return [];    
+
+                };    
+
+                  
+
+                const data = await response.json();    
+
+                const processedData = handleResponse(data);    
+
+                setDies(processedData);    
+
+                  
+
+                // Calcular estadísticas    
+
+                const total = processedData.length;    
+
+                const activos = processedData.filter(d => {    
+
+                    const status = d.status || d.estado;    
+
+                    return status === 'En prensa' || status === 'Listo' || status === 'Listo-BackUp';    
+
+                }).length;    
+
+                const reparando = processedData.filter(d => (d.status || d.estado) === 'Reparando').length;    
+
+                const pendientes = processedData.filter(d => (d.status || d.estado) === 'Pendiente').length;    
+
+                  
+
+                setStats({ total, activos, reparando, pendientes });    
+
+            } catch (error) {    
+
+                console.error('Error fetching dies:', error);    
+
+                setMessage({ type: 'error', text: 'Error al cargar los troqueles' });    
+
+            } finally {    
+
+                setIsLoading(false);    
+
+            }    
+
+    };    
+
+ 
+
+    // ==================== FUNCIONES PARA PRENSAS ==================== 
+
+    const fetchPrensas = async () => { 
+
+        setPrensasLoading(true); 
+
+        try { 
+
+            let url = `${API_BASE}/prensas_crud.php`; 
+
+            const params = new URLSearchParams(); 
+
+            if (prensaFilterStatus) params.append('estado', prensaFilterStatus); 
+
+             
+
+            if (params.toString()) { 
+
+                url = `${url}?${params.toString()}`; 
+
+            } 
+
+ 
+
+            const response = await fetch(url, { credentials: 'include' }); 
+
+            const data = await response.json(); 
+
+             
+
+            if (Array.isArray(data)) { 
+
+                setPrensas(data); 
+
+            } else if (data.data && Array.isArray(data.data)) { 
+
+                setPrensas(data.data); 
+
+            } else { 
+
+                setPrensas([]); 
+
+            } 
+
+        } catch (error) { 
+
+            console.error('Error fetching prensas:', error); 
+
+            setMessage({ type: 'error', text: 'Error al cargar las prensas' }); 
+
+        } finally { 
+
+            setPrensasLoading(false); 
+
+        } 
+
+    }; 
+
+ 
+
+    const handlePrensaInputChange = useCallback((e) => { 
+
+        const { name, value } = e.target; 
+
+        setPrensaFormData(prev => ({ ...prev, [name]: value })); 
+
+    }, []); 
+
+ 
+
+    const handlePrensaSubmit = async (e) => { 
+
+        e.preventDefault(); 
 
          
 
-        if (focusedField === fieldName) {   
+        // Validaciones 
 
-            return {   
+        if (!prensaFormData.identificador_prensa?.trim()) { 
 
-                ...baseStyle,   
+            setMessage({ type: 'error', text: 'El identificador de la prensa es requerido' }); 
 
-                borderColor: '#00ff88',   
+            return; 
 
-                borderWidth: '1px',   
+        } 
 
-                borderStyle: 'solid',   
+        if (!prensaFormData.nombre?.trim()) { 
 
-                boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',   
+            setMessage({ type: 'error', text: 'El nombre de la prensa es requerido' }); 
 
-            };   
+            return; 
 
-        }   
-
-        return baseStyle;   
-
-    }, [focusedField, styles]);   
+        } 
 
  
 
-    // Estilos adicionales para controles de secciones   
+        setIsSubmitting(true); 
 
-    const sectionControlStyles = {   
-
-        container: {   
-
-            display: 'flex',   
-
-            justifyContent: 'flex-end',   
-
-            gap: '8px',   
-
-            marginBottom: '16px',   
-
-        },   
-
-        button: {   
-
-            background: 'transparent',   
-
-            border: '1px solid rgba(0, 255, 136, 0.3)',   
-
-            borderRadius: '6px',   
-
-            padding: '6px 12px',   
-
-            fontSize: '11px',   
-
-            color: '#00ff88',   
-
-            cursor: 'pointer',   
-
-            transition: 'all 0.2s ease',   
-
-            display: 'flex',   
-
-            alignItems: 'center',   
-
-            gap: '6px',   
-
-        },   
-
-    };   
+        setMessage({ type: '', text: '' }); 
 
  
 
-    // Memoized toggle handlers for each section 
+        try { 
+
+            const url = `${API_BASE}/prensas_crud.php`; 
+
+            const method = editingPrensa ? 'PUT' : 'POST'; 
+
+             
+
+            const payload = { 
+
+                ...prensaFormData, 
+
+                identificador_prensa: prensaFormData.identificador_prensa.trim().toUpperCase(), 
+
+            }; 
+
+ 
+
+            if (editingPrensa) { 
+
+                payload.id_prensa = editingPrensa.id_prensa; 
+
+            } 
+
+ 
+
+            const response = await fetch(url, { 
+
+                method, 
+
+                headers: { 'Content-Type': 'application/json' }, 
+
+                credentials: 'include', 
+
+                body: JSON.stringify(payload), 
+
+            }); 
+
+ 
+
+            const result = await response.json(); 
+
+ 
+
+            if (response.ok && result.success) { 
+
+                setMessage({ 
+
+                    type: 'success', 
+
+                    text: editingPrensa  
+
+                        ? `Prensa ${prensaFormData.identificador_prensa} actualizada exitosamente` 
+
+                        : `Prensa ${prensaFormData.identificador_prensa} registrada exitosamente` 
+
+                }); 
+
+                handlePrensaReset(); 
+
+                fetchPrensas(); 
+
+                // Refresh press options for die assignment 
+
+                const prensasResponse = await fetch(`${API_BASE}/prensas.php`, { credentials: 'include' }); 
+
+                if (prensasResponse.ok) { 
+
+                    const prensasData = await prensasResponse.json(); 
+
+                    if (Array.isArray(prensasData) && prensasData.length > 0) { 
+
+                        setPressOptions(prensasData); 
+
+                    } 
+
+                } 
+
+            } else { 
+
+                throw new Error(result.message || 'Error al guardar la prensa'); 
+
+            } 
+
+        } catch (error) { 
+
+            console.error('Error saving prensa:', error); 
+
+            setMessage({ type: 'error', text: error.message || 'Error al guardar la prensa' }); 
+
+        } finally { 
+
+            setIsSubmitting(false); 
+
+            setTimeout(() => setMessage({ type: '', text: '' }), 5000); 
+
+        } 
+
+    }; 
+
+ 
+
+    const handlePrensaReset = useCallback(() => { 
+
+        setPrensaFormData({ 
+
+            identificador_prensa: '', 
+
+            nombre: '', 
+
+            estado: 'Activa', 
+
+            tonelaje: '', 
+
+            marca: '', 
+
+            modelo: '', 
+
+            año_fabricacion: new Date().getFullYear(), 
+
+            numero_serie: '', 
+
+            ubicacion: '', 
+
+            velocidad_max: '', 
+
+            carrera: '', 
+
+            area_trabajo: '', 
+
+            fecha_ultimo_mantenimiento: '', 
+
+            notas: '', 
+
+        }); 
+
+        setEditingPrensa(null); 
+
+        collapseAllPrensaSections(); 
+
+    }, [collapseAllPrensaSections]); 
+
+ 
+
+    const handleEditPrensa = useCallback((prensa) => { 
+
+        setEditingPrensa(prensa); 
+
+        setPrensaFormData({ 
+
+            identificador_prensa: prensa.identificador_prensa || '', 
+
+            nombre: prensa.nombre || '', 
+
+            estado: prensa.estado || 'Activa', 
+
+            tonelaje: prensa.tonelaje || '', 
+
+            marca: prensa.marca || '', 
+
+            modelo: prensa.modelo || '', 
+
+            año_fabricacion: prensa.año_fabricacion || new Date().getFullYear(), 
+
+            numero_serie: prensa.numero_serie || '', 
+
+            ubicacion: prensa.ubicacion || '', 
+
+            velocidad_max: prensa.velocidad_max || '', 
+
+            carrera: prensa.carrera || '', 
+
+            area_trabajo: prensa.area_trabajo || '', 
+
+            fecha_ultimo_mantenimiento: prensa.fecha_ultimo_mantenimiento || '', 
+
+            notas: prensa.notas || '', 
+
+        }); 
+
+        setActiveTab('prensas'); 
+
+        expandAllPrensaSections(); 
+
+    }, [expandAllPrensaSections]); 
+
+ 
+
+    const handleDeletePrensaClick = useCallback((prensa) => { 
+
+        setPrensaToDelete(prensa); 
+
+        setShowDeletePrensaModal(true); 
+
+    }, []); 
+
+ 
+
+    const handleDeletePrensaConfirm = async () => { 
+
+        if (!prensaToDelete) return; 
+
+ 
+
+        try { 
+
+            const response = await fetch(`${API_BASE}/prensas_crud.php?id=${prensaToDelete.id_prensa}`, { 
+
+                method: 'DELETE', 
+
+                credentials: 'include', 
+
+            }); 
+
+ 
+
+            const result = await response.json(); 
+
+ 
+
+            if (response.ok && result.success) { 
+
+                setMessage({ type: 'success', text: `Prensa ${prensaToDelete.identificador_prensa} eliminada exitosamente` }); 
+
+                fetchPrensas(); 
+
+                // Refresh press options 
+
+                const prensasResponse = await fetch(`${API_BASE}/prensas.php`, { credentials: 'include' }); 
+
+                if (prensasResponse.ok) { 
+
+                    const prensasData = await prensasResponse.json(); 
+
+                    if (Array.isArray(prensasData) && prensasData.length > 0) { 
+
+                        setPressOptions(prensasData); 
+
+                    } 
+
+                } 
+
+            } else { 
+
+                throw new Error(result.message || 'Error al eliminar la prensa'); 
+
+            } 
+
+        } catch (error) { 
+
+            console.error('Error deleting prensa:', error); 
+
+            setMessage({ type: 'error', text: error.message || 'Error al eliminar la prensa' }); 
+
+        } finally { 
+
+            setShowDeletePrensaModal(false); 
+
+            setPrensaToDelete(null); 
+
+            setTimeout(() => setMessage({ type: '', text: '' }), 5000); 
+
+        } 
+
+    }; 
+
+ 
+
+    // Filtrar prensas 
+
+    const filteredPrensas = useMemo(() => { 
+
+        return prensas.filter(prensa => { 
+
+            const matchesSearch = !prensaSearchTerm ||  
+
+                (prensa.identificador_prensa?.toLowerCase().includes(prensaSearchTerm.toLowerCase())) || 
+
+                (prensa.nombre?.toLowerCase().includes(prensaSearchTerm.toLowerCase())); 
+
+            const matchesStatus = !prensaFilterStatus || prensa.estado === prensaFilterStatus; 
+
+            return matchesSearch && matchesStatus; 
+
+        }); 
+
+    }, [prensas, prensaSearchTerm, prensaFilterStatus]); 
+
+ 
+
+    // Estilos para obtener estado de prensa 
+
+    const getPrensaStatusStyle = (status) => { 
+
+        const statusStyles = { 
+
+            'Activa': { 
+
+                background: 'rgba(0, 255, 136, 0.15)', 
+
+                color: '#00ff88', 
+
+                border: '1px solid rgba(0, 255, 136, 0.3)' 
+
+            }, 
+
+            'En mantenimiento': { 
+
+                background: 'rgba(255, 200, 0, 0.15)', 
+
+                color: '#ffc800', 
+
+                border: '1px solid rgba(255, 200, 0, 0.3)' 
+
+            }, 
+
+            'Inactiva': { 
+
+                background: 'rgba(128, 128, 128, 0.15)', 
+
+                color: '#888', 
+
+                border: '1px solid rgba(128, 128, 128, 0.3)' 
+
+            }, 
+
+            'Fuera de servicio': { 
+
+                background: 'rgba(255, 107, 107, 0.15)', 
+
+                color: '#ff6b6b', 
+
+                border: '1px solid rgba(255, 107, 107, 0.3)' 
+
+            }, 
+
+        }; 
+
+        return statusStyles[status] || statusStyles['Activa']; 
+
+    }; 
+
+ 
+
+    // Memoized toggle callbacks for die sections 
 
     const toggleBasicInfo = useCallback(() => toggleSection('basicInfo'), [toggleSection]); 
 
@@ -1396,1762 +1466,2874 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
  
 
-    return (   
+    // Memoized toggle callbacks for prensa sections 
 
-        <div style={styles.container}>   
+    const togglePrensaBasicInfo = useCallback(() => togglePrensaSection('basicInfo'), [togglePrensaSection]); 
 
-            <div style={styles.gridOverlay}/>   
+    const togglePrensaTechnical = useCallback(() => togglePrensaSection('technical'), [togglePrensaSection]); 
 
-            <div style={styles.scanLine}/>   
+    const togglePrensaMaintenance = useCallback(() => togglePrensaSection('maintenance'), [togglePrensaSection]); 
 
-            {/* Header */}   
-
-            <header style={styles.header}>   
-
-                <div style={styles.logoSection}>   
-
-                    <div style={styles.logoIcon}>⚙</div>   
-
-                    <div style={styles.logoText}>   
-
-                        <span style={styles.logoTitle}>E-KANBAN</span>   
-
-                        <span style={styles.logoSubtitle}>Administración de Troqueles</span>   
-
-                    </div>   
-
-                </div>   
-
-                <div style={styles.headerRight}>   
-
-                    {user && (   
-
-                        <span style={{   
-
-                                ...styles.adminBadge,   
-
-                                background: 'rgba(0, 255, 136, 0.15)',   
-
-                                borderColor: '#00ff88',   
-
-                                color: '#00ff88',   
-
-                            }}>   
-
-                            {user.username}   
-
-                        </span>   
-
-                    )}   
-
-                    {onNavigateBack && (   
-
-                        <button style={styles.backButton}   
-
-                            onClick={onNavigateBack}   
-
-                            onMouseEnter={(e) => {   
-
-                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';   
-
-                                e.target.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.2)';   
-
-                            }}   
-
-                            onMouseLeave={(e) => {   
-
-                                e.target.style.background = 'transparent';   
-
-                                e.target.style.boxShadow = 'none';   
-
-                            }}   
-
-                        >   
-
-                            ← Volver al Dashboard   
-
-                        </button>   
-
-                    )}   
-
-                </div>   
-
-            </header>   
+    const togglePrensaNotes = useCallback(() => togglePrensaSection('notes'), [togglePrensaSection]); 
 
  
 
-            {/* Contenido principal */}   
+    // Input handlers for dies 
 
-            <main style={styles.mainContent}>   
+    const handleInputChange = useCallback((e) => {    
 
-             
+        const { name, value } = e.target;    
 
-            {/* Header de la página */}   
+        setFormData(prev => ({ ...prev, [name]: value }));    
 
-            <div style={styles.pageHeader}>   
-
-                <h1 style={styles.pageTitle}>   
-
-                    Gestión de Troqueles   
-
-                </h1>   
-
-                <p style={styles.pageSubtitle}>   
-
-                    Registre, administre y monitoree todos los troqueles del sistema   
-
-                </p>   
-
-            </div>   
+    }, []);    
 
  
 
-            {/* Navegación entre pestañas */}   
+    const handleFocus = useCallback((field) => {    
 
-            <div style={styles.tabsContainer}>   
+        setFocusedField(field);    
 
-                <button   
-
-                    style={{ ...styles.tab, ...(activeTab === 'register' ? styles.tabActive : {}) }}   
-
-                    onClick={() => { setActiveTab('register'); setEditingDie(null); handleReset(); }}   
-
-                >   
-
-                    {editingDie ? 'Editar Troquel' : 'Nuevo Registro'}   
-
-                </button>   
-
-                <button   
-
-                    style={{ ...styles.tab, ...(activeTab === 'manage' ? styles.tabActive : {}) }}   
-
-                    onClick={() => setActiveTab('manage')}   
-
-                >   
-
-                    Administrar Troqueles   
-
-                </button>   
-
-            </div>   
+    }, []);    
 
  
 
-            {/* Mensajes */}   
+    const handleBlur = useCallback(() => {    
 
-            {message.type === 'success' && (   
+        setFocusedField(null);    
 
-                <div style={styles.successMessage}>   
-
-                    <div style={{ ...styles.messageIcon, background: 'rgba(0, 255, 136, 0.15)' }}>✓</div>   
-
-                    <div>   
-
-                        <strong style={{ color: '#00ff88', fontSize: '14px' }}>   
-
-                            {message.text}   
-
-                        </strong>   
-
-                    </div>   
-
-                </div>   
-
-            )}   
+    }, []);    
 
  
 
-            {message.type === 'error' && (   
+    // Submit handler for dies 
 
-                <div style={styles.errorMessage}>   
+    const handleSubmit = async (e) => {    
 
-                    <div style={{ ...styles.messageIcon, background: 'rgba(255, 107, 107, 0.15)' }}>✕</div>   
+        e.preventDefault();    
 
-                    <div>   
+          
 
-                        <strong style={{ color: '#ff6b6b', fontSize: '14px' }}>   
+        // Validaciones    
 
-                            {message.text}   
+        if (!formData.id?.trim()) {    
 
-                        </strong>   
+            setMessage({ type: 'error', text: 'El ID del troquel es requerido' });    
 
-                    </div>   
+            return;    
 
-                </div>   
+        }    
 
-            )}   
+        if (!formData.name?.trim()) {    
 
- 
+            setMessage({ type: 'error', text: 'El nombre del troquel es requerido' });    
 
-            {/* Pestaña de registro */}   
+            return;    
 
-            {activeTab === 'register' && (   
-
-                <form onSubmit={handleSubmit}>   
-
-                    <div style={styles.formContainer}>   
-
-                 
-
-                    {/* Controles de secciones */}   
-
-                    <div style={sectionControlStyles.container}>   
-
-                        <button type="button"   
-
-                            style={sectionControlStyles.button}   
-
-                            onClick={expandAllSections}   
-
-                            onMouseEnter={(e) => {   
-
-                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';   
-
-                            }}   
-
-                            onMouseLeave={(e) => {   
-
-                                e.target.style.background = 'transparent';   
-
-                            }}   
-
-                        >   
-
-                            ▼ Expandir Todo   
-
-                        </button>   
-
-                        <button type="button"   
-
-                            style={sectionControlStyles.button}   
-
-                            onClick={collapseAllSections}   
-
-                            onMouseEnter={(e) => {   
-
-                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';   
-
-                            }}   
-
-                            onMouseLeave={(e) => {   
-
-                                e.target.style.background = 'transparent';   
-
-                            }}   
-
-                        >   
-
-                            ▲ Colapsar Todo   
-
-                        </button>   
-
-                    </div>   
+        }    
 
  
 
-                    {/* Información básica */}   
+        setIsSubmitting(true);    
 
-                    <CollapsibleSection   
-
-                        title="Información Básica"   
-
-                        isExpanded={expandedSections.basicInfo}   
-
-                        onToggle={toggleBasicInfo}   
-
-                        isRequired={true}   
-
-                    >   
-
-                    <div style={styles.formGrid}>   
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>   
-
-                                    ID del Troquel   
-
-                                <span style={styles.requiredStar}>*</span>   
-
-                            </label>   
-
-                            <input type="text"   
-
-                                name="id"   
-
-                                value={formData.id}   
-
-                                onChange={handleInputChange}   
-
-                                onFocus={() => handleFocus('id')}   
-
-                                onBlur={handleBlur}   
-
-                                style={getInputStyle('id', !!editingDie)}   
-
-                                placeholder="Ej: T001"   
-
-                                maxLength={50}   
-
-                                disabled={!!editingDie}   
-
-                            />   
-
-                        </div>   
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>   
-
-                                Nombre del Troquel   
-
-                                <span style={styles.requiredStar}>*</span>   
-
-                            </label>   
-
-                            <input type="text"   
-
-                                    name="name"   
-
-                                    value={formData.name}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('name')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('name')}   
-
-                                    placeholder="Ej: Alpha"   
-
-                                    maxLength={100}  
-
-                            />   
-
-                        </div>   
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>   
-
-                                Año de Registro   
-
-                                <span style={styles.requiredStar}>*</span>   
-
-                            </label>   
-
-                            <select name="year"   
-
-                                    value={formData.year}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('year')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getSelectStyle('year')}   
-
-                            >   
-
-                                {years.map(year => (<option key={year} value={year}>{year}</option> ))}   
-
-                            </select>   
-
-                        </div>   
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>Estado</label>   
-
-                            <select name="status"   
-
-                                value={formData.status}   
-
-                                onChange={handleInputChange}   
-
-                                onFocus={() => handleFocus('status')}   
-
-                                onBlur={handleBlur}   
-
-                                style={getSelectStyle('status')}   
-
-                                disabled={optionsLoading}   
-
-                            >   
-
-                                {statusOptions.map(opt => (   
-
-                                    <option key={opt.value} value={opt.value}>   
-
-                                        {opt.label}   
-
-                                    </option>   
-
-                                ))}   
-
-                            </select>   
-
-                        </div>   
-
-                        <div style={{ ...styles.inputGroup, ...styles.twoColumns }}>   
-
-                            <label style={styles.label}>Modelo / Número de Parte</label>   
-
-                                <input type="text"   
-
-                                    name="model"   
-
-                                    value={formData.model}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('model')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('model')}   
-
-                                    placeholder="Ej: G3-VSS - G3-VSS"   
-
-                                    maxLength={100}  
-
-                                />   
-
-                        </div>   
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>Tipo de Troquel</label>   
-
-                            <select name="tipo_troquel"   
-
-                                    value={formData.tipo_troquel}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('tipo_troquel')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getSelectStyle('tipo_troquel')}   
-
-                                    disabled={optionsLoading}   
-
-                            >   
-
-                                {dieTypeOptions.map(opt => (   
-
-                                    <option key={opt.value} value={opt.value}>   
-
-                                        {opt.label}   
-
-                                    </option>   
-
-                                ))}   
-
-                            </select>   
-
-                        </div>  
-
-                        <div style={styles.inputGroup}>   
-
-                            <label style={styles.label}>Color</label>   
-
-                            <input type="text"   
-
-                                    name="color"   
-
-                                    value={formData.color}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('color')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('color')}   
-
-                                    placeholder="Ej: Azul, Rojo"   
-
-                                    maxLength={50}  
-
-                            />   
-
-                        </div>  
-
-                    </div>   
+        setMessage({ type: '', text: '' });    
 
  
 
-                    </CollapsibleSection>   
+        try {    
+
+            const apiData = mapFormToApi(formData);    
+
+            const url = editingDie     
+
+                ? `${API_BASE}/troqueles.php/${apiData.id_troquel}`    
+
+                : `${API_BASE}/troqueles.php`;    
+
+            const method = editingDie ? 'PUT' : 'POST';    
+
+              
+
+            const response = await fetch(url, {    
+
+                method,    
+
+                headers: { 'Content-Type': 'application/json' },    
+
+                credentials: 'include',    
+
+                body: JSON.stringify(apiData),    
+
+            });    
 
  
 
-                    {/* Métricas de producción */}   
-
-                    <CollapsibleSection   
-
-                        title="Métricas de Producción"   
-
-                        isExpanded={expandedSections.production}   
-
-                        onToggle={toggleProduction}   
-
-                    >   
-
-                        <div style={styles.formGrid}>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Golpes Actuales</label>   
-
-                                <input type="text"   
-
-                                        name="golpes"   
-
-                                        value={formData.golpes}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('golpes')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('golpes')}   
-
-                                        placeholder="Ej: 257,540"   
-
-                                        maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Golpes Acumulados</label>   
-
-                                <input type="text"   
-
-                                        name="golpes_acum"   
-
-                                        value={formData.golpes_acum}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('golpes_acum')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('golpes_acum')}   
-
-                                        placeholder="Ej: 121,442,752"   
-
-                                        maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Capacidad de Golpes</label>   
-
-                                <input type="text"   
-
-                                        name="capacidad_golpes"   
-
-                                        value={formData.capacidad_golpes}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('capacidad_golpes')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('capacidad_golpes')}   
-
-                                        placeholder="Ej: 250,000,000"   
-
-                                        maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Ciclos</label>   
-
-                                <input type="text"   
-
-                                        name="ciclos"   
-
-                                        value={formData.ciclos}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('ciclos')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('ciclos')}   
-
-                                        placeholder="Ej: 1,500"   
-
-                                        maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Rectificaciones</label>   
-
-                                <input type="text"   
-
-                                        name="rectificaciones"   
-
-                                        value={formData.rectificaciones}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('rectificaciones')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('rectificaciones')}   
-
-                                        placeholder="Ej: 15 - (28/10/2025)"   
-
-                                        maxLength={100}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Número de Estaciones</label>   
-
-                                <input type="text"   
-
-                                        name="num_estaciones"   
-
-                                        value={formData.num_estaciones}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('num_estaciones')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('num_estaciones')}   
-
-                                        placeholder="Ej: 12"   
-
-                                        maxLength={20}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Cavidades</label>   
-
-                                <input type="text"   
-
-                                        name="cavidades"   
-
-                                        value={formData.cavidades}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('cavidades')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('cavidades')}   
-
-                                        placeholder="Ej: 4"   
-
-                                        maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Prensa Asignada</label>   
-
-                                <select name="prensa_asignada"   
-
-                                    value={formData.prensa_asignada}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('prensa_asignada')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getSelectStyle('prensa_asignada')}   
-
-                                    disabled={optionsLoading}   
-
-                                >   
-
-                                    {pressOptions.map(opt => (   
-
-                                        <option key={opt.value} value={opt.value}>   
-
-                                            {opt.label}   
-
-                                        </option>   
-
-                                    ))}   
-
-                                </select>   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Ubicación Actual</label>   
-
-                                <input type="text"   
-
-                                    name="ubicacion"   
-
-                                    value={formData.ubicacion}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('ubicacion')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('ubicacion')}   
-
-                                    placeholder="Ej: Rack A-12"   
-
-                                    maxLength={100}  
-
-                                />   
-
-                            </div>   
-
-                        </div>   
-
-                    </CollapsibleSection>   
+            const result = await response.json();    
 
  
 
-                    {/* Detalles técnicos */}   
+            if (response.ok && result.success) {    
 
-                    <CollapsibleSection   
+                setMessage({    
 
-                        title="Detalles Técnicos"   
+                    type: 'success',    
 
-                        isExpanded={expandedSections.technical}   
+                    text: editingDie     
 
-                        onToggle={toggleTechnical}   
+                        ? `Troquel ${apiData.id_troquel} actualizado exitosamente`    
 
-                    >   
+                        : `Troquel ${apiData.id_troquel} registrado exitosamente`    
 
-                        <div style={styles.formGrid}>   
+                });    
 
-                            <div style={styles.inputGroup}>   
+                handleReset();    
 
-                                <label style={styles.label}>Número de Serie</label>   
+                if (activeTab === 'manage') {    
 
-                                <input type="text"   
+                    fetchDies();    
 
-                                    name="numero_serie"   
+                }    
 
-                                    value={formData.numero_serie}   
+            } else {    
 
-                                    onChange={handleInputChange}   
+                throw new Error(result.message || 'Error al guardar el troquel');    
 
-                                    onFocus={() => handleFocus('numero_serie')}   
+            }    
 
-                                    onBlur={handleBlur}   
+        } catch (error) {    
 
-                                    style={getInputStyle('numero_serie')}   
+            console.error('Error saving die:', error);    
 
-                                    placeholder="Ej: SN-2024-00123"   
+            setMessage({ type: 'error', text: error.message || 'Error al guardar el troquel' });    
 
-                                    maxLength={100}  
+        } finally {    
 
-                                />   
+            setIsSubmitting(false);    
 
-                            </div>   
+            setTimeout(() => setMessage({ type: '', text: '' }), 5000);    
 
-                            <div style={styles.inputGroup}>   
+        }    
 
-                                <label style={styles.label}>Proveedor / Fabricante</label>   
-
-                                <input type="text"   
-
-                                    name="proveedor"   
-
-                                    value={formData.proveedor}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('proveedor')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('proveedor')}   
-
-                                    placeholder="Ej: Troqueles MX S.A."   
-
-                                    maxLength={150}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Peso (kg)</label>   
-
-                                <input type="text"   
-
-                                    name="peso_kg"   
-
-                                    value={formData.peso_kg}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('peso_kg')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('peso_kg')}   
-
-                                    placeholder="Ej: 1,250"   
-
-                                    maxLength={50}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Dimensiones (L x A x H)</label>   
-
-                                <input type="text"   
-
-                                    name="dimensiones"   
-
-                                    value={formData.dimensiones}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('dimensiones')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('dimensiones')}   
-
-                                    placeholder="Ej: 1200 x 800 x 600 mm"   
-
-                                    maxLength={100}  
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>Material Base</label>   
-
-                                <input type="text"   
-
-                                    name="material_base"   
-
-                                    value={formData.material_base}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('material_base')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('material_base')}   
-
-                                    placeholder="Ej: Acero D2, SKD11"   
-
-                                    maxLength={100}  
-
-                                />   
-
-                            </div>   
-
-                        </div>   
-
-                    </CollapsibleSection>  
+    };    
 
  
 
-                    {/* Números de Parte */}   
+    const handleReset = useCallback(() => {    
 
-                    <CollapsibleSection   
+        setFormData({    
 
-                        title="Números de Parte"   
+            id: '',    
 
+            name: '',    
 
-                        isExpanded={expandedSections.partNumbers}   
+            status: 'Pendiente',    
 
-                        onToggle={togglePartNumbers}   
+            year: new Date().getFullYear(),    
 
-                    >   
+            model: '',    
 
-                        <div style={styles.formGrid}>   
+            golpes: '',    
 
-                            <div style={styles.inputGroup}>   
+            golpes_acum: '',    
 
-                                <label style={styles.label}>N° Parte 1</label>   
+            capacidad_golpes: '',    
 
-                                <input type="text"   
+            rectificaciones: '0',    
 
-                                    name="n_parte_1"   
+            image_url: '',    
 
-                                    value={formData.n_parte_1}   
+            notes: '',    
 
-                                    onChange={handleInputChange}   
+            prensa_asignada: '',    
 
-                                    onFocus={() => handleFocus('n_parte_1')}   
+            tipo_troquel: 'Null',    
 
-                                    onBlur={handleBlur}   
+            ubicacion: '',    
 
-                                    style={getInputStyle('n_parte_1')}   
+            proveedor: '',    
 
-                                    placeholder="Ej: ABC-12345"   
+            peso_kg: '',    
 
-                                    maxLength={50}  
+            dimensiones: '',    
 
-                                />   
+            material_base: '',    
 
-                            </div>  
+            num_estaciones: '',    
 
-                            <div style={styles.inputGroup}>   
+            numero_serie: '',    
 
-                                <label style={styles.label}>N° Parte 2</label>   
+            cavidades: '',    
 
-                                <input type="text"   
+            color: '',    
 
-                                    name="n_parte_2"   
+            ciclos: '',    
 
-                                    value={formData.n_parte_2}   
+            n_parte_1: '',    
 
-                                    onChange={handleInputChange}   
+            n_parte_2: '',    
 
-                                    onFocus={() => handleFocus('n_parte_2')}   
+            n_parte_3: '',    
 
-                                    onBlur={handleBlur}   
+            n_parte_4: '',    
 
-                                    style={getInputStyle('n_parte_2')}   
+            n_parte_5: '',    
 
-                                    placeholder="Ej: ABC-12346"   
+            n_parte_6: '',    
 
-                                    maxLength={50}  
+        });    
 
-                                />   
+        setEditingDie(null);    
 
-                            </div>  
+        setImagePreview(null);    
 
-                            <div style={styles.inputGroup}>   
+        collapseAllSections();    
 
-                                <label style={styles.label}>N° Parte 3</label>   
-
-                                <input type="text"   
-
-                                    name="n_parte_3"   
-
-                                    value={formData.n_parte_3}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('n_parte_3')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('n_parte_3')}   
-
-                                    placeholder="Ej: ABC-12347"   
-
-                                    maxLength={50}  
-
-                                />   
-
-                            </div>  
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>N° Parte 4</label>   
-
-                                    <input type="text"   
-
-                                        name="n_parte_4"   
-
-                                        value={formData.n_parte_4}   
-
-                                        onChange={handleInputChange}   
-
-                                        onFocus={() => handleFocus('n_parte_4')}   
-
-                                        onBlur={handleBlur}   
-
-                                        style={getInputStyle('n_parte_4')}   
-
-                                        placeholder="Ej: ABC-12348"   
-
-                                        maxLength={50}  
-
-                                    />   
-
-                            </div>  
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>N° Parte 5</label>   
-
-                                <input type="text"   
-
-                                    name="n_parte_5"   
-
-                                    value={formData.n_parte_5}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('n_parte_5')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('n_parte_5')}   
-
-                                    placeholder="Ej: ABC-12349"   
-
-                                    maxLength={50}  
-
-                                />   
-
-                            </div>  
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>N° Parte 6</label>   
-
-                                <input type="text"   
-
-                                    name="n_parte_6"   
-
-                                    value={formData.n_parte_6}   
-
-                                    onChange={handleInputChange}   
-
-                                    onFocus={() => handleFocus('n_parte_6')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('n_parte_6')}   
-
-                                    placeholder="Ej: ABC-12350"   
-
-                                    maxLength={50}  
-
-                                />   
-
-                            </div>  
-
-                        </div>   
-
-                    </CollapsibleSection>  
+    }, [collapseAllSections]);    
 
  
 
-                    {/* Sección para la imagen */}   
+    const handleEdit = useCallback((die) => {    
 
-                    <CollapsibleSection   
+        setEditingDie(die);    
 
-                        title="Imagen del Troquel"   
+        setFormData(mapApiToForm(die));    
 
+        setActiveTab('register');    
 
-                        isExpanded={expandedSections.image}   
+        expandAllSections();    
 
-                        onToggle={toggleImage}   
-
-                    >   
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>   
-
-                            <div style={styles.inputGroup}>   
-
-                                <label style={styles.label}>URL de la Imagen</label>   
-
-                                <input type="text"   
-
-                                    name="image_url"   
-
-                                    value={formData.image_url}   
-
-                                    onChange={handleImageUrlChange}   
-
-                                    onFocus={() => handleFocus('image_url')}   
-
-                                    onBlur={handleBlur}   
-
-                                    style={getInputStyle('image_url')}   
-
-                                    placeholder="https://ejemplo.com/imagen.jpg"   
-
-                                />   
-
-                            </div>   
-
-                            <div style={styles.inputGroup}>   
-
-                                {imagePreview ? (   
-
-                                    <div style={styles.imagePreview}>   
-
-                                        <img src={imagePreview}   
-
-                                            alt="Preview"   
-
-                                            style={styles.imagePreviewImg}   
-
-                                            onError={() => setImagePreview(null)}   
-
-                                        />   
-
-                                        <button type="button"   
-
-                                            style={styles.imageRemoveBtn}   
-
-                                            onClick={removeImage}   
-
-                                        >   
-
-                                            ✕   
-
-                                        </button>   
-
-                                    </div>   
-
-                                ) : (   
-
-                                    <label style={styles.imageUploadArea}   
-
-                                        onMouseEnter={(e) => {   
-
-                                            e.currentTarget.style.borderColor = '#00ff88';   
-
-                                            e.currentTarget.style.background = 'rgba(0, 255, 136, 0.05)';   
-
-                                        }}   
-
-                                        onMouseLeave={(e) => {   
-
-                                            e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.25)';   
-
-                                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.2)';   
-
-                                        }}   
-
-                                    >   
-
-                                        <input type="file"   
-
-                                            accept="image/*"   
-
-                                            onChange={handleImageUpload}   
-
-                                            style={{ display: 'none' }}   
-
-                                        />	   
-
-                                        <p style={styles.imageUploadText}>Click para subir imagen</p>   
-
-                                        <p style={styles.imageUploadHint}>O ingrese una URL</p>   
-
-                                    </label>   
-
-                                )}   
-
-                            </div>   
-
-                        </div>   
-
-                    </CollapsibleSection>   
+    }, [expandAllSections]);    
 
  
 
-                    {/* Sección de notas */}   
-                    <CollapsibleSection   
-                        title="Observaciones"   
-                        icon="" 
-                        isExpanded={expandedSections.notes}   
-                        onToggle={toggleNotes}   
-                    >   
+    const handleDeleteClick = useCallback((die) => {    
 
-                        <div style={styles.inputGroup}>   
+        setDieToDelete(die);    
 
-                            <label style={styles.label}>Notas Adicionales (Opcional)</label>   
+        setShowDeleteModal(true);    
 
-                            <textarea name="notes"   
-
-                                value={formData.notes}   
-
-                                onChange={handleInputChange}   
-
-                                onFocus={() => handleFocus('notes')}   
-
-                                onBlur={handleBlur}   
-
-                                style={{...styles.textarea, ...(focusedField === 'notes' ? styles.inputFocus : {}),}}   
-
-                                placeholder="Ingrese cualquier observación adicional sobre el troquel..."   
-
-                            />   
-
-                        </div>   
-
-                    </CollapsibleSection>   
+    }, []);    
 
  
 
-                    {/* Botones de acción */}   
+    const handleDeleteConfirm = async () => {    
 
-                    <div style={styles.buttonGroup}>   
-
-                        <button type="button"   
-
-                            style={styles.btnSecondary}   
-
-                            onClick={handleReset}   
-
-                            onMouseEnter={(e) => {   
-
-                                e.target.style.borderColor = '#888';   
-
-                                e.target.style.color = '#fff';   
-
-                            }}   
-
-                            onMouseLeave={(e) => {   
-
-                                e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';   
-
-                                e.target.style.color = '#aaa';   
-
-                            }}   
-
-                        >   
-
-                            {editingDie ? 'Cancelar Edición' : 'Limpiar Formulario'}   
-
-                        </button>   
-
-                        <button type="submit"   
-
-                            style={{   
-
-                                ...styles.btnPrimary,   
-
-                                opacity: isSubmitting ? 0.7 : 1,   
-
-                                cursor: isSubmitting ? 'not-allowed' : 'pointer',   
-
-                            }}   
-
-                            disabled={isSubmitting}   
-
-                            onMouseEnter={(e) => {   
-
-                                if (!isSubmitting) {   
-
-                                    e.target.style.transform = 'translateY(-2px)';   
-
-                                    e.target.style.boxShadow = '0 8px 30px rgba(0, 255, 136, 0.4)';   
-
-                                }   
-
-                            }}   
-
-                            onMouseLeave={(e) => {   
-
-                                e.target.style.transform = 'translateY(0)';   
-
-                                e.target.style.boxShadow = '0 4px 20px rgba(0, 255, 136, 0.25)';   
-
-                            }}   
-
-                        > 	  
-
-                            {isSubmitting ? (   
-
-                            <>   
-
-                                <span style={styles.loadingSpinner} />	Procesando...   
-
-                            </>   
-
-                            ) : (   
-
-                                <>   
-
-                                    ✓ {editingDie ? 'Actualizar Troquel' : 'Registrar Troquel'}   
-
-                                </>   
-
-                            )}   
-
-                        </button>   
-
-                    </div>   
-
-                    </div>   
-
-                </form>   
-
-            )}   
+        if (!dieToDelete) return;    
 
  
 
-            {/* Página de administración */}   
+        const dieId = dieToDelete.id || dieToDelete.id_troquel;    
 
-            {activeTab === 'manage' && (   
+        try {    
 
-                <>   
+            const response = await fetch(`${API_BASE}/troqueles.php/${dieId}`, {    
 
-                    {/* Fila con estadísticas */}   
+                method: 'DELETE',    
 
-                    <div style={styles.statsRow}>   
+                credentials: 'include',    
 
-                        <div style={styles.statCard}>   
-
-                            <div>   
-
-                                <div style={styles.statValue}>{stats.total}</div>   
-
-                                <div style={styles.statLabel}>Total Troqueles</div>   
-
-                            </div>   
-
-                        </div>   
-
-                        <div style={styles.statCard}>   
-
-                            <div>   
-
-                                <div style={{ ...styles.statValue, color: '#64ff64' }}>{stats.activos}</div>   
-
-                                <div style={styles.statLabel}>Activos</div>   
-
-                            </div>   
-
-                        </div>   
-
-                        <div style={styles.statCard}>   
-
-                            <div>   
-
-                                <div style={{ ...styles.statValue, color: '#ffc800' }}>{stats.reparando}</div>   
-
-                                <div style={styles.statLabel}>En Reparación</div>   
-
-                            </div>   
-
-                        </div>   
-
-                        <div style={styles.statCard}>   
-
-                            <div>   
-
-                                <div style={{ ...styles.statValue, color: '#ff6b6b' }}>{stats.pendientes}</div>   
-
-                                <div style={styles.statLabel}>Pendientes</div>   
-
-                            </div>   
-
-                        </div>   
-
-                    </div>   
+            });    
 
  
 
-                    {/* Tabla */}   
-
-                    <div style={styles.tableContainer}>   
-
-                        <div style={styles.tableHeader}>   
-
-                            <div style={styles.tableTitle}>   
-
-                                Lista de Troqueles Registrados   
-
-                            </div>   
-
-                            <div style={styles.tableControls}>   
-
-                                <select value={filterYear}   
-
-                                    onChange={(e) => setFilterYear(e.target.value)}   
-
-                                    style={{ ...styles.tableFilter, width: '130px' }}   
-
-                                >   
-
-                                    <option value="">Todos los años</option>   
-
-                                    {years.slice(0, 10).map(year => ( <option key={year} value={year}>{year}</option> ))}   
-
-                                </select>   
-
-                                <select value={filterStatus}   
-
-                                    onChange={(e) => setFilterStatus(e.target.value)}   
-
-                                    style={{ ...styles.tableFilter, width: '150px' }}   
-
-                                >   
-
-                                    <option value="">Todos los estados</option>   
-
-                                    {statusOptions.map(opt => (   
-
-                                        <option key={opt.value} value={opt.value}>   
-
-                                            {opt.label}   
-
-                                        </option>   
-
-                                    ))}   
-
-                                </select>   
-
-                                <input type="text"   
-
-                                    placeholder="Buscar troquel..."   
-
-                                    value={searchTerm}   
-
-                                    onChange={(e) => setSearchTerm(e.target.value)}   
-
-                                    style={styles.tableSearch}   
-
-                                />   
-
-                                <button style={{ ...styles.btnPrimary, padding: '10px 20px', fontSize: '13px' }}   
-
-                                    onClick={fetchDies}   
-
-                                >   
-
-                                    Actualizar   
-
-                                </button>   
-
-                            </div>   
-
-                        </div>   
-
-                        {isLoading ? (   
-
-                            <div style={{ textAlign: 'center', padding: '60px' }}>   
-
-                                <div style={{ ...styles.loadingSpinner,   
-
-                                    width: '40px',   
-
-                                    height: '40px',   
-
-                                    borderWidth: '3px',   
-
-                                    margin: '0 auto 16px'   
-
-                                }} />   
-
-                                <p style={{ color: '#888' }}>Cargando troqueles...</p>   
-
-                            </div>   
-
-                        ) : filteredDies.length === 0 ? (   
-
-                            <div style={styles.emptyState}>   
-
-                                <p style={styles.emptyText}>No se encontraron troqueles</p>   
-
-                                <p style={{ fontSize: '12px', color: '#666' }}>   
-
-                                    {searchTerm ? 'Intente con otra búsqueda' : 'Registre un nuevo troquel para comenzar'}   
-
-                                </p>   
-
-                            </div>   
-
-                        ) : (   
-
-                            <>   
-
-                                <div style={{ overflowX: 'auto' }}>   
-
-                                    <table style={styles.table}>   
-
-                                        <thead>   
-
-                                            <tr>   
-
-                                                <th style={styles.th}>ID</th>   
-
-                                                <th style={styles.th}>Nombre</th>   
-
-                                                <th style={styles.th}>Año</th>   
-
-                                                <th style={styles.th}>Modelo</th>   
-
-                                                <th style={styles.th}>Estado</th>   
-
-                                                <th style={styles.th}>Golpes Acum.</th>   
-
-                                                <th style={styles.th}>Acciones</th>   
-
-                                            </tr>   
-
-                                        </thead>   
-
-                                        <tbody>   
-
-                                            {filteredDies.map((die) => {   
-
-                                                const dieId = die.id || die.id_troquel;   
-
-                                                const dieName = die.name || die.nombre;   
-
-                                                const dieYear = die.year || die.año;   
-
-                                                const dieModel = die.model || die.modelo || '-';   
-
-                                                const dieStatus = die.status || die.estado;   
-
-                                                const dieGolpesAcum = die.golpes_acum || '-';   
-
-                                                return (   
-
-                                                    <tr key={dieId}   
-
-                                                        style={styles.tableRow}   
-
-                                                        onMouseEnter={(e) => {   
-
-                                                            e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)';   
-
-                                                        }}   
-
-                                                        onMouseLeave={(e) => {   
-
-                                                            e.currentTarget.style.background = 'transparent';   
-
-                                                        }}   
-
-                                                    >   
-
-                                                        <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>   
-
-                                                            {dieId}   
-
-                                                        </td>   
-
-                                                        <td style={styles.td}>{dieName}</td>   
-
-                                                        <td style={styles.td}>{dieYear}</td>   
-
-                                                        <td style={styles.td}>{dieModel}</td>   
-
-                                                        <td style={styles.td}>   
-
-                                                            <span style={{ ...styles.statusBadge, ...getStatusStyle(dieStatus) }}>   
-
-                                                                {dieStatus}   
-
-                                                            </span>   
-
-                                                        </td>   
-
-                                                        <td style={styles.td}>{dieGolpesAcum}</td>   
-
-                                                        <td style={styles.td}>   
-
-                                                            <button style={styles.actionBtn}   
-
-                                                                    onClick={() => handleEdit(die)}   
-
-                                                                    onMouseEnter={(e) => {   
-
-                                                                        e.target.style.borderColor = '#00ff88';   
-
-                                                                        e.target.style.color = '#00ff88';   
-
-                                                                    }}   
-
-                                                                    onMouseLeave={(e) => {   
-
-                                                                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';   
-
-                                                                        e.target.style.color = '#aaa';   
-
-                                                                    }}   
-
-                                                            >   
-
-                                                                Editar   
-
-                                                            </button>   
-
-                                                            <button   
-
-                                                                style={{ ...styles.actionBtn, color: '#ff6b6b' }}   
-
-                                                                onClick={() => handleDeleteClick(die)}   
-
-                                                                onMouseEnter={(e) => {   
-
-                                                                    e.target.style.borderColor = '#ff6b6b';   
-
-                                                                    e.target.style.background = 'rgba(255, 107, 107, 0.1)';   
-
-                                                                }}   
-
-                                                                onMouseLeave={(e) => {   
-
-                                                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';   
-
-                                                                    e.target.style.background = 'transparent';   
-
-                                                                }}   
-
-                                                            >   
-
-                                                                Eliminar   
-
-                                                            </button>   
-
-                                                        </td>   
-
-                                                    </tr>   
-
-                                                );   
-
-                                            })}   
-
-                                        </tbody>   
-
-                                    </table>   
-
-                                </div>   
-
-                                <div style={styles.pagination}>   
-
-                                    <span style={styles.pageInfo}>   
-
-                                        Mostrando {filteredDies.length} de {dies.length} troqueles   
-
-                                    </span>   
-
-                                </div>       
-
-                            </>   
-
-                        )}       
-
-                    </div>       
-
-                </>   
-
-            )}   
-
-        </main>   
+            const result = await response.json();    
 
  
 
-        {/* Modal de confirmación de eliminación */}   
+            if (response.ok && result.success) {    
 
-        {showDeleteModal && (   
+                setMessage({ type: 'success', text: `Troquel ${dieId} eliminado exitosamente` });    
 
-            <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}>   
+                fetchDies();    
 
-                <div style={styles.modal} onClick={(e) => e.stopPropagation()}>   
+            } else {    
 
-                    <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>   
+                throw new Error(result.message || 'Error al eliminar el troquel');    
 
-                    <p style={styles.modalText}>   
+            }    
 
-                        ¿Está seguro de que desea eliminar el troquel{' '}   
+        } catch (error) {    
 
-                        <strong style={{ color: '#00ff88' }}>   
+            console.error('Error deleting die:', error);    
 
-                            {dieToDelete?.id || dieToDelete?.id_troquel}   
+            setMessage({ type: 'error', text: error.message || 'Error al eliminar el troquel' });    
 
-                        </strong>{' '}   
+        } finally {    
 
-                        ({dieToDelete?.name || dieToDelete?.nombre})?   
+            setShowDeleteModal(false);    
 
-                        <br /><br />   
+            setDieToDelete(null);    
 
-                        Esta acción no se puede deshacer.   
+            setTimeout(() => setMessage({ type: '', text: '' }), 5000);    
 
-                    </p>   
+        }    
 
-                    <div style={styles.modalButtons}>   
-
-                        <button style={styles.btnSecondary}   
-
-                            onClick={() => setShowDeleteModal(false)}   
-
-                        >   
-
-                            Cancelar   
-
-                        </button>   
-
-                        <button style={styles.btnDanger}   
-
-                            onClick={handleDeleteConfirm}   
-
-                        >   
-
-                            Eliminar Troquel   
-
-                        </button>   
-
-                    </div>   
-
-                </div>   
-
-            </div>   
-
-        )}   
+    };    
 
  
 
-        {/* Animación CSS */}   
+    // Filtrar troqueles 
 
-        <style>{cssAnimations}</style>   
+    const filteredDies = useMemo(() => {    
 
-        </div>   
+        return dies.filter(die => {    
 
-    );   
+            const dieId = (die.id || die.id_troquel || '').toLowerCase();    
 
-};   
+            const dieName = (die.name || die.nombre || '').toLowerCase();    
+
+            const term = searchTerm.toLowerCase();    
+
+            return dieId.includes(term) || dieName.includes(term);    
+
+        });    
+
+    }, [dies, searchTerm]);    
+
+ 
+
+    // Dynamic input styles 
+
+    const getInputStyle = useCallback((fieldName, disabled = false) => ({    
+
+        ...styles.input,    
+
+        borderColor: focusedField === fieldName ? '#00ff88' : 'rgba(255, 255, 255, 0.1)',    
+
+        boxShadow: focusedField === fieldName ? '0 0 15px rgba(0, 255, 136, 0.2)' : 'none',    
+
+        opacity: disabled ? 0.6 : 1,    
+
+        cursor: disabled ? 'not-allowed' : 'text',    
+
+    }), [focusedField, styles.input]);    
+
+ 
+
+    const getSelectStyle = useCallback((fieldName) => ({    
+
+        ...styles.select,    
+
+        borderColor: focusedField === fieldName ? '#00ff88' : 'rgba(255, 255, 255, 0.1)',    
+
+        boxShadow: focusedField === fieldName ? '0 0 15px rgba(0, 255, 136, 0.2)' : 'none',    
+
+    }), [focusedField, styles.select]);    
+
+ 
+
+    // Estilos para controles de sección    
+
+    const sectionControlStyles = {    
+
+        container: {    
+
+            display: 'flex',    
+
+            gap: '12px',    
+
+            marginBottom: '20px',    
+
+            justifyContent: 'flex-end',    
+
+        },    
+
+        button: {    
+
+            background: 'transparent',    
+
+            border: '1px solid rgba(0, 255, 136, 0.3)',    
+
+            color: '#00ff88',    
+
+            padding: '8px 16px',    
+
+            borderRadius: '8px',    
+
+            fontSize: '12px',    
+
+            cursor: 'pointer',    
+
+            transition: 'all 0.2s ease',    
+
+            display: 'flex',    
+
+            alignItems: 'center',    
+
+            gap: '6px',    
+
+        },    
+
+    };    
+
+ 
+
+    return (    
+
+        <div style={styles.container}>    
+
+            <div style={styles.gridOverlay}/>    
+
+            <div style={styles.scanLine}/>    
+
+            {/* Header */}    
+
+            <header style={styles.header}>    
+
+                <div style={styles.logoSection}>    
+
+                    <div style={styles.logoIcon}>⚙</div>    
+
+                    <div style={styles.logoText}>    
+
+                        <span style={styles.logoTitle}>E-KANBAN</span>    
+
+                        <span style={styles.logoSubtitle}>Administración de Troqueles</span>    
+
+                    </div>    
+
+                </div>    
+
+                <div style={styles.headerRight}>    
+
+                    {user && (    
+
+                        <span style={{    
+
+                                ...styles.adminBadge,    
+
+                                background: 'rgba(0, 255, 136, 0.15)',    
+
+                                borderColor: '#00ff88',    
+
+                                color: '#00ff88',    
+
+                            }}>    
+
+                            {user.username}    
+
+                        </span>    
+
+                    )}    
+
+                    {onNavigateBack && (    
+
+                        <button style={styles.backButton}    
+
+                            onClick={onNavigateBack}    
+
+                            onMouseEnter={(e) => {    
+
+                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';    
+
+                                e.target.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.2)';    
+
+                            }}    
+
+                            onMouseLeave={(e) => {    
+
+                                e.target.style.background = 'transparent';    
+
+                                e.target.style.boxShadow = 'none';    
+
+                            }}    
+
+                        >    
+
+                            ← Volver al Dashboard    
+
+                        </button>    
+
+                    )}    
+
+                </div>    
+
+            </header>    
+
+ 
+
+            {/* Contenido principal */}    
+
+            <main style={styles.mainContent}>    
+
+              
+
+            {/* Header de la página */}    
+
+            <div style={styles.pageHeader}>    
+
+                <h1 style={styles.pageTitle}>    
+
+                    Gestión de Troqueles y Prensas    
+
+                </h1>    
+
+                <p style={styles.pageSubtitle}>    
+
+                    Registre, administre y monitoree todos los troqueles y prensas del sistema    
+
+                </p>    
+
+            </div>    
+
+ 
+
+            {/* Navegación entre pestañas */}    
+
+            <div style={styles.tabsContainer}>    
+
+                <button    
+
+                    style={{ ...styles.tab, ...(activeTab === 'register' ? styles.tabActive : {}) }}    
+
+                    onClick={() => { setActiveTab('register'); setEditingDie(null); handleReset(); }}    
+
+                >    
+
+                    {editingDie ? 'Editar Troquel' : 'Nuevo Troquel'}    
+
+                </button>    
+
+                <button    
+
+                    style={{ ...styles.tab, ...(activeTab === 'manage' ? styles.tabActive : {}) }}    
+
+                    onClick={() => setActiveTab('manage')}    
+
+                >    
+
+                    Administrar Troqueles    
+
+                </button> 
+
+                <button    
+
+                    style={{ ...styles.tab, ...(activeTab === 'prensas' ? styles.tabActive : {}) }}    
+
+                    onClick={() => { setActiveTab('prensas'); setEditingPrensa(null); handlePrensaReset(); }}    
+
+                >    
+
+                    {editingPrensa ? 'Editar Prensa' : 'Nueva Prensa'}    
+
+                </button> 
+
+                <button    
+
+                    style={{ ...styles.tab, ...(activeTab === 'prensas-manage' ? styles.tabActive : {}) }}    
+
+                    onClick={() => setActiveTab('prensas-manage')}    
+
+                >    
+
+                    Administrar Prensas    
+
+                </button> 
+
+            </div>    
+
+ 
+
+            {/* Mensajes */}    
+
+            {message.type === 'success' && (    
+
+                <div style={styles.successMessage}>    
+
+                    <div style={{ ...styles.messageIcon, background: 'rgba(0, 255, 136, 0.15)' }}>✓</div>    
+
+                    <div>    
+
+                        <strong style={{ color: '#00ff88', fontSize: '14px' }}>    
+
+                            {message.text}    
+
+                        </strong>    
+
+                    </div>    
+
+                </div>    
+
+            )}    
+
+ 
+
+            {message.type === 'error' && (    
+
+                <div style={styles.errorMessage}>    
+
+                    <div style={{ ...styles.messageIcon, background: 'rgba(255, 107, 107, 0.15)' }}>✕</div>    
+
+                    <div>    
+
+                        <strong style={{ color: '#ff6b6b', fontSize: '14px' }}>    
+
+                            {message.text}    
+
+                        </strong>    
+
+                    </div>    
+
+                </div>    
+
+            )}    
+
+ 
+
+            {/* Pestaña de registro de troquel */}    
+
+            {activeTab === 'register' && (    
+
+                <form onSubmit={handleSubmit}>    
+
+                    <div style={styles.formContainer}>    
+
+                  
+
+                    {/* Controles de secciones */}    
+
+                    <div style={sectionControlStyles.container}>    
+
+                        <button type="button"    
+
+                            style={sectionControlStyles.button}    
+
+                            onClick={expandAllSections}    
+
+                            onMouseEnter={(e) => {    
+
+                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';    
+
+                            }}    
+
+                            onMouseLeave={(e) => {    
+
+                                e.target.style.background = 'transparent';    
+
+                            }}    
+
+                        >    
+
+                            ▼ Expandir Todo    
+
+                        </button>    
+
+                        <button type="button"    
+
+                            style={sectionControlStyles.button}    
+
+                            onClick={collapseAllSections}    
+
+                            onMouseEnter={(e) => {    
+
+                                e.target.style.background = 'rgba(0, 255, 136, 0.1)';    
+
+                            }}    
+
+                            onMouseLeave={(e) => {    
+
+                                e.target.style.background = 'transparent';    
+
+                            }}    
+
+                        >    
+
+                            ▲ Colapsar Todo    
+
+                        </button>    
+
+                    </div>    
+
+ 
+
+                    {/* Información básica */}    
+
+                    <CollapsibleSection    
+
+                        title="Información Básica"    
+
+                        isExpanded={expandedSections.basicInfo}    
+
+                        onToggle={toggleBasicInfo}    
+
+                        isRequired={true}    
+
+                    >    
+
+                    <div style={styles.formGrid}>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>    
+
+                                    ID del Troquel    
+
+                                <span style={styles.requiredStar}>*</span>    
+
+                            </label>    
+
+                            <input type="text"    
+
+                                name="id"    
+
+                                value={formData.id}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('id')}    
+
+                                onBlur={handleBlur}    
+
+                                style={getInputStyle('id', !!editingDie)}    
+
+                                placeholder="Ej: T001"    
+
+                                maxLength={50}    
+
+                                disabled={!!editingDie}    
+
+                            />    
+
+                        </div>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>    
+
+                                Nombre del Troquel    
+
+                                <span style={styles.requiredStar}>*</span>    
+
+                            </label>    
+
+                            <input type="text"    
+
+                                    name="name"    
+
+                                    value={formData.name}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('name')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('name')}    
+
+                                    placeholder="Ej: Alpha"    
+
+                                    maxLength={100}   
+
+                            />    
+
+                        </div>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>    
+
+                                Año de Registro    
+
+                                <span style={styles.requiredStar}>*</span>    
+
+                            </label>    
+
+                            <select name="year"    
+
+                                    value={formData.year}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('year')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getSelectStyle('year')}    
+
+                            >    
+
+                                {years.map(y => (    
+
+                                    <option key={y} value={y}>{y}</option>    
+
+                                ))}    
+
+                            </select>    
+
+                        </div>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>Modelo / Part Number</label>    
+
+                            <input type="text"    
+
+                                name="model"    
+
+                                value={formData.model}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('model')}    
+
+                                onBlur={handleBlur}    
+
+                                style={getInputStyle('model')}    
+
+                                placeholder="Ej: F180 - 645101-31-F180"    
+
+                                maxLength={100}    
+
+                            />    
+
+                        </div>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>Estado</label>    
+
+                            <select name="status"    
+
+                                value={formData.status}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('status')}    
+
+                                onBlur={handleBlur}    
+
+                                style={getSelectStyle('status')}    
+
+                                disabled={optionsLoading}    
+
+                            >    
+
+                                {statusOptions.map(opt => (    
+
+                                    <option key={opt.value} value={opt.value}>    
+
+                                        {opt.label}    
+
+                                    </option>    
+
+                                ))}    
+
+                            </select>    
+
+                        </div>    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>Tipo de Troquel</label>    
+
+                            <select name="tipo_troquel"    
+
+                                value={formData.tipo_troquel}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('tipo_troquel')}    
+
+                                onBlur={handleBlur}    
+
+                                style={getSelectStyle('tipo_troquel')}    
+
+                                disabled={optionsLoading}    
+
+                            >    
+
+                                {dieTypeOptions.map(opt => (    
+
+                                    <option key={opt.value} value={opt.value}>    
+
+                                        {opt.label}    
+
+                                    </option>    
+
+                                ))}    
+
+                            </select>    
+
+                        </div>    
+
+                    </div>    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Información de producción */}    
+
+                    <CollapsibleSection    
+
+                        title="Información de Producción"    
+
+                        isExpanded={expandedSections.production}    
+
+                        onToggle={toggleProduction}    
+
+                    >    
+
+                        <div style={styles.formGrid}>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Golpes Actuales</label>    
+
+                                <input type="text"    
+
+                                        name="golpes"    
+
+                                        value={formData.golpes}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('golpes')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('golpes')}    
+
+                                        placeholder="Ej: 257,540"    
+
+                                        maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Golpes Acumulados</label>    
+
+                                <input type="text"    
+
+                                        name="golpes_acum"    
+
+                                        value={formData.golpes_acum}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('golpes_acum')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('golpes_acum')}    
+
+                                        placeholder="Ej: 121,442,752"    
+
+                                        maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Capacidad de Golpes</label>    
+
+                                <input type="text"    
+
+                                        name="capacidad_golpes"    
+
+                                        value={formData.capacidad_golpes}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('capacidad_golpes')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('capacidad_golpes')}    
+
+                                        placeholder="Ej: 250,000,000"    
+
+                                        maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Ciclos</label>    
+
+                                <input type="text"    
+
+                                        name="ciclos"    
+
+                                        value={formData.ciclos}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('ciclos')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('ciclos')}    
+
+                                        placeholder="Ej: 1,500"    
+
+                                        maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Rectificaciones</label>    
+
+                                <input type="text"    
+
+                                        name="rectificaciones"    
+
+                                        value={formData.rectificaciones}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('rectificaciones')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('rectificaciones')}    
+
+                                        placeholder="Ej: 15 - (28/10/2025)"    
+
+                                        maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Número de Estaciones</label>    
+
+                                <input type="text"    
+
+                                        name="num_estaciones"    
+
+                                        value={formData.num_estaciones}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('num_estaciones')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('num_estaciones')}    
+
+                                        placeholder="Ej: 12"    
+
+                                        maxLength={20}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Cavidades</label>    
+
+                                <input type="text"    
+
+                                        name="cavidades"    
+
+                                        value={formData.cavidades}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus('cavidades')}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle('cavidades')}    
+
+                                        placeholder="Ej: 4"    
+
+                                        maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Prensa Asignada</label>    
+
+                                <select name="prensa_asignada"    
+
+                                    value={formData.prensa_asignada}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('prensa_asignada')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getSelectStyle('prensa_asignada')}    
+
+                                    disabled={optionsLoading}    
+
+                                >    
+
+                                    {pressOptions.map(opt => (    
+
+                                        <option key={opt.value} value={opt.value}>    
+
+                                            {opt.label}    
+
+                                        </option>    
+
+                                    ))}    
+
+                                </select>    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Ubicación Actual</label>    
+
+                                <input type="text"    
+
+                                    name="ubicacion"    
+
+                                    value={formData.ubicacion}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('ubicacion')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('ubicacion')}    
+
+                                    placeholder="Ej: Rack A-12"    
+
+                                    maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                        </div>    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Detalles técnicos */}    
+
+                    <CollapsibleSection    
+
+                        title="Detalles Técnicos"    
+
+                        isExpanded={expandedSections.technical}    
+
+                        onToggle={toggleTechnical}    
+
+                    >    
+
+                        <div style={styles.formGrid}>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Número de Serie</label>    
+
+                                <input type="text"    
+
+                                    name="numero_serie"    
+
+                                    value={formData.numero_serie}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('numero_serie')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('numero_serie')}    
+
+                                    placeholder="Ej: SN-2024-00123"    
+
+                                    maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Proveedor / Fabricante</label>    
+
+                                <input type="text"    
+
+                                    name="proveedor"    
+
+                                    value={formData.proveedor}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('proveedor')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('proveedor')}    
+
+                                    placeholder="Ej: ToolCorp Inc."    
+
+                                    maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Peso (kg)</label>    
+
+                                <input type="text"    
+
+                                    name="peso_kg"    
+
+                                    value={formData.peso_kg}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('peso_kg')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('peso_kg')}    
+
+                                    placeholder="Ej: 1,250"    
+
+                                    maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Dimensiones (L x A x H)</label>    
+
+                                <input type="text"    
+
+                                    name="dimensiones"    
+
+                                    value={formData.dimensiones}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('dimensiones')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('dimensiones')}    
+
+                                    placeholder="Ej: 800 x 600 x 450 mm"    
+
+                                    maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Material Base</label>    
+
+                                <input type="text"    
+
+                                    name="material_base"    
+
+                                    value={formData.material_base}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('material_base')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('material_base')}    
+
+                                    placeholder="Ej: Acero D2"    
+
+                                    maxLength={100}   
+
+                                />    
+
+                            </div>    
+
+                            <div style={styles.inputGroup}>    
+
+                                <label style={styles.label}>Color</label>    
+
+                                <input type="text"    
+
+                                    name="color"    
+
+                                    value={formData.color}    
+
+                                    onChange={handleInputChange}    
+
+                                    onFocus={() => handleFocus('color')}    
+
+                                    onBlur={handleBlur}    
+
+                                    style={getInputStyle('color')}    
+
+                                    placeholder="Ej: Azul"    
+
+                                    maxLength={50}   
+
+                                />    
+
+                            </div>    
+
+                        </div>    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Números de parte */}    
+
+                    <CollapsibleSection    
+
+                        title="Números de Parte"    
+
+                        isExpanded={expandedSections.partNumbers}    
+
+                        onToggle={togglePartNumbers}    
+
+                    >    
+
+                        <div style={styles.formGrid}>    
+
+                            {[1, 2, 3, 4, 5, 6].map(num => (    
+
+                                <div key={num} style={styles.inputGroup}>    
+
+                                    <label style={styles.label}>N° Parte {num}</label>    
+
+                                    <input type="text"    
+
+                                        name={`n_parte_${num}`}    
+
+                                        value={formData[`n_parte_${num}`]}    
+
+                                        onChange={handleInputChange}    
+
+                                        onFocus={() => handleFocus(`n_parte_${num}`)}    
+
+                                        onBlur={handleBlur}    
+
+                                        style={getInputStyle(`n_parte_${num}`)}    
+
+                                        placeholder={`Número de parte ${num}`}    
+
+                                        maxLength={100}   
+
+                                    />    
+
+                                </div>    
+
+                            ))}    
+
+                        </div>    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Imagen */}    
+
+                    <CollapsibleSection    
+
+                        title="Imagen del Troquel"    
+
+                        isExpanded={expandedSections.image}    
+
+                        onToggle={toggleImage}    
+
+                    >    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>URL de Imagen</label>    
+
+                            <input type="text"    
+
+                                name="image_url"    
+
+                                value={formData.image_url}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('image_url')}    
+
+                                onBlur={handleBlur}    
+
+                                style={getInputStyle('image_url')}    
+
+                                placeholder="https://ejemplo.com/imagen.jpg"    
+
+                            />    
+
+                        </div>    
+
+                        {formData.image_url && (    
+
+                            <div style={{ marginTop: '16px', textAlign: 'center' }}>    
+
+                                <img     
+
+                                    src={formData.image_url}     
+
+                                    alt="Preview"    
+
+                                    style={{    
+
+                                        maxWidth: '200px',    
+
+                                        maxHeight: '200px',    
+
+                                        borderRadius: '8px',    
+
+                                        border: '2px solid rgba(0, 255, 136, 0.3)'    
+
+                                    }}    
+
+                                    onError={(e) => { e.target.style.display = 'none'; }}    
+
+                                />    
+
+                            </div>    
+
+                        )}    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Notas */}    
+
+                    <CollapsibleSection    
+
+                        title="Notas y Comentarios"    
+
+                        isExpanded={expandedSections.notes}    
+
+                        onToggle={toggleNotes}    
+
+                    >    
+
+                        <div style={styles.inputGroup}>    
+
+                            <label style={styles.label}>Comentarios</label>    
+
+                            <textarea    
+
+                                name="notes"    
+
+                                value={formData.notes}    
+
+                                onChange={handleInputChange}    
+
+                                onFocus={() => handleFocus('notes')}    
+
+                                onBlur={handleBlur}    
+
+                                style={{ ...getInputStyle('notes'), minHeight: '100px', resize: 'vertical' }}    
+
+                                placeholder="Ingrese comentarios adicionales..."    
+
+                                maxLength={500}   
+
+                            />    
+
+                        </div>    
+
+                    </CollapsibleSection>    
+
+ 
+
+                    {/* Botones */}    
+
+                    <div style={styles.formActions}>    
+
+                        <button type="button" style={styles.btnSecondary} onClick={handleReset}>    
+
+                            {editingDie ? 'Cancelar Edición' : 'Limpiar Formulario'}    
+
+                        </button>    
+
+                        <button type="submit" style={styles.btnPrimary} disabled={isSubmitting}>    
+
+                            {isSubmitting ? 'Guardando...' : editingDie ? 'Actualizar Troquel' : 'Registrar Troquel'}    
+
+                        </button>    
+
+                    </div>    
+
+                    </div>    
+
+                </form>    
+
+            )}    
+
+ 
+
+            {/* Pestaña de administración de troqueles */}    
+
+            {activeTab === 'manage' && (    
+
+                <>    
+
+                    {/* Filtros */}    
+
+                    <div style={styles.filtersContainer}>    
+
+                        <div style={styles.searchBox}>    
+
+                            <span style={styles.searchIcon}>🔍</span>    
+
+                            <input    
+
+                                type="text"    
+
+                                placeholder="Buscar por ID o nombre..."    
+
+                                value={searchTerm}    
+
+                                onChange={(e) => setSearchTerm(e.target.value)}    
+
+                                style={styles.searchInput}    
+
+                            />    
+
+                        </div>    
+
+                        <select    
+
+                            value={filterYear}    
+
+                            onChange={(e) => setFilterYear(e.target.value)}    
+
+                            style={styles.filterSelect}    
+
+                        >    
+
+                            <option value="">Todos los años</option>    
+
+                            {years.map(y => (    
+
+                                <option key={y} value={y}>{y}</option>    
+
+                            ))}    
+
+                        </select>    
+
+                        <select    
+
+                            value={filterStatus}    
+
+                            onChange={(e) => setFilterStatus(e.target.value)}    
+
+                            style={styles.filterSelect}    
+
+                        >    
+
+                            <option value="">Todos los estados</option>    
+
+                            {statusOptions.map(opt => (    
+
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>    
+
+                            ))}    
+
+                        </select>    
+
+                    </div>    
+
+ 
+
+                    {/* Estadísticas */}    
+
+                    <div style={styles.statsContainer}>    
+
+                        <div style={styles.statCard}>    
+
+                            <div style={styles.statValue}>{stats.total}</div>    
+
+                            <div style={styles.statLabel}>Total</div>    
+
+                        </div>    
+
+                        <div style={{ ...styles.statCard, borderColor: '#00ff88' }}>    
+
+                            <div style={{ ...styles.statValue, color: '#00ff88' }}>{stats.activos}</div>    
+
+                            <div style={styles.statLabel}>Activos</div>    
+
+                        </div>    
+
+                        <div style={{ ...styles.statCard, borderColor: '#ffc800' }}>    
+
+                            <div style={{ ...styles.statValue, color: '#ffc800' }}>{stats.reparando}</div>    
+
+                            <div style={styles.statLabel}>Reparando</div>    
+
+                        </div>    
+
+                        <div style={{ ...styles.statCard, borderColor: '#ff6b6b' }}>    
+
+                            <div style={{ ...styles.statValue, color: '#ff6b6b' }}>{stats.pendientes}</div>    
+
+                            <div style={styles.statLabel}>Pendientes</div>    
+
+                        </div>    
+
+                    </div>    
+
+ 
+
+                    {/* Tabla */}    
+
+                    <div style={styles.tableContainer}>    
+
+                        {isLoading ? (    
+
+                            <div style={{ textAlign: 'center', padding: '40px' }}>    
+
+                                <div style={{    
+
+                                    width: '40px',    
+
+                                    height: '40px',    
+
+                                    border: '3px solid rgba(0, 255, 136, 0.2)',    
+
+                                    borderTopColor: '#00ff88',    
+
+                                    borderRadius: '50%',    
+
+                                    animation: 'spin 1s linear infinite',    
+
+                                    margin: '0 auto 16px'    
+
+                                }} />    
+
+                                <p style={{ color: '#888' }}>Cargando troqueles...</p>    
+
+                            </div>    
+
+                        ) : filteredDies.length === 0 ? (    
+
+                            <div style={styles.emptyState}>    
+
+                                <p style={styles.emptyText}>No se encontraron troqueles</p>    
+
+                                <p style={{ fontSize: '12px', color: '#666' }}>    
+
+                                    {searchTerm ? 'Intente con otra búsqueda' : 'Registre un nuevo troquel para comenzar'}    
+
+                                </p>    
+
+                            </div>    
+
+                        ) : (    
+
+                            <>    
+
+                                <div style={{ overflowX: 'auto' }}>    
+
+                                    <table style={styles.table}>    
+
+                                        <thead>    
+
+                                            <tr>    
+
+                                                <th style={styles.th}>ID</th>    
+
+                                                <th style={styles.th}>Nombre</th>    
+
+                                                <th style={styles.th}>Año</th>    
+
+                                                <th style={styles.th}>Modelo</th>    
+
+                                                <th style={styles.th}>Estado</th>    
+
+                                                <th style={styles.th}>Golpes Acum.</th>    
+
+                                                <th style={styles.th}>Acciones</th>    
+
+                                            </tr>    
+
+                                        </thead>    
+
+                                        <tbody>    
+
+                                            {filteredDies.map((die) => {    
+
+                                                const dieId = die.id || die.id_troquel;    
+
+                                                const dieName = die.name || die.nombre;    
+
+                                                const dieYear = die.year || die.año;    
+
+                                                const dieModel = die.model || die.modelo || '-';    
+
+                                                const dieStatus = die.status || die.estado;    
+
+                                                const dieGolpesAcum = die.golpes_acum || '-';    
+
+                                                return (    
+
+                                                    <tr key={dieId}    
+
+                                                        style={styles.tableRow}    
+
+                                                        onMouseEnter={(e) => {    
+
+                                                            e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)';    
+
+                                                        }}    
+
+                                                        onMouseLeave={(e) => {    
+
+                                                            e.currentTarget.style.background = 'transparent';    
+
+                                                        }}    
+
+                                                    >    
+
+                                                        <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>    
+
+                                                            {dieId}    
+
+                                                        </td>    
+
+                                                        <td style={styles.td}>{dieName}</td>    
+
+                                                        <td style={styles.td}>{dieYear}</td>    
+
+                                                        <td style={styles.td}>{dieModel}</td>    
+
+                                                        <td style={styles.td}>    
+
+                                                            <span style={{ ...styles.statusBadge, ...getStatusStyle(dieStatus) }}>    
+
+                                                                {dieStatus}    
+
+                                                            </span>    
+
+                                                        </td>    
+
+                                                        <td style={styles.td}>{dieGolpesAcum}</td>    
+
+                                                        <td style={styles.td}>    
+
+                                                            <button style={styles.actionBtn}    
+
+                                                                    onClick={() => handleEdit(die)}    
+
+                                                                    onMouseEnter={(e) => {    
+
+                                                                        e.target.style.borderColor = '#00ff88';    
+
+                                                                        e.target.style.color = '#00ff88';    
+
+                                                                    }}    
+
+                                                                    onMouseLeave={(e) => {    
+
+                                                                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';    
+
+                                                                        e.target.style.color = '#aaa';    
+
+                                                                    }}    
+
+                                                            >    
+
+                                                                Editar    
+
+                                                            </button>    
+
+                                                            <button    
+
+                                                                style={{ ...styles.actionBtn, color: '#ff6b6b' }}    
+
+                                                                onClick={() => handleDeleteClick(die)}    
+
+                                                                onMouseEnter={(e) => {    
+
+                                                                    e.target.style.borderColor = '#ff6b6b';    
+
+                                                                    e.target.style.background = 'rgba(255, 107, 107, 0.1)';    
+
+                                                                }}    
+
+                                                                onMouseLeave={(e) => {    
+
+                                                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';    
+
+                                                                    e.target.style.background = 'transparent';    
+
+                                                                }}    
+
+                                                            >    
+
+                                                                Eliminar    
+
+                                                            </button>    
+
+                                                        </td>    
+
+                                                    </tr>    
+
+                                                );    
+
+                                            })}    
+
+                                        </tbody>    
+
+                                    </table>    
+
+                                </div>    
+
+                                <div style={styles.pagination}>    
+
+                                    <span style={styles.pageInfo}>    
+
+                                        Mostrando {filteredDies.length} de {dies.length} troqueles    
+
+                                    </span>    
+
+                                </div>        
+
+                            </>    
+
+                        )}        
+
+                    </div>        
+
+                </>    
+
+            )}    
+
+ 
+
+            {/* ==================== PESTAÑA DE REGISTRO DE PRENSAS ==================== */} 
+
+            {activeTab === 'prensas' && ( 
+
+                <form onSubmit={handlePrensaSubmit}> 
+
+                    <div style={styles.formContainer}> 
+
+                     
+
+                    {/* Controles de secciones */} 
+
+                    <div style={sectionControlStyles.container}> 
+
+                        <button type="button" 
+
+                            style={sectionControlStyles.button} 
+
+                            onClick={expandAllPrensaSections} 
+
+                            onMouseEnter={(e) => { 
+
+                                e.target.style.background = 'rgba(0, 255, 136, 0.1)'; 
+
+                            }} 
+
+                            onMouseLeave={(e) => { 
+
+                                e.target.style.background = 'transparent'; 
+
+                            }} 
+
+                        > 
+
+                            ▼ Expandir Todo 
+
+                        </button> 
+
+                        <button type="button" 
+
+                            style={sectionControlStyles.button} 
+
+                            onClick={collapseAllPrensaSections} 
+
+                            onMouseEnter={(e) => { 
+
+                                e.target.style.background = 'rgba(0, 255, 136, 0.1)'; 
+
+                            }} 
+
+                            onMouseLeave={(e) => { 
+
+                                e.target.style.background = 'transparent'; 
+
+                            }} 
+
+                        > 
+
+                            ▲ Colapsar Todo 
+
+                        </button> 
+
+                    </div> 
+
+ 
+
+                    {/* Información básica de prensa */} 
+
+                    <CollapsibleSection 
+
+                        title="Información Básica" 
+
+                        isExpanded={prensaExpandedSections.basicInfo} 
+
+                        onToggle={togglePrensaBasicInfo} 
+
+                        isRequired={true} 
+
+                    > 
+
+                        <div style={styles.formGrid}> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}> 
+
+                                    Identificador de Prensa 
+
+                                    <span style={styles.requiredStar}>*</span> 
+
+                                </label> 
+
+                                <input type="text" 
+
+                                    name="identificador_prensa" 
+
+                                    value={prensaFormData.identificador_prensa} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('identificador_prensa')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('identificador_prensa', !!editingPrensa)} 
+
+                                    placeholder="Ej: P01, PRENSA-01" 
+
+                                    maxLength={50} 
+
+                                    disabled={!!editingPrensa} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}> 
+
+                                    Nombre de la Prensa 
+
+                                    <span style={styles.requiredStar}>*</span> 
+
+                                </label> 
+
+                                <input type="text" 
+
+                                    name="nombre" 
+
+                                    value={prensaFormData.nombre} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('nombre')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('nombre')} 
+
+                                    placeholder="Ej: Prensa Hidráulica 01" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Estado</label> 
+
+                                <select name="estado" 
+
+                                    value={prensaFormData.estado} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('estado')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getSelectStyle('estado')} 
+
+                                > 
+
+                                    {DEFAULT_PRESS_STATUS_OPTIONS.map(opt => ( 
+
+                                        <option key={opt.value} value={opt.value}> 
+
+                                            {opt.label} 
+
+                                        </option> 
+
+                                    ))} 
+
+                                </select> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Marca</label> 
+
+                                <input type="text" 
+
+                                    name="marca" 
+
+                                    value={prensaFormData.marca} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('marca')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('marca')} 
+
+                                    placeholder="Ej: AIDA, Komatsu, Schuler" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Modelo</label> 
+
+                                <input type="text" 
+
+                                    name="modelo" 
+
+                                    value={prensaFormData.modelo} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('modelo')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('modelo')} 
+
+                                    placeholder="Ej: NC1-2500" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Año de Fabricación</label> 
+
+                                <select name="año_fabricacion" 
+
+                                    value={prensaFormData.año_fabricacion} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('año_fabricacion')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getSelectStyle('año_fabricacion')} 
+
+                                > 
+
+                                    {years.map(y => ( 
+
+                                        <option key={y} value={y}>{y}</option> 
+
+                                    ))} 
+
+                                </select> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Ubicación</label> 
+
+                                <input type="text" 
+
+                                    name="ubicacion" 
+
+                                    value={prensaFormData.ubicacion} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('ubicacion')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('ubicacion')} 
+
+                                    placeholder="Ej: Nave 1 - Línea A" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Número de Serie</label> 
+
+                                <input type="text" 
+
+                                    name="numero_serie" 
+
+                                    value={prensaFormData.numero_serie} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('numero_serie')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('numero_serie')} 
+
+                                    placeholder="Ej: SN-2024-00123" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                        </div> 
+
+                    </CollapsibleSection> 
+
+ 
+
+                    {/* Especificaciones técnicas */} 
+
+                    <CollapsibleSection 
+
+                        title="Especificaciones Técnicas" 
+
+                        isExpanded={prensaExpandedSections.technical} 
+
+                        onToggle={togglePrensaTechnical} 
+
+                    > 
+
+                        <div style={styles.formGrid}> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Tonelaje</label> 
+
+                                <input type="text" 
+
+                                    name="tonelaje" 
+
+                                    value={prensaFormData.tonelaje} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('tonelaje')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('tonelaje')} 
+
+                                    placeholder="Ej: 250 ton" 
+
+                                    maxLength={50} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Velocidad Máxima (SPM)</label> 
+
+                                <input type="text" 
+
+                                    name="velocidad_max" 
+
+                                    value={prensaFormData.velocidad_max} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('velocidad_max')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('velocidad_max')} 
+
+                                    placeholder="Ej: 60 SPM" 
+
+                                    maxLength={50} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Carrera (mm)</label> 
+
+                                <input type="text" 
+
+                                    name="carrera" 
+
+                                    value={prensaFormData.carrera} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('carrera')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('carrera')} 
+
+                                    placeholder="Ej: 300 mm" 
+
+                                    maxLength={50} 
+
+                                /> 
+
+                            </div> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Área de Trabajo (mm)</label> 
+
+                                <input type="text" 
+
+                                    name="area_trabajo" 
+
+                                    value={prensaFormData.area_trabajo} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('area_trabajo')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('area_trabajo')} 
+
+                                    placeholder="Ej: 1500 x 800 mm" 
+
+                                    maxLength={100} 
+
+                                /> 
+
+                            </div> 
+
+                        </div> 
+
+                    </CollapsibleSection> 
+
+ 
+
+                    {/* Mantenimiento */} 
+
+                    <CollapsibleSection 
+
+                        title="Mantenimiento" 
+
+                        isExpanded={prensaExpandedSections.maintenance} 
+
+                        onToggle={togglePrensaMaintenance} 
+
+                    > 
+
+                        <div style={styles.formGrid}> 
+
+                            <div style={styles.inputGroup}> 
+
+                                <label style={styles.label}>Fecha Último Mantenimiento</label> 
+
+                                <input type="date" 
+
+                                    name="fecha_ultimo_mantenimiento" 
+
+                                    value={prensaFormData.fecha_ultimo_mantenimiento} 
+
+                                    onChange={handlePrensaInputChange} 
+
+                                    onFocus={() => handleFocus('fecha_ultimo_mantenimiento')} 
+
+                                    onBlur={handleBlur} 
+
+                                    style={getInputStyle('fecha_ultimo_mantenimiento')} 
+
+                                /> 
+
+                            </div> 
+
+                        </div> 
+
+                    </CollapsibleSection> 
+
+ 
+
+                    {/* Notas */} 
+
+                    <CollapsibleSection 
+
+                        title="Notas y Comentarios" 
+
+                        isExpanded={prensaExpandedSections.notes} 
+
+                        onToggle={togglePrensaNotes} 
+
+                    > 
+
+                        <div style={styles.inputGroup}> 
+
+                            <label style={styles.label}>Notas</label> 
+
+                            <textarea 
+
+                                name="notas" 
+
+                                value={prensaFormData.notas} 
+
+                                onChange={handlePrensaInputChange} 
+
+                                onFocus={() => handleFocus('notas')} 
+
+                                onBlur={handleBlur} 
+
+                                style={{ ...getInputStyle('notas'), minHeight: '100px', resize: 'vertical' }} 
+
+                                placeholder="Ingrese comentarios adicionales sobre la prensa..." 
+
+                                maxLength={500} 
+
+                            /> 
+
+                        </div> 
+
+                    </CollapsibleSection> 
+
+ 
+
+                    {/* Botones */} 
+
+                    <div style={styles.formActions}> 
+
+                        <button type="button" style={styles.btnSecondary} onClick={handlePrensaReset}> 
+
+                            {editingPrensa ? 'Cancelar Edición' : 'Limpiar Formulario'} 
+
+                        </button> 
+
+                        <button type="submit" style={styles.btnPrimary} disabled={isSubmitting}> 
+
+                            {isSubmitting ? 'Guardando...' : editingPrensa ? 'Actualizar Prensa' : 'Registrar Prensa'} 
+
+                        </button> 
+
+                    </div> 
+
+                    </div> 
+
+                </form> 
+
+            )} 
+
+ 
+
+            {/* ==================== PESTAÑA DE ADMINISTRACIÓN DE PRENSAS ==================== */} 
+
+            {activeTab === 'prensas-manage' && ( 
+
+                <> 
+
+                    {/* Filtros */} 
+
+                    <div style={styles.filtersContainer}> 
+
+                        <div style={styles.searchBox}> 
+
+                            <span style={styles.searchIcon}>🔍</span> 
+
+                            <input 
+
+                                type="text" 
+
+                                placeholder="Buscar por ID o nombre..." 
+
+                                value={prensaSearchTerm} 
+
+                                onChange={(e) => setPrensaSearchTerm(e.target.value)} 
+
+                                style={styles.searchInput} 
+
+                            /> 
+
+                        </div> 
+
+                        <select 
+
+                            value={prensaFilterStatus} 
+
+                            onChange={(e) => setPrensaFilterStatus(e.target.value)} 
+
+                            style={styles.filterSelect} 
+
+                        > 
+
+                            <option value="">Todos los estados</option> 
+
+                            {DEFAULT_PRESS_STATUS_OPTIONS.map(opt => ( 
+
+                                <option key={opt.value} value={opt.value}>{opt.label}</option> 
+
+                            ))} 
+
+                        </select> 
+
+                    </div> 
+
+ 
+
+                    {/* Estadísticas de prensas */} 
+
+                    <div style={styles.statsContainer}> 
+
+                        <div style={styles.statCard}> 
+
+                            <div style={styles.statValue}>{prensas.length}</div> 
+
+                            <div style={styles.statLabel}>Total Prensas</div> 
+
+                        </div> 
+
+                        <div style={{ ...styles.statCard, borderColor: '#00ff88' }}> 
+
+                            <div style={{ ...styles.statValue, color: '#00ff88' }}> 
+
+                                {prensas.filter(p => p.estado === 'Activa').length} 
+
+                            </div> 
+
+                            <div style={styles.statLabel}>Activas</div> 
+
+                        </div> 
+
+                        <div style={{ ...styles.statCard, borderColor: '#ffc800' }}> 
+
+                            <div style={{ ...styles.statValue, color: '#ffc800' }}> 
+
+                                {prensas.filter(p => p.estado === 'En mantenimiento').length} 
+
+                            </div> 
+
+                            <div style={styles.statLabel}>En Mantenimiento</div> 
+
+                        </div> 
+
+                        <div style={{ ...styles.statCard, borderColor: '#ff6b6b' }}> 
+
+                            <div style={{ ...styles.statValue, color: '#ff6b6b' }}> 
+
+                                {prensas.filter(p => p.estado === 'Fuera de servicio' || p.estado === 'Inactiva').length} 
+
+                            </div> 
+
+                            <div style={styles.statLabel}>Inactivas</div> 
+
+                        </div> 
+
+                    </div> 
+
+ 
+
+                    {/* Tabla de prensas */} 
+
+                    <div style={styles.tableContainer}> 
+
+                        {prensasLoading ? ( 
+
+                            <div style={{ textAlign: 'center', padding: '40px' }}> 
+
+                                <div style={{ 
+
+                                    width: '40px', 
+
+                                    height: '40px', 
+
+                                    border: '3px solid rgba(0, 255, 136, 0.2)', 
+
+                                    borderTopColor: '#00ff88', 
+
+                                    borderRadius: '50%', 
+
+                                    animation: 'spin 1s linear infinite', 
+
+                                    margin: '0 auto 16px' 
+
+                                }} /> 
+
+                                <p style={{ color: '#888' }}>Cargando prensas...</p> 
+
+                            </div> 
+
+                        ) : filteredPrensas.length === 0 ? ( 
+
+                            <div style={styles.emptyState}> 
+
+                                <p style={styles.emptyText}>No se encontraron prensas</p> 
+
+                                <p style={{ fontSize: '12px', color: '#666' }}> 
+
+                                    {prensaSearchTerm ? 'Intente con otra búsqueda' : 'Registre una nueva prensa para comenzar'} 
+
+                                </p> 
+
+                            </div> 
+
+                        ) : ( 
+
+                            <> 
+
+                                <div style={{ overflowX: 'auto' }}> 
+
+                                    <table style={styles.table}> 
+
+                                        <thead> 
+
+                                            <tr> 
+
+                                                <th style={styles.th}>ID</th> 
+
+                                                <th style={styles.th}>Nombre</th> 
+
+                                                <th style={styles.th}>Marca</th> 
+
+                                                <th style={styles.th}>Modelo</th> 
+
+                                                <th style={styles.th}>Tonelaje</th> 
+
+                                                <th style={styles.th}>Estado</th> 
+
+                                                <th style={styles.th}>Ubicación</th> 
+
+                                                <th style={styles.th}>Acciones</th> 
+
+                                            </tr> 
+
+                                        </thead> 
+
+                                        <tbody> 
+
+                                            {filteredPrensas.map((prensa) => ( 
+
+                                                <tr key={prensa.id_prensa} 
+
+                                                    style={styles.tableRow} 
+
+                                                    onMouseEnter={(e) => { 
+
+                                                        e.currentTarget.style.background = 'rgba(0, 255, 136, 0.03)'; 
+
+                                                    }} 
+
+                                                    onMouseLeave={(e) => { 
+
+                                                        e.currentTarget.style.background = 'transparent'; 
+
+                                                    }} 
+
+                                                > 
+
+                                                    <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}> 
+
+                                                        {prensa.identificador_prensa} 
+
+                                                    </td> 
+
+                                                    <td style={styles.td}>{prensa.nombre || '-'}</td> 
+
+                                                    <td style={styles.td}>{prensa.marca || '-'}</td> 
+
+                                                    <td style={styles.td}>{prensa.modelo || '-'}</td> 
+
+                                                    <td style={styles.td}>{prensa.tonelaje || '-'}</td> 
+
+                                                    <td style={styles.td}> 
+
+                                                        <span style={{ ...styles.statusBadge, ...getPrensaStatusStyle(prensa.estado) }}> 
+
+                                                            {prensa.estado} 
+
+                                                        </span> 
+
+                                                    </td> 
+
+                                                    <td style={styles.td}>{prensa.ubicacion || '-'}</td> 
+
+                                                    <td style={styles.td}> 
+
+                                                        <button style={styles.actionBtn} 
+
+                                                            onClick={() => handleEditPrensa(prensa)} 
+
+                                                            onMouseEnter={(e) => { 
+
+                                                                e.target.style.borderColor = '#00ff88'; 
+
+                                                                e.target.style.color = '#00ff88'; 
+
+                                                            }} 
+
+                                                            onMouseLeave={(e) => { 
+
+                                                                e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
+
+                                                                e.target.style.color = '#aaa'; 
+
+                                                            }} 
+
+                                                        > 
+
+                                                            Editar 
+
+                                                        </button> 
+
+                                                        <button 
+
+                                                            style={{ ...styles.actionBtn, color: '#ff6b6b' }} 
+
+                                                            onClick={() => handleDeletePrensaClick(prensa)} 
+
+                                                            onMouseEnter={(e) => { 
+
+                                                                e.target.style.borderColor = '#ff6b6b'; 
+
+                                                                e.target.style.background = 'rgba(255, 107, 107, 0.1)'; 
+
+                                                            }} 
+
+                                                            onMouseLeave={(e) => { 
+
+                                                                e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)'; 
+
+                                                                e.target.style.background = 'transparent'; 
+
+                                                            }} 
+
+                                                        > 
+
+                                                            Eliminar 
+
+                                                        </button> 
+
+                                                    </td> 
+
+                                                </tr> 
+
+                                            ))} 
+
+                                        </tbody> 
+
+                                    </table> 
+
+                                </div> 
+
+                                <div style={styles.pagination}> 
+
+                                    <span style={styles.pageInfo}> 
+
+                                        Mostrando {filteredPrensas.length} de {prensas.length} prensas 
+
+                                    </span> 
+
+                                </div> 
+
+                            </> 
+
+                        )} 
+
+                    </div> 
+
+                </> 
+
+            )} 
+
+ 
+
+        </main>    
+
+ 
+
+        {/* Modal de confirmación de eliminación de troquel */}    
+
+        {showDeleteModal && (    
+
+            <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}>    
+
+                <div style={styles.modal} onClick={(e) => e.stopPropagation()}>    
+
+                    <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>    
+
+                    <p style={styles.modalText}>    
+
+                        ¿Está seguro de que desea eliminar el troquel{' '}    
+
+                        <strong style={{ color: '#00ff88' }}>    
+
+                            {dieToDelete?.id || dieToDelete?.id_troquel}    
+
+                        </strong>{' '}    
+
+                        ({dieToDelete?.name || dieToDelete?.nombre})?    
+
+                        <br /><br />    
+
+                        Esta acción no se puede deshacer.    
+
+                    </p>    
+
+                    <div style={styles.modalButtons}>    
+
+                        <button style={styles.btnSecondary}    
+
+                            onClick={() => setShowDeleteModal(false)}    
+
+                        >    
+
+                            Cancelar    
+
+                        </button>    
+
+                        <button style={styles.btnDanger}    
+
+                            onClick={handleDeleteConfirm}    
+
+                        >    
+
+                            Eliminar Troquel    
+
+                        </button>    
+
+                    </div>    
+
+                </div>    
+
+            </div>    
+
+        )}    
+
+ 
+
+        {/* Modal de confirmación de eliminación de prensa */} 
+
+        {showDeletePrensaModal && ( 
+
+            <div style={styles.modalOverlay} onClick={() => setShowDeletePrensaModal(false)}> 
+
+                <div style={styles.modal} onClick={(e) => e.stopPropagation()}> 
+
+                    <h2 style={styles.modalTitle}>Confirmar Eliminación</h2> 
+
+                    <p style={styles.modalText}> 
+
+                        ¿Está seguro de que desea eliminar la prensa{' '} 
+
+                        <strong style={{ color: '#00ff88' }}> 
+
+                            {prensaToDelete?.identificador_prensa} 
+
+                        </strong>{' '} 
+
+                        ({prensaToDelete?.nombre})? 
+
+                        <br /><br /> 
+
+                        Esta acción no se puede deshacer y puede afectar los troqueles asignados a esta prensa. 
+
+                    </p> 
+
+                    <div style={styles.modalButtons}> 
+
+                        <button style={styles.btnSecondary} 
+
+                            onClick={() => setShowDeletePrensaModal(false)} 
+
+                        > 
+
+                            Cancelar 
+
+                        </button> 
+
+                        <button style={styles.btnDanger} 
+
+                            onClick={handleDeletePrensaConfirm} 
+
+                        > 
+
+                            Eliminar Prensa 
+
+                        </button> 
+
+                    </div> 
+
+                </div> 
+
+            </div> 
+
+        )} 
+
+ 
+
+        {/* Animación CSS */}    
+
+        <style>{cssAnimations}</style>    
+
+        </div>    
+
+    );    
+
+};    
+
+ 
 
 export default AdminDieRegistration; 
