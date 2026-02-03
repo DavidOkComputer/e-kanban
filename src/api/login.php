@@ -33,17 +33,15 @@ if (empty($username) || empty($password)) {
     echo json_encode(['success' => false, 'message' => 'Usuario y contraseña son requeridos']);
     exit();
 }
- 
+
 $conn = getDBConnection();
 if (!$conn) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Error de conexión con la base de datos']);
     exit();
 }
- 
+
 try {
-    error_log("DEBUG: Starting login for user: " . $username);
-    
     $stmt = $conn->prepare("
         SELECT id_usuario, nombre_usuario, acceso, nombre_completo, rol, activo
         FROM tbl_usuarios
@@ -53,48 +51,39 @@ try {
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
- 
+
     if ($result->num_rows === 0) {
-        error_log("DEBUG: User not found");
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
         $stmt->close();
         $conn->close();
         exit();
     }
- 
+
     $user = $result->fetch_assoc();
-    error_log("DEBUG: User found, checking active status");
- 
+
     if ($user['activo'] != 1) {
-        error_log("DEBUG: User not active");
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Usuario desactivado']);
         $stmt->close();
         $conn->close();
         exit();
     }
- 
-    error_log("DEBUG: Verifying password");
+
     if (!password_verify($password, $user['acceso'])) {
-        error_log("DEBUG: Password verification failed");
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Usuario o contraseña incorrectos']);
         $stmt->close();
         $conn->close();
         exit();
     }
- 
-    error_log("DEBUG: Password verified, updating last access");
-    
+
     //actualizar el momento del ultimo acceso
     $updateStmt = $conn->prepare("UPDATE tbl_usuarios SET ultimo_acceso = NOW() WHERE id_usuario = ?");
     $updateStmt->bind_param("i", $user['id_usuario']);
     $updateStmt->execute();
     $updateStmt->close();
     
-    error_log("DEBUG: Creating session");
- 
     //crear sesion
     $_SESSION['user_id'] = $user['id_usuario'];
     $_SESSION['username'] = $user['nombre_usuario'];  
@@ -102,15 +91,11 @@ try {
     $_SESSION['rol'] = $user['rol'];
     $_SESSION['logged_in'] = true;
     $_SESSION['login_time'] = time();
- 
-    error_log("DEBUG: Regenerating session ID");
     session_regenerate_id(true);
- 
-    error_log("DEBUG: Sending success response");
     
     $stmt->close();
     $conn->close();
- 
+
     //enviar respuesta de acceso exitoso
     http_response_code(200);
     echo json_encode([
@@ -123,9 +108,8 @@ try {
             'role' => $user['rol']
         ]
     ]);
- 
+
 } catch (Exception $e) {
-    error_log("DEBUG: Exception caught: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $e->getMessage()]);
     if (isset($stmt)) $stmt->close();

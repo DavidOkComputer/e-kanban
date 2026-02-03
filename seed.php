@@ -1,13 +1,13 @@
  1. MySQL Database Schema 
 
 -- Create database (or use existing) 
-CREATE DATABASE IF NOT EXISTS toolroom_kanban_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; 
-
-USE toolroom_kanban_db; 
+CREATE DATABASE IF NOT EXISTS toolroom_kanban CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; 
+ 
+USE toolroom_kanban; 
 
 -- Main troqueles (dies) table 
 CREATE TABLE IF NOT EXISTS tbl_troqueles ( 
-    id VARCHAR(20) PRIMARY KEY,
+    id VARCHAR(20) PRIMARY KEY, 
     name VARCHAR(100) NOT NULL, 
     status ENUM('Pendiente', 'En prensa', 'Listo', 'Listo-BackUp', 'Reparando', 'Baja') DEFAULT 'Pendiente', 
     year INT NOT NULL, 
@@ -18,18 +18,19 @@ CREATE TABLE IF NOT EXISTS tbl_troqueles (
     rectificaciones VARCHAR(100) DEFAULT '0', 
     image_url TEXT NULL, 
     notes TEXT NULL, 
-
     -- Additional fields 
+    cliente VARCHAR(100) NULL, 
     prensa_asignada VARCHAR(50) NULL, 
     tipo_troquel ENUM('progresivo', 'transfer', 'simple', 'compuesto', 'multiple') DEFAULT 'progresivo', 
     ubicacion VARCHAR(100) NULL, 
-    numero_serie VARCHAR(100) NULL,
+    numero_serie VARCHAR(100) NULL, 
+    proveedor VARCHAR(150) NULL, 
+    fecha_fabricacion DATE NULL, 
     peso_kg VARCHAR(50) NULL, 
     dimensiones VARCHAR(100) NULL, 
     material_base VARCHAR(100) NULL, 
     num_estaciones VARCHAR(20) NULL, 
     vida_util_estimada VARCHAR(50) NULL, 
-
     -- Audit fields 
     created_by INT NULL, 
     updated_by INT NULL, 
@@ -38,7 +39,7 @@ CREATE TABLE IF NOT EXISTS tbl_troqueles (
 
     -- Indexes 
     INDEX idx_status (status), 
-    INDEX idx_year (year),
+    INDEX idx_year (year), 
     INDEX idx_cliente (cliente), 
     INDEX idx_prensa (prensa_asignada), 
     INDEX idx_tipo (tipo_troquel), 
@@ -56,7 +57,7 @@ CREATE TABLE IF NOT EXISTS tbl_troqueles_historial (
     fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     INDEX idx_troquel (troquel_id), 
     INDEX idx_fecha (fecha_cambio), 
-    FOREIGN KEY (troquel_id) REFERENCES tbl_troqueles(id) ON DELETE CASCADE 
+    FOREIGN KEY (troquel_id) REFERENCES tbl_troqueles(id_troquel) ON DELETE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; 
 
 -- Maintenance/repair records 
@@ -86,7 +87,7 @@ INSERT INTO tbl_troqueles (id, name, status, year, model, golpes, golpes_acum, c
 ('T004', 'Delta', 'Pendiente', 2025, 'G5-PRO', '-', '-', '150,000,000', '0', 'simple', 'Cliente C', NULL, 'Almacén'), 
 ('T005', 'Epsilon', 'Listo-BackUp', 2023, 'G3-VSS', '145,600', '88,920,300', '250,000,000', '10', 'progresivo', 'Cliente B', NULL, 'Rack B-05'); 
 
-2. PHP API Files  
+2. PHP API Files 
 `api/troqueles/index.php` (Main Router) 
 
 <?php 
@@ -94,14 +95,16 @@ INSERT INTO tbl_troqueles (id, name, status, year, model, golpes, golpes_acum, c
 header('Content-Type: application/json'); 
 header('Access-Control-Allow-Origin: *'); 
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS'); 
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization'); 
 
 // Handle preflight 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
     http_response_code(200); 
     exit(); 
 } 
+
 require_once '../../db_config.php'; 
+
 $method = $_SERVER['REQUEST_METHOD']; 
 $uri = $_SERVER['REQUEST_URI']; 
 
@@ -124,6 +127,7 @@ foreach ($pathParts as $index => $part) {
         break; 
     } 
 } 
+
 $conn = getDBConnection(); 
 
 if (!$conn) { 
@@ -143,6 +147,7 @@ try {
                 getAllTroqueles($conn); 
             } 
             break; 
+
         case 'POST': 
             createTroquel($conn); 
             break; 
@@ -154,7 +159,6 @@ try {
                 echo json_encode(['success' => false, 'message' => 'ID de troquel requerido']); 
             } 
             break; 
-
         case 'DELETE': 
             if ($troquelId) { 
                 deleteTroquel($conn, $troquelId); 
@@ -162,8 +166,7 @@ try {
                 http_response_code(400); 
                 echo json_encode(['success' => false, 'message' => 'ID de troquel requerido']); 
             } 
-            break;
-            
+            break; 
         default: 
             http_response_code(405); 
             echo json_encode(['success' => false, 'message' => 'Método no permitido']); 
@@ -175,12 +178,11 @@ try {
     $conn->close(); 
 } 
 
-// ============ HANDLER FUNCTIONS ============ 
 function getAllTroqueles($conn) { 
     $sql = "SELECT * FROM tbl_troqueles ORDER BY created_at DESC"; 
     $result = $conn->query($sql); 
+     
     $troqueles = []; 
-
     while ($row = $result->fetch_assoc()) { 
         $troqueles[] = $row; 
     } 
@@ -192,13 +194,12 @@ function getTroquel($conn, $id) {
     $stmt->bind_param("s", $id); 
     $stmt->execute(); 
     $result = $stmt->get_result(); 
-
+     
     if ($result->num_rows === 0) { 
         http_response_code(404); 
         echo json_encode(['success' => false, 'message' => 'Troquel no encontrado']); 
         return; 
     } 
-
     echo json_encode($result->fetch_assoc()); 
     $stmt->close(); 
 } 
@@ -207,7 +208,7 @@ function handleSearch($conn) {
     $year = $_GET['year'] ?? null; 
     $status = $_GET['status'] ?? null; 
     $search = $_GET['search'] ?? null; 
-    $cliente = $_GET['cliente'] ?? null;
+    $cliente = $_GET['cliente'] ?? null; 
     $sql = "SELECT * FROM tbl_troqueles WHERE 1=1"; 
     $params = []; 
     $types = ""; 
@@ -238,11 +239,10 @@ function handleSearch($conn) {
         $params[] = $searchTerm; 
         $types .= "sss"; 
     } 
-
-    $sql .= " ORDER BY created_at DESC";      
-
-    $stmt = $conn->prepare($sql);
      
+    $sql .= " ORDER BY created_at DESC"; 
+    $stmt = $conn->prepare($sql); 
+
     if (!empty($params)) { 
         $stmt->bind_param($types, ...$params); 
     } 
@@ -268,12 +268,11 @@ function createTroquel($conn) {
         echo json_encode(['success' => false, 'message' => 'ID, nombre y año son requeridos']); 
         return; 
     } 
-
     // Check if ID already exists 
     $checkStmt = $conn->prepare("SELECT id FROM tbl_troqueles WHERE id = ?"); 
     $checkStmt->bind_param("s", $input['id']); 
     $checkStmt->execute(); 
-
+     
     if ($checkStmt->get_result()->num_rows > 0) { 
         http_response_code(409); 
         echo json_encode(['success' => false, 'message' => 'Ya existe un troquel con ese ID']); 
@@ -313,7 +312,7 @@ function createTroquel($conn) {
     $material_base = $input['material_base'] ?? null; 
     $num_estaciones = $input['num_estaciones'] ?? null; 
     $vida_util_estimada = $input['vida_util_estimada'] ?? null; 
-
+     
     $stmt->bind_param( 
         "sssisssssssssssssssssss", 
         $id, $name, $status, $year, $model, $golpes, $golpes_acum, $capacidad_golpes, 
@@ -360,9 +359,7 @@ function updateTroquel($conn, $id) {
         numero_serie = ?, proveedor = ?, fecha_fabricacion = ?, peso_kg = ?, 
         dimensiones = ?, material_base = ?, num_estaciones = ?, vida_util_estimada = ? 
         WHERE id = ?"; 
-
     $stmt = $conn->prepare($sql); 
-
     $name = trim($input['name'] ?? $existing['name']); 
     $status = $input['status'] ?? $existing['status']; 
     $year = (int)($input['year'] ?? $existing['year']); 
@@ -399,16 +396,16 @@ function updateTroquel($conn, $id) {
     if ($stmt->execute()) { 
         // Log the change 
         logChange($conn, $id, 'update', json_encode($existing), json_encode($input)); 
-
+         
         echo json_encode([ 
             'success' => true, 
             'message' => 'Troquel actualizado exitosamente' 
         ]); 
-
     } else { 
         http_response_code(500); 
         echo json_encode(['success' => false, 'message' => 'Error al actualizar el troquel']); 
     } 
+
     $stmt->close(); 
 } 
 
@@ -432,7 +429,7 @@ function deleteTroquel($conn, $id) {
     // Delete the troquel 
     $stmt = $conn->prepare("DELETE FROM tbl_troqueles WHERE id = ?"); 
     $stmt->bind_param("s", $id); 
-
+     
     if ($stmt->execute()) { 
         echo json_encode([ 
             'success' => true, 
@@ -442,7 +439,6 @@ function deleteTroquel($conn, $id) {
         http_response_code(500); 
         echo json_encode(['success' => false, 'message' => 'Error al eliminar el troquel']); 
     } 
-
     $stmt->close(); 
 } 
 
@@ -451,23 +447,20 @@ function logChange($conn, $troquelId, $campo, $valorAnterior, $valorNuevo) {
         INSERT INTO tbl_troqueles_historial (troquel_id, campo_modificado, valor_anterior, valor_nuevo) 
         VALUES (?, ?, ?, ?) 
     "); 
-
     $stmt->bind_param("ssss", $troquelId, $campo, $valorAnterior, $valorNuevo); 
     $stmt->execute(); 
     $stmt->close(); 
 } 
-
 ?> 
 
 `api/troqueles/stats.php` (Statistics Endpoint) 
-
 <?php 
 // api/troqueles/stats.php 
 header('Content-Type: application/json'); 
 header('Access-Control-Allow-Origin: *'); 
 
 require_once '../../db_config.php'; 
-
+ 
 $conn = getDBConnection(); 
 
 if (!$conn) { 
@@ -489,9 +482,8 @@ try {
         FROM tbl_troqueles  
         GROUP BY status 
     "); 
-
+     
     $stats['by_status'] = []; 
-
     while ($row = $result->fetch_assoc()) { 
         $stats['by_status'][$row['status']] = (int)$row['count']; 
     } 
@@ -500,12 +492,12 @@ try {
     $stats['activos'] = ($stats['by_status']['En prensa'] ?? 0) + ($stats['by_status']['Listo'] ?? 0); 
     $stats['reparando'] = $stats['by_status']['Reparando'] ?? 0; 
     $stats['pendientes'] = $stats['by_status']['Pendiente'] ?? 0; 
-
+     
     // Count by year 
     $result = $conn->query(" 
         SELECT year, COUNT(*) as count  
         FROM tbl_troqueles  
-        GROUP BY year 
+        GROUP BY year  
         ORDER BY year DESC 
     "); 
 
@@ -528,8 +520,7 @@ try {
     while ($row = $result->fetch_assoc()) { 
         $stats['by_cliente'][$row['cliente']] = (int)$row['count']; 
     } 
-
-    echo json_encode($stats);      
+    echo json_encode($stats); 
 
 } catch (Exception $e) { 
     http_response_code(500); 
@@ -537,15 +528,13 @@ try {
 } finally { 
     $conn->close(); 
 } 
-
 ?> 
 
-3. `.htaccess` for Clean URLs 
+ 3. `.htaccess` for Clean URLs 
 
 ```apache 
 
 # api/.htaccess 
-
 RewriteEngine On 
 RewriteCond %{REQUEST_FILENAME} !-f 
 RewriteCond %{REQUEST_FILENAME} !-d 
@@ -554,11 +543,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^troqueles/?$ troqueles/index.php [L,QSA] 
 RewriteRule ^troqueles/(.+)$ troqueles/index.php [L,QSA] 
 
-## 4. Update Your React API_BASE 
+4. Update Your React API_BASE 
+
 In your React component, update the API_BASE if needed: 
 
 ```javascript 
-
 // For PHP backend 
 const API_BASE = 'http://localhost/toolroom/api'; 
 // Make sure your endpoints match: 
@@ -582,7 +571,6 @@ toolroom/
 │       └── stats.php 
 
 This setup gives you: 
-
 - ✅ Full CRUD operations for dies/troqueles 
 - ✅ Search and filter by year, status, client 
 - ✅ Statistics endpoint for dashboard 
