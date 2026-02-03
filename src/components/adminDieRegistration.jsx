@@ -1,441 +1,223 @@
 import React, {    
-
     useState,    
-
     useCallback,    
-
     useMemo,    
-
     useEffect,    
-
 } from 'react';    
 
- 
-
 import createStyles, {    
-
     getStatusStyle,    
-
     generateYears,    
-
     cssAnimations    
-
 } from '../styles/adminDieRegistration.styles';    
 
- 
-
 // Configuración de la API    
-
 const API_BASE = 'http://localhost/ekanban-toolroom/src/api';    
 
- 
-
 // Mapear datos del formulario al formato de la API    
-
 const mapFormToApi = (formData) => {    
-
     return {    
-
         id_troquel: formData.id?.trim().toUpperCase(),    
-
         nombre: formData.name?.trim(),    
-
         estado: formData.status,    
-
         año: parseInt(formData.year),    
-
         modelo: formData.model?.trim() || null,    
-
         golpes: formData.golpes || '-',    
-
         golpes_acum: formData.golpes_acum || '-',    
-
         capacidad_golpes: formData.capacidad_golpes || '-',    
-
         rectificaciones: formData.rectificaciones || '0',    
-
         tipo_troquel: formData.tipo_troquel || 'Null',    
-
         ubicacion: formData.ubicacion || null,    
-
         prensa_asignada: formData.prensa_asignada || null,    
-
         numero_serie: formData.numero_serie || null,    
-
         proveedor: formData.proveedor || null,    
-
         peso_kg: formData.peso_kg || null,    
-
         dimensiones: formData.dimensiones || null,    
-
         material_base: formData.material_base || null,    
-
         num_estaciones: formData.num_estaciones || null,    
-
         cavidades: formData.cavidades || null,   
-
         color: formData.color || null,   
-
         ciclos: formData.ciclos || null,   
-
         n_parte_1: formData.n_parte_1 || null,   
-
         n_parte_2: formData.n_parte_2 || null,   
-
         n_parte_3: formData.n_parte_3 || null,   
-
         n_parte_4: formData.n_parte_4 || null,   
-
         n_parte_5: formData.n_parte_5 || null,   
-
         n_parte_6: formData.n_parte_6 || null,   
-
         comentarios: formData.notes || null,    
-
         image_url: formData.image_url || null,    
-
     };    
-
 };    
-
- 
 
 // Mapear datos de la API al formato del formulario    
-
 const mapApiToForm = (apiData) => {    
-
     return {    
-
         id: apiData.id || apiData.id_troquel || '',    
-
         name: apiData.name || apiData.nombre || '',    
-
         status: apiData.status || apiData.estado || 'Pendiente',    
-
         year: apiData.year || apiData.año || new Date().getFullYear(),    
-
         model: apiData.model || apiData.modelo || '',    
-
         golpes: apiData.golpes || '',    
-
         golpes_acum: apiData.golpes_acum || '',    
-
         capacidad_golpes: apiData.capacidad_golpes || '',    
-
         rectificaciones: apiData.rectificaciones || '0',    
-
         tipo_troquel: apiData.tipo_troquel || 'Null',    
-
         ubicacion: apiData.ubicacion || '',    
-
         prensa_asignada: apiData.prensa_asignada || '',    
-
         numero_serie: apiData.numero_serie || '',    
-
         proveedor: apiData.proveedor || '',    
-
         peso_kg: apiData.peso_kg || '',    
-
         dimensiones: apiData.dimensiones || '',    
-
         material_base: apiData.material_base || '',    
-
         num_estaciones: apiData.num_estaciones || '',    
-
         cavidades: apiData.cavidades || '',   
-
         color: apiData.color || '',   
-
         ciclos: apiData.ciclos || '',   
-
         n_parte_1: apiData.n_parte_1 || '',   
-
         n_parte_2: apiData.n_parte_2 || '',   
-
         n_parte_3: apiData.n_parte_3 || '',   
-
         n_parte_4: apiData.n_parte_4 || '',   
-
         n_parte_5: apiData.n_parte_5 || '',   
-
         n_parte_6: apiData.n_parte_6 || '',   
-
         notes: apiData.notes || apiData.comentarios || '',    
-
         image_url: apiData.image_url || '',    
-
     };    
-
 };    
 
- 
-
 // Valores por defecto para las opciones (fallback)    
-
 const DEFAULT_PRESS_OPTIONS = [    
-
     { value: '', label: 'Sin asignar' },    
-
     { value: 'P1', label: 'Prensa 1 (P1)' },    
-
     { value: 'P2', label: 'Prensa 2 (P2)' },    
-
     { value: 'P3', label: 'Prensa 3 (P3)' },    
-
     { value: 'P4', label: 'Prensa 4 (P4)' },    
-
     { value: 'P5', label: 'Prensa 5 (P5)' },    
-
     { value: 'P6', label: 'Prensa 6 (P6)' },    
-
     { value: 'P7', label: 'Prensa 7 (P7)' },    
-
     { value: 'P8', label: 'Prensa 8 (P8)' },    
-
 ];    
-
- 
 
 const DEFAULT_DIE_TYPE_OPTIONS = [    
-
     { value: 'Null', label: 'Sin especificar' },   
-
     { value: 'progresivo', label: 'Progresivo' },    
-
     { value: 'transfer', label: 'Transfer' },    
-
     { value: 'simple', label: 'Simple' },   
-
     { value: 'compuesto', label: 'Compuesto' },   
-
     { value: 'multiple', label: 'Múltiple' },   
-
 ];    
-
- 
 
 const DEFAULT_STATUS_OPTIONS = [    
-
     { value: 'Pendiente', label: 'Pendiente' },    
-
     { value: 'En prensa', label: 'En Prensa' },    
-
     { value: 'Listo', label: 'Listo' },    
-
     { value: 'Listo-BackUp', label: 'Listo - BackUp' },    
-
     { value: 'Reparando', label: 'Reparando' },    
-
     { value: 'Baja', label: 'Baja / Obsoleto' },    
-
 ];    
 
- 
-
 const DEFAULT_PRESS_STATUS_OPTIONS = [ 
-
     { value: 'Activa', label: 'Activa' }, 
-
     { value: 'En mantenimiento', label: 'En Mantenimiento' }, 
-
     { value: 'Inactiva', label: 'Inactiva' }, 
-
     { value: 'Fuera de servicio', label: 'Fuera de Servicio' }, 
-
 ]; 
 
- 
-
 // Componente de sección colapsable - Moved outside and memoized  
-
 const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {    
-
     const sectionStyles = {    
-
         container: {    
-
             marginBottom: '16px',    
-
             background: 'rgba(0, 0, 0, 0.2)',    
-
             borderRadius: '12px',    
-
             border: '1px solid rgba(0, 255, 136, 0.1)',    
-
             overflow: 'hidden',    
-
             transition: 'all 0.3s ease',    
-
         },    
-
- 
 
         header: {    
-
             display: 'flex',    
-
             alignItems: 'center',    
-
             justifyContent: 'space-between',    
-
             padding: '16px 20px',    
-
             cursor: 'pointer',    
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.08)' : 'transparent',    
-
             borderBottom: isExpanded ? '1px solid rgba(0, 255, 136, 0.15)' : '1px solid transparent',    
-
             transition: 'all 0.3s ease',    
-
             userSelect: 'none',    
-
         },    
-
- 
 
         headerLeft: {    
-
             display: 'flex',    
-
             alignItems: 'center',    
-
             gap: '12px',    
-
         },    
-
- 
 
         icon: {    
-
             width: '32px',    
-
             height: '32px',    
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 255, 136, 0.1)',    
-
             borderRadius: '8px',    
-
             display: 'flex',    
-
             alignItems: 'center',    
-
             justifyContent: 'center',    
-
             fontSize: '16px',    
-
             transition: 'all 0.3s ease',    
-
         },    
-
- 
 
         title: {    
-
             fontSize: '14px',    
-
             fontWeight: 600,    
-
             color: isExpanded ? '#00ff88' : '#aaa',    
-
             textTransform: 'uppercase',    
-
             letterSpacing: '1px',    
-
             transition: 'color 0.3s ease',    
-
         },    
-
- 
 
         requiredBadge: {    
-
             background: 'rgba(255, 107, 107, 0.15)',    
-
             color: '#ff6b6b',    
-
             fontSize: '9px',    
-
             padding: '3px 8px',    
-
             borderRadius: '10px',    
-
             fontWeight: 600,    
-
             letterSpacing: '0.5px',    
-
         },    
-
- 
 
         chevron: {    
-
             width: '24px',    
-
             height: '24px',    
-
             display: 'flex',    
-
             alignItems: 'center',    
-
             justifyContent: 'center',    
-
             color: isExpanded ? '#00ff88' : '#666',    
-
             transition: 'transform 0.3s ease, color 0.3s ease',    
-
             transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',    
-
             fontSize: '18px',    
-
         },    
-
- 
 
         content: {    
-
             maxHeight: isExpanded ? '2000px' : '0',    
-
             opacity: isExpanded ? 1 : 0,    
-
             overflow: 'hidden',    
-
             transition: 'max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease',    
-
             padding: isExpanded ? '20px' : '0 20px',    
-
         },    
-
     };    
 
- 
-
     return (    
-
         <div style={sectionStyles.container}>    
-
             <div style={sectionStyles.header} onClick={onToggle}>           
-
                 <div style={sectionStyles.headerLeft}>    
-
                     <div style={sectionStyles.icon}>{icon || ''}</div>    
-
                     <span style={sectionStyles.title}>{title}</span>    
-
                     {isRequired && <span style={sectionStyles.requiredBadge}>REQUERIDO</span>}    
-
                 </div>    
-
                 <div style={sectionStyles.chevron}>▼</div>    
-
             </div>    
-
             <div style={sectionStyles.content}>    
-
                 {children}    
 
-            </div>    
-
+           </div>    
         </div>    
 
     );    
@@ -2999,8 +2781,7 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
                     <div style={styles.filtersContainer}>    
 
                         <div style={styles.searchBox}>    
-
-                            <span style={styles.searchIcon}>🔍</span>    
+  
 
                             <input    
 
@@ -3560,33 +3341,7 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                             </div> 
 
-                            <div style={styles.inputGroup}> 
-
-                                <label style={styles.label}>Año de Fabricación</label> 
-
-                                <select name="año_fabricacion" 
-
-                                    value={prensaFormData.año_fabricacion} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('año_fabricacion')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getSelectStyle('año_fabricacion')} 
-
-                                > 
-
-                                    {years.map(y => ( 
-
-                                        <option key={y} value={y}>{y}</option> 
-
-                                    ))} 
-
-                                </select> 
-
-                            </div> 
+                            
 
                             <div style={styles.inputGroup}> 
 
@@ -3616,52 +3371,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                             <div style={styles.inputGroup}> 
 
-                                <label style={styles.label}>Número de Serie</label> 
-
-                                <input type="text" 
-
-                                    name="numero_serie" 
-
-                                    value={prensaFormData.numero_serie} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('numero_serie')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getInputStyle('numero_serie')} 
-
-                                    placeholder="Ej: SN-2024-00123" 
-
-                                    maxLength={100} 
-
-                                /> 
-
-                            </div> 
-
-                        </div> 
-
-                    </CollapsibleSection> 
-
- 
-
-                    {/* Especificaciones técnicas */} 
-
-                    <CollapsibleSection 
-
-                        title="Especificaciones Técnicas" 
-
-                        isExpanded={prensaExpandedSections.technical} 
-
-                        onToggle={togglePrensaTechnical} 
-
-                    > 
-
-                        <div style={styles.formGrid}> 
-
-                            <div style={styles.inputGroup}> 
-
                                 <label style={styles.label}>Tonelaje</label> 
 
                                 <input type="text" 
@@ -3686,131 +3395,10 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                             </div> 
 
-                            <div style={styles.inputGroup}> 
-
-                                <label style={styles.label}>Velocidad Máxima (SPM)</label> 
-
-                                <input type="text" 
-
-                                    name="velocidad_max" 
-
-                                    value={prensaFormData.velocidad_max} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('velocidad_max')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getInputStyle('velocidad_max')} 
-
-                                    placeholder="Ej: 60 SPM" 
-
-                                    maxLength={50} 
-
-                                /> 
-
-                            </div> 
-
-                            <div style={styles.inputGroup}> 
-
-                                <label style={styles.label}>Carrera (mm)</label> 
-
-                                <input type="text" 
-
-                                    name="carrera" 
-
-                                    value={prensaFormData.carrera} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('carrera')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getInputStyle('carrera')} 
-
-                                    placeholder="Ej: 300 mm" 
-
-                                    maxLength={50} 
-
-                                /> 
-
-                            </div> 
-
-                            <div style={styles.inputGroup}> 
-
-                                <label style={styles.label}>Área de Trabajo (mm)</label> 
-
-                                <input type="text" 
-
-                                    name="area_trabajo" 
-
-                                    value={prensaFormData.area_trabajo} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('area_trabajo')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getInputStyle('area_trabajo')} 
-
-                                    placeholder="Ej: 1500 x 800 mm" 
-
-                                    maxLength={100} 
-
-                                /> 
-
-                            </div> 
-
                         </div> 
 
                     </CollapsibleSection> 
 
- 
-
-                    {/* Mantenimiento */} 
-
-                    <CollapsibleSection 
-
-                        title="Mantenimiento" 
-
-                        isExpanded={prensaExpandedSections.maintenance} 
-
-                        onToggle={togglePrensaMaintenance} 
-
-                    > 
-
-                        <div style={styles.formGrid}> 
-
-                            <div style={styles.inputGroup}> 
-
-                                <label style={styles.label}>Fecha Último Mantenimiento</label> 
-
-                                <input type="date" 
-
-                                    name="fecha_ultimo_mantenimiento" 
-
-                                    value={prensaFormData.fecha_ultimo_mantenimiento} 
-
-                                    onChange={handlePrensaInputChange} 
-
-                                    onFocus={() => handleFocus('fecha_ultimo_mantenimiento')} 
-
-                                    onBlur={handleBlur} 
-
-                                    style={getInputStyle('fecha_ultimo_mantenimiento')} 
-
-                                /> 
-
-                            </div> 
-
-                        </div> 
-
-                    </CollapsibleSection> 
-
- 
 
                     {/* Notas */} 
 
@@ -3892,7 +3480,6 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
                         <div style={styles.searchBox}> 
 
-                            <span style={styles.searchIcon}>🔍</span> 
 
                             <input 
 
