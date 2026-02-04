@@ -394,7 +394,6 @@ const HistoryItem = memo(({ h }) => {
             borderRadius: 6,  
             border: '1px solid rgba(255,200,0,0.2)',  
           }}>  
-            <span style={{ fontSize: 14 }}>👤</span>  
             <div>  
               <div style={{ color: '#888', fontSize: 9, textTransform: 'uppercase' }}>Ejecutado por</div>  
               <div style={{ color: '#ffc800', fontSize: 12, fontWeight: 600 }}>{h.empleado}</div>  
