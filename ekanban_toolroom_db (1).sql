@@ -175,23 +175,23 @@ INSERT INTO `tbl_fallas_catalogo` (`id_fallas_catalogo`, `descripcion`, `activo`
 (4, 'AJUSTE SENSOR MISFEED', 1),
 (5, 'ARO RETENCION QUEBRADO', 1),
 
-CREATE TABLE `tbl_historial` (
-  `id_historial` int(11) NOT NULL,
-  `troquel_id` varchar(50) NOT NULL,
-  `tipo_registro` varchar(50) DEFAULT NULL,
-  `action_type` varchar(50) NOT NULL,
-  `id_falla` int(11) DEFAULT NULL,
-  `modelo_nuevo` varchar(100) DEFAULT NULL,
-  `nivel_setup` varchar(10) DEFAULT NULL,
-  `grupo` varchar(10) DEFAULT NULL,
-  `comentarios` text DEFAULT NULL,
-  `motivo` varchar(100) DEFAULT NULL,
-  `comentarios_supervisor` text DEFAULT NULL,
-  `empleado_troquel` varchar(100) DEFAULT NULL,
-  `empleado_asistencia` varchar(100) DEFAULT NULL,
-  `creado_el` timestamp NOT NULL DEFAULT current_timestamp(),
-  `folio` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CREATE TABLE `tbl_historial` (
+    `id_historial` int(11) NOT NULL,
+    `troquel_id` varchar(50) NOT NULL,
+    `tipo_registro` varchar(50) DEFAULT NULL,
+    `action_type` varchar(50) NOT NULL,
+    `id_falla` int(11) DEFAULT NULL,
+    `modelo_nuevo` varchar(100) DEFAULT NULL,
+    `nivel_setup` varchar(10) DEFAULT NULL,
+    `grupo` varchar(10) DEFAULT NULL,
+    `comentarios` text DEFAULT NULL,
+    `motivo` varchar(100) DEFAULT NULL,
+    `comentarios_supervisor` text DEFAULT NULL,
+    `empleado_troquel` varchar(100) DEFAULT NULL,
+    `empleado_asistencia` varchar(100) DEFAULT NULL,
+    `creado_el` timestamp NOT NULL DEFAULT current_timestamp(),
+    `folio` varchar(100) DEFAULT NULL
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `tbl_historial` (`id_historial`, `troquel_id`, `tipo_registro`, `action_type`, `id_falla`, `modelo_nuevo`, `nivel_setup`, `grupo`, `comentarios`, `motivo`, `comentarios_supervisor`, `empleado_troquel`, `empleado_asistencia`, `creado_el`, `folio`) VALUES
 (1, 'T007', 'baja_troquel', 'Falla de Troquel', 12, NULL, NULL, '1', 'pr', NULL, NULL, 'fa', NULL, '2026-01-26 18:42:08', NULL);

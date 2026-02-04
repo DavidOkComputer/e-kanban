@@ -195,69 +195,298 @@ const modalStyles = {
   },  
 };  
 
+// ============ HELPER COMPONENTS AT MODULE LEVEL (FIX FOR FOCUS LOSS) ============
+// These MUST be defined outside of DetailModal to prevent recreation on every render
 
+const InputBox = memo(({ label, value, onChange, placeholder, mt, disabled, type = 'text' }) => ( 
+  <div style={{ marginTop: mt || 0 }}> 
+    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
+    <input 
+      type={type} 
+      className="form-el" 
+      value={value} 
+      onChange={onChange} 
+      placeholder={placeholder} 
+      disabled={disabled} 
+      style={{ 
+        width: '100%', 
+        padding: '7px 10px', 
+        background: 'rgba(0,0,0,0.3)', 
+        border: '1px solid rgba(0,255,136,0.3)', 
+        borderRadius: 6, 
+        color: '#fff', 
+        fontSize: 11, 
+        outline: 'none', 
+        boxSizing: 'border-box', 
+        opacity: disabled ? 0.5 : 1 
+      }} 
+    /> 
+  </div> 
+)); 
+
+const SelectBox = memo(({ label, value, onChange, children, mt, disabled }) => ( 
+  <div style={{ marginTop: mt || 0 }}> 
+    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
+    <select 
+      className="form-el" 
+      value={value} 
+      onChange={onChange} 
+      disabled={disabled} 
+      style={{ 
+        width: '100%', 
+        padding: '7px 10px', 
+        background: 'rgba(0,0,0,0.3)', 
+        border: '1px solid rgba(0,255,136,0.3)', 
+        borderRadius: 6, 
+        color: '#fff', 
+        fontSize: 11, 
+        opacity: disabled ? 0.5 : 1 
+      }} 
+    > 
+      {children} 
+    </select> 
+  </div> 
+)); 
+
+const TextArea = memo(({ label, value, onChange, h, mt, disabled }) => ( 
+  <div style={{ marginTop: mt || 0 }}> 
+    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
+    <textarea 
+      className="form-el" 
+      value={value} 
+      onChange={onChange} 
+      disabled={disabled} 
+      style={{ 
+        width: '100%', 
+        padding: '8px 10px', 
+        background: 'rgba(0,0,0,0.3)', 
+        border: '1px solid rgba(0,255,136,0.3)', 
+        borderRadius: 6, 
+        color: '#fff', 
+        fontSize: 11, 
+        resize: 'none', 
+        boxSizing: 'border-box', 
+        height: h || 60, 
+        opacity: disabled ? 0.5 : 1 
+      }} 
+    /> 
+  </div> 
+)); 
+
+// History item component at module level
+const HistoryItem = memo(({ h }) => {  
+  const isAsistencia = h.tipo_registro === 'asistencia_prensa';  
+  const borderColor = isAsistencia ? '#00c8ff' : '#00ff88';  
+  const titleColor = isAsistencia ? '#00c8ff' : '#00ff88';  
+  const icon = isAsistencia ? '' : '';  
+  const typeLabel = isAsistencia ? 'Asistencia en Prensa' : 'Baja de Troquel';  
+
+  return (  
+    <div style={{  
+      background: 'rgba(0,0,0,0.3)',  
+      borderRadius: 10,  
+      padding: '14px 16px',  
+      marginBottom: 12,  
+      borderLeft: `4px solid ${borderColor}`,  
+      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',  
+    }}>  
+
+      {/*header con tipo y fecha */}  
+      <div style={{  
+        display: 'flex',  
+        justifyContent: 'space-between',  
+        alignItems: 'flex-start',  
+        marginBottom: 10,  
+        flexWrap: 'wrap',  
+        gap: 8,  
+      }}>  
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>  
+          <span style={{ fontSize: 16 }}>{icon}</span>  
+          <span style={{ color: titleColor, fontWeight: 700, fontSize: 13, textTransform: 'uppercase' }}>  
+            {typeLabel}  
+          </span>  
+          {h.folio && (  
+            <span style={{  
+              background: 'rgba(255,200,0,0.2)',  
+              color: '#ffc800',  
+              padding: '2px 8px',  
+              borderRadius: 4,  
+              fontSize: 10,  
+              fontWeight: 600,  
+            }}>  
+              Folio: {h.folio}  
+            </span>  
+          )}  
+        </div>  
+        <span style={{ color: '#888', fontSize: 11, background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>  
+          {new Date(h.created_at).toLocaleString()}  
+        </span>  
+      </div>  
+
+      {/*tipo de accion o razon*/}  
+      <div style={{  
+        background: 'rgba(255,255,255,0.05)',  
+        borderRadius: 6,  
+        padding: '10px 12px',  
+        marginBottom: 10,  
+      }}>  
+        <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
+          {isAsistencia ? 'Motivo de Asistencia' : 'Tipo de Acción'}  
+        </div>  
+        <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>  
+          {h.action_type || '-'}  
+        </div>  
+      </div>  
+
+      {/*solo mostrar falla para los registros de baja de troquel*/}  
+      {!isAsistencia && h.falla_description && (  
+        <div style={{  
+          background: 'rgba(255,107,107,0.1)',  
+          borderRadius: 6,  
+          padding: '10px 12px',  
+          marginBottom: 10,  
+          border: '1px solid rgba(255,107,107,0.2)',  
+        }}>  
+          <div style={{ color: '#ff6b6b', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
+            Falla Registrada  
+          </div>  
+          <div style={{ color: '#fff', fontSize: 12, fontWeight: 500 }}>  
+            {h.falla_description}  
+          </div>  
+        </div>  
+      )}  
+
+      {/*comentarios*/}  
+      {h.comentarios && (  
+        <div style={{  
+          background: 'rgba(255,255,255,0.03)',  
+          borderRadius: 6,  
+          padding: '10px 12px',  
+          marginBottom: 10,  
+        }}>  
+          <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
+            Comentarios  
+          </div>  
+          <div style={{ color: '#ddd', fontSize: 12, lineHeight: 1.4 }}>  
+            {h.comentarios}  
+          </div>  
+        </div>  
+      )}  
+
+      {/*footer con empleado e informacion adicional*/}  
+      <div style={{  
+        display: 'flex',  
+        justifyContent: 'space-between',  
+        alignItems: 'center',  
+        flexWrap: 'wrap',  
+        gap: 10,  
+        paddingTop: 8,  
+        borderTop: '1px solid rgba(255,255,255,0.1)',  
+      }}>  
+        {h.empleado && (  
+          <div style={{  
+            display: 'flex',  
+            alignItems: 'center',  
+            gap: 6,  
+            background: 'rgba(255,200,0,0.1)',  
+            padding: '6px 10px',  
+            borderRadius: 6,  
+            border: '1px solid rgba(255,200,0,0.2)',  
+          }}>  
+            <span style={{ fontSize: 14 }}>👤</span>  
+            <div>  
+              <div style={{ color: '#888', fontSize: 9, textTransform: 'uppercase' }}>Ejecutado por</div>  
+              <div style={{ color: '#ffc800', fontSize: 12, fontWeight: 600 }}>{h.empleado}</div>  
+            </div>  
+          </div>  
+        )}  
+
+        {!isAsistencia && (h.nivel_setup || h.grupo) && (  
+          <div style={{ display: 'flex', gap: 8 }}>  
+            {h.nivel_setup && (  
+              <div style={{ background: 'rgba(100,255,100,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,255,100,0.2)' }}>  
+                <span style={{ color: '#888', fontSize: 9 }}>Nivel: </span>  
+                <span style={{ color: '#64ff64', fontSize: 11, fontWeight: 600 }}>{h.nivel_setup}</span>  
+              </div>  
+            )}  
+
+            {h.grupo && (  
+              <div style={{ background: 'rgba(100,200,255,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,200,255,0.2)' }}>  
+                <span style={{ color: '#888', fontSize: 9 }}>Grupo: </span>  
+                <span style={{ color: '#64c8ff', fontSize: 11, fontWeight: 600 }}>{h.grupo}</span>  
+              </div>  
+            )}  
+          </div>  
+        )}  
+      </div>  
+    </div>  
+  );  
+});
+
+// ============ END HELPER COMPONENTS ============
 
 // Componente de modal de detalles para "En prensa" status 
 const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveAction }) => {   
   const [activeTab, setActiveTab] = useState('acciones');   
   const [action, setAction] = useState('limpieza');   
   
-const handleBajaFolioChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, folio: value })); 
-}, []); 
+  const handleBajaFolioChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, folio: value })); 
+  }, []); 
 
-const handleBajaFallaIdChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, falla_id: value })); 
-}, []); 
+  const handleBajaFallaIdChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, falla_id: value })); 
+  }, []); 
 
-const handleBajaModeloNuevoChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, modelo_nuevo: value })); 
-}, []); 
+  const handleBajaModeloNuevoChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, modelo_nuevo: value })); 
+  }, []); 
 
-const handleBajaNivelSetupChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, nivel_setup: value })); 
-}, []); 
+  const handleBajaNivelSetupChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, nivel_setup: value })); 
+  }, []); 
 
-const handleBajaGrupoChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, grupo: value })); 
-}, []); 
+  const handleBajaGrupoChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, grupo: value })); 
+  }, []); 
 
-const handleBajaComentariosChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, comentarios: value })); 
-}, []);
+  const handleBajaComentariosChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, comentarios: value })); 
+  }, []);
 
-const handleBajaEmpleadoChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setBajaTroquelData(prev => ({ ...prev, empleado: value })); 
-}, []); 
+  const handleBajaEmpleadoChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setBajaTroquelData(prev => ({ ...prev, empleado: value })); 
+  }, []); 
 
-const handleAsistenciaFolioChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setAsistenciaData(prev => ({ ...prev, folio: value })); 
-}, []); 
-
-
-const handleAsistenciaMotivoChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setAsistenciaData(prev => ({ ...prev, motivo: value })); 
-}, []); 
+  const handleAsistenciaFolioChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setAsistenciaData(prev => ({ ...prev, folio: value })); 
+  }, []); 
 
 
-const handleAsistenciaComentariosChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setAsistenciaData(prev => ({ ...prev, comentarios: value })); 
-}, []); 
+  const handleAsistenciaMotivoChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setAsistenciaData(prev => ({ ...prev, motivo: value })); 
+  }, []); 
 
-const handleAsistenciaEmpleadoChange = useCallback((e) => { 
-  const value = e.target.value; 
-  setAsistenciaData(prev => ({ ...prev, empleado: value })); 
-}, []); 
+
+  const handleAsistenciaComentariosChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setAsistenciaData(prev => ({ ...prev, comentarios: value })); 
+  }, []); 
+
+  const handleAsistenciaEmpleadoChange = useCallback((e) => { 
+    const value = e.target.value; 
+    setAsistenciaData(prev => ({ ...prev, empleado: value })); 
+  }, []); 
 
   //form de la info para bajar troquel
   const [bajaTroquelData, setBajaTroquelData] = useState({   
@@ -446,81 +675,6 @@ const handleAsistenciaEmpleadoChange = useCallback((e) => {
     }  
   };  
 
-const InputBox = memo(({ label, value, onChange, placeholder, mt, disabled, type = 'text' }) => ( 
-  <div style={{ marginTop: mt || 0 }}> 
-    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
-    <input 
-      type={type} 
-      className="form-el" 
-      value={value} 
-      onChange={onChange} 
-      placeholder={placeholder} 
-      disabled={disabled} 
-      style={{ 
-        width: '100%', 
-        padding: '7px 10px', 
-        background: 'rgba(0,0,0,0.3)', 
-        border: '1px solid rgba(0,255,136,0.3)', 
-        borderRadius: 6, 
-        color: '#fff', 
-        fontSize: 11, 
-        outline: 'none', 
-        boxSizing: 'border-box', 
-        opacity: disabled ? 0.5 : 1 
-      }} 
-    /> 
-  </div> 
-)); 
-
-const SelectBox = memo(({ label, value, onChange, children, mt, disabled }) => ( 
-  <div style={{ marginTop: mt || 0 }}> 
-    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
-    <select 
-      className="form-el" 
-      value={value} 
-      onChange={onChange} 
-      disabled={disabled} 
-      style={{ 
-        width: '100%', 
-        padding: '7px 10px', 
-        background: 'rgba(0,0,0,0.3)', 
-        border: '1px solid rgba(0,255,136,0.3)', 
-        borderRadius: 6, 
-        color: '#fff', 
-        fontSize: 11, 
-        opacity: disabled ? 0.5 : 1 
-      }} 
-    > 
-      {children} 
-    </select> 
-  </div> 
-)); 
-
-const TextArea = memo(({ label, value, onChange, h, mt, disabled }) => ( 
-  <div style={{ marginTop: mt || 0 }}> 
-    {label && <label style={{ display: 'block', color: '#888', fontSize: 10, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>} 
-    <textarea 
-      className="form-el" 
-      value={value} 
-      onChange={onChange} 
-      disabled={disabled} 
-      style={{ 
-        width: '100%', 
-        padding: '8px 10px', 
-        background: 'rgba(0,0,0,0.3)', 
-        border: '1px solid rgba(0,255,136,0.3)', 
-        borderRadius: 6, 
-        color: '#fff', 
-        fontSize: 11, 
-        resize: 'none', 
-        boxSizing: 'border-box', 
-        height: h || 60, 
-        opacity: disabled ? 0.5 : 1 
-      }} 
-    /> 
-  </div> 
-)); 
-
   //helper de estilo de boton
   const getButtonStyle = (isLoading, baseColor = '#00ff88') => ({  
     width: '100%',  
@@ -541,157 +695,6 @@ const TextArea = memo(({ label, value, onChange, h, mt, disabled }) => (
 
   //revisar si el item tiene una url valida para la imagen
   const hasImage = item.imageUrl && !imageError;  
-
-  // historial del componente de item
-  const HistoryItem = ({ h }) => {  
-    const isAsistencia = h.tipo_registro === 'asistencia_prensa';  
-    const borderColor = isAsistencia ? '#00c8ff' : '#00ff88';  
-    const titleColor = isAsistencia ? '#00c8ff' : '#00ff88';  
-    const icon = isAsistencia ? '' : '';  
-    const typeLabel = isAsistencia ? 'Asistencia en Prensa' : 'Baja de Troquel';  
-
-    return (  
-      <div style={{  
-        background: 'rgba(0,0,0,0.3)',  
-        borderRadius: 10,  
-        padding: '14px 16px',  
-        marginBottom: 12,  
-        borderLeft: `4px solid ${borderColor}`,  
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',  
-      }}>  
-
-        {/*header con tipo y fecha */}  
-        <div style={{  
-          display: 'flex',  
-          justifyContent: 'space-between',  
-          alignItems: 'flex-start',  
-          marginBottom: 10,  
-          flexWrap: 'wrap',  
-          gap: 8,  
-        }}>  
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>  
-            <span style={{ fontSize: 16 }}>{icon}</span>  
-            <span style={{ color: titleColor, fontWeight: 700, fontSize: 13, textTransform: 'uppercase' }}>  
-              {typeLabel}  
-            </span>  
-            {h.folio && (  
-              <span style={{  
-                background: 'rgba(255,200,0,0.2)',  
-                color: '#ffc800',  
-                padding: '2px 8px',  
-                borderRadius: 4,  
-                fontSize: 10,  
-                fontWeight: 600,  
-              }}>  
-                Folio: {h.folio}  
-              </span>  
-            )}  
-          </div>  
-          <span style={{ color: '#888', fontSize: 11, background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>  
-            {new Date(h.created_at).toLocaleString()}  
-          </span>  
-        </div>  
-
-        {/*tipo de accion o razon*/}  
-        <div style={{  
-          background: 'rgba(255,255,255,0.05)',  
-          borderRadius: 6,  
-          padding: '10px 12px',  
-          marginBottom: 10,  
-        }}>  
-          <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
-            {isAsistencia ? 'Motivo de Asistencia' : 'Tipo de Acción'}  
-          </div>  
-          <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>  
-            {h.action_type || '-'}  
-          </div>  
-        </div>  
-
-        {/*solo mostrar falla para los registros de baja de troquel*/}  
-        {!isAsistencia && h.falla_description && (  
-          <div style={{  
-            background: 'rgba(255,107,107,0.1)',  
-            borderRadius: 6,  
-            padding: '10px 12px',  
-            marginBottom: 10,  
-            border: '1px solid rgba(255,107,107,0.2)',  
-          }}>  
-            <div style={{ color: '#ff6b6b', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
-              Falla Registrada  
-            </div>  
-            <div style={{ color: '#fff', fontSize: 12, fontWeight: 500 }}>  
-              {h.falla_description}  
-            </div>  
-          </div>  
-        )}  
-
-        {/*comentarios*/}  
-        {h.comentarios && (  
-          <div style={{  
-            background: 'rgba(255,255,255,0.03)',  
-            borderRadius: 6,  
-            padding: '10px 12px',  
-            marginBottom: 10,  
-          }}>  
-            <div style={{ color: '#aaa', fontSize: 10, marginBottom: 2, textTransform: 'uppercase' }}>  
-              Comentarios  
-            </div>  
-            <div style={{ color: '#ddd', fontSize: 12, lineHeight: 1.4 }}>  
-              {h.comentarios}  
-            </div>  
-          </div>  
-        )}  
-
-        {/*footer con empleado e informacion adicional*/}  
-        <div style={{  
-          display: 'flex',  
-          justifyContent: 'space-between',  
-          alignItems: 'center',  
-          flexWrap: 'wrap',  
-          gap: 10,  
-          paddingTop: 8,  
-          borderTop: '1px solid rgba(255,255,255,0.1)',  
-        }}>  
-          {h.empleado && (  
-            <div style={{  
-              display: 'flex',  
-              alignItems: 'center',  
-              gap: 6,  
-              background: 'rgba(255,200,0,0.1)',  
-              padding: '6px 10px',  
-              borderRadius: 6,  
-              border: '1px solid rgba(255,200,0,0.2)',  
-            }}>  
-              <span style={{ fontSize: 14 }}>👤</span>  
-              <div>  
-                <div style={{ color: '#888', fontSize: 9, textTransform: 'uppercase' }}>Ejecutado por</div>  
-                <div style={{ color: '#ffc800', fontSize: 12, fontWeight: 600 }}>{h.empleado}</div>  
-              </div>  
-            </div>  
-          )}  
-
-          {!isAsistencia && (h.nivel_setup || h.grupo) && (  
-            <div style={{ display: 'flex', gap: 8 }}>  
-              {h.nivel_setup && (  
-                <div style={{ background: 'rgba(100,255,100,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,255,100,0.2)' }}>  
-                  <span style={{ color: '#888', fontSize: 9 }}>Nivel: </span>  
-                  <span style={{ color: '#64ff64', fontSize: 11, fontWeight: 600 }}>{h.nivel_setup}</span>  
-                </div>  
-              )}  
-
-              {h.grupo && (  
-                <div style={{ background: 'rgba(100,200,255,0.1)', padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(100,200,255,0.2)' }}>  
-                  <span style={{ color: '#888', fontSize: 9 }}>Grupo: </span>  
-                  <span style={{ color: '#64c8ff', fontSize: 11, fontWeight: 600 }}>{h.grupo}</span>  
-                </div>  
-              )}  
-            </div>  
-          )}  
-        </div>  
-      </div>  
-    );  
-  };  
 
   return (   
     <div onClick={onClose} style={modalStyles.overlay}>   
@@ -897,7 +900,7 @@ const TextArea = memo(({ label, value, onChange, h, mt, disabled }) => (
                             <select    
                               className="form-el"    
                               value={opt.id === 'cambio' ? bajaTroquelData.modelo_nuevo : bajaTroquelData.falla_id}   
-                              onChange={handleBajaFallaIdChange}   
+                              onChange={opt.id === 'cambio' ? handleBajaModeloNuevoChange : handleBajaFallaIdChange}   
                               style={{  
                                 width: '100%',  
                                 marginTop: 8,  
@@ -1354,4 +1357,4 @@ const EKanban = ({ onLogoClick }) => {
   );   
 };   
 
-export default EKanban; 
+export default EKanban;
