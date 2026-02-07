@@ -333,7 +333,7 @@ app.get('/api/troqueles/:id/ciclo-activo', async (req, res) => {
       return res.json({ ciclo: null, message: 'No active repair cycle found' });
     }
 
-    // Get technicians for the cycle - use correct PK column
+    // Get technicians for the cycle
     const [tecnicos] = await pool.query(`
       SELECT * FROM tbl_tecnicos_ciclo
       WHERE ciclo_id = ?
@@ -817,7 +817,7 @@ app.post('/api/troqueles/:id/action', async (req, res) => {
       }
     }
 
-    // Insert into history - using correct column names from schema
+    // Insert into history
     const [historyResult] = await connection.query(`
       INSERT INTO tbl_historial (
         troquel_id, tipo_registro, action_type, id_falla, modelo_nuevo,
@@ -1200,10 +1200,13 @@ app.get('/api/troqueles-summary', async (req, res) => {
   }
 });
 
-// ==================== LEGACY ACTION ENDPOINTS ====================
+// ==================== LEGACY ACTION ENDPOINTS (UPDATED WITH FIX) ====================
 
 app.post('/api/actions/baja-troquel', async (req, res) => {
+  const connection = await pool.getConnection();
   try {
+    await connection.beginTransaction();
+    
     const {
       troquel_id,
       action_type,
@@ -1216,58 +1219,91 @@ app.post('/api/actions/baja-troquel', async (req, res) => {
       empleado
     } = req.body;
 
-    if (!troquel_id) {
-      return res.status(400).json({ success: false, message: 'ID de troquel requerido' });
+    if (!troquel_id || !empleado?.trim() || !folio?.trim()) {
+      await connection.rollback();
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Troquel ID, empleado y folio son requeridos' 
+      });
     }
 
-    if (!empleado || !empleado.trim()) {
-      return res.status(400).json({ success: false, message: 'Nombre del empleado requerido' });
+    // Get troquel info
+    const [troquelInfo] = await connection.query(
+      'SELECT nombre, modelo, estado, prensa_asignada FROM tbl_troqueles WHERE id_troquel = ?',
+      [troquel_id]
+    );
+
+    if (troquelInfo.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Troquel no encontrado' });
     }
 
-    if (!folio || !folio.trim()) {
-      return res.status(400).json({ success: false, message: 'Número de folio requerido' });
+    const troquel = troquelInfo[0];
+
+    // Get fault description if applicable
+    let falla_descripcion = null;
+    if (falla_id) {
+      const [falla] = await connection.query(
+        'SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ?',
+        [falla_id]
+      );
+      if (falla.length > 0) {
+        falla_descripcion = falla[0].descripcion;
+      }
     }
 
-    // Insert into history using correct columns
-    const [result] = await pool.query(`
+    // Insert into history
+    await connection.query(`
       INSERT INTO tbl_historial (
-        troquel_id,
-        tipo_registro,
-        action_type,
-        folio,
-        id_falla,
-        modelo_nuevo,
-        nivel_setup,
-        grupo,
-        comentarios,
-        empleado_troquel
+        troquel_id, tipo_registro, action_type, folio, id_falla,
+        modelo_nuevo, nivel_setup, grupo, comentarios, empleado_troquel
       ) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
-      troquel_id,
-      action_type,
-      folio.trim(),
-      falla_id || null,
-      modelo_nuevo || null,
-      nivel_setup || null,
-      grupo || null,
-      comentarios || null,
-      empleado.trim()
+      troquel_id, action_type, folio.trim(), falla_id || null,
+      modelo_nuevo || null, nivel_setup || null, grupo || null,
+      comentarios || null, empleado.trim()
     ]);
 
-    // Update troquel status to Reparando
-    await pool.query(
+    // Update status to Reparando
+    await connection.query(
       "UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?",
       [troquel_id]
     );
 
+    // **FIX: Create repair cycle**
+    const [existingCycle] = await connection.query(
+      'SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion WHERE troquel_id = ? AND ciclo_activo = TRUE',
+      [troquel_id]
+    );
+
+    if (existingCycle.length === 0) {
+      await connection.query(`
+        INSERT INTO tbl_ciclos_reparacion (
+          troquel_id, troquel_nombre, modelo, fecha_inicio_reparacion,
+          motivo_entrada, falla_id, falla_descripcion, folio_entrada,
+          empleado_registro, comentarios_entrada, status_anterior,
+          prensa_origen, nivel_reparacion, grupo_reparacion,
+          fecha_bajado, ciclo_activo
+        ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)
+      `, [
+        troquel_id, troquel.nombre, troquel.modelo, action_type,
+        falla_id || null, falla_descripcion, folio.trim(), empleado.trim(),
+        comentarios || null, troquel.estado, troquel.prensa_asignada,
+        nivel_setup || null, grupo || null
+      ]);
+    }
+
+    await connection.commit();
     res.json({
       success: true,
-      message: 'Baja de troquel registrada exitosamente. Estado cambiado a "Reparando"',
-      id: result.insertId
+      message: 'Baja de troquel registrada exitosamente. Estado cambiado a "Reparando"'
     });
   } catch (error) {
+    await connection.rollback();
     console.error('Error creating baja troquel:', error);
     res.status(500).json({ success: false, message: error.message });
+  } finally {
+    connection.release();
   }
 });
 
@@ -1311,7 +1347,7 @@ app.post('/api/actions/asistencia-prensa', async (req, res) => {
       console.log('Could not get motivo description:', e.message);
     }
 
-    // Insert into history using correct columns
+    // Insert into history
     const [result] = await pool.query(`
       INSERT INTO tbl_historial (
         troquel_id,

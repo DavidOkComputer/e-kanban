@@ -7,7 +7,8 @@ import {
   styles    
 } from '../styles/EKanban.styles';   
 
-import RepairModal from './RepairModal'; 
+import RepairModal from './repairModal'; 
+import { NotificationProvider, useNotification } from '../context/NotificationContext';
 
 const API_BASE = 'http://localhost:3001/api';   
 const MAX_ITEMS = 8;   
@@ -278,7 +279,7 @@ const HistoryItem = memo(({ h }) => {
   const isAsistencia = h.tipo_registro === 'asistencia_prensa';  
   const borderColor = isAsistencia ? '#00c8ff' : '#00ff88';  
   const titleColor = isAsistencia ? '#00c8ff' : '#00ff88';  
-  const icon = isAsistencia ? '' : '';  
+  const icon = isAsistencia ? '🔧' : '⚠️';  
   const typeLabel = isAsistencia ? 'Asistencia en Prensa' : 'Baja de Troquel';  
 
   return (  
@@ -427,6 +428,7 @@ const HistoryItem = memo(({ h }) => {
 
 // Componente de modal de detalles para "En prensa" status 
 const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveAction }) => {   
+  const notify = useNotification();
   const [activeTab, setActiveTab] = useState('acciones');   
   const [action, setAction] = useState('limpieza');   
   
@@ -470,12 +472,10 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
     setAsistenciaData(prev => ({ ...prev, folio: value })); 
   }, []); 
 
-
   const handleAsistenciaMotivoChange = useCallback((e) => { 
     const value = e.target.value; 
     setAsistenciaData(prev => ({ ...prev, motivo: value })); 
   }, []); 
-
 
   const handleAsistenciaComentariosChange = useCallback((e) => { 
     const value = e.target.value; 
@@ -522,7 +522,6 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
           setHistory(data);   
           setLoadingHistory(false);   
         })   
-
         .catch(err => {   
           console.error('Error loading history:', err);   
           setLoadingHistory(false);   
@@ -547,12 +546,12 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
   //manejar la subida de baja de troquel
   const handleSubmitBajaTroquel = async () => {  
     if (!bajaTroquelData.empleado.trim()) {  
-      alert('Por favor ingrese el nombre del empleado que ejecuta la acción');  
+      notify.error('Por favor ingrese el nombre del empleado que ejecuta la acción');
       return;  
     }  
 
     if (!bajaTroquelData.folio.trim()) {  
-      alert('Por favor ingrese el número de folio');  
+      notify.error('Por favor ingrese el número de folio');
       return;  
     }  
 
@@ -584,7 +583,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
       });   
 
       if (res.ok) {   
-        alert('Baja de Troquel guardada exitosamente. Estado cambiado a "Reparando"');   
+        notify.success('Baja de Troquel guardada exitosamente. Estado cambiado a "Reparando"');
 
         //reiniciar el form  
         setBajaTroquelData({  
@@ -603,11 +602,11 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
         if (activeTab === 'historial') loadHistory();  
       } else {  
         const errorData = await res.json();  
-        alert(`Error: ${errorData.message || 'No se pudo guardar'}`);  
+        notify.error(`Error: ${errorData.message || 'No se pudo guardar'}`);
       }  
     } catch (err) {   
       console.error('Error saving baja troquel:', err);   
-      alert('Error al guardar la baja de troquel');   
+      notify.error('Error al guardar la baja de troquel');
     } finally {  
       setSavingBaja(false);  
     }  
@@ -616,17 +615,17 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
   //manejar el subir form de asistencia en prensa
   const handleSubmitAsistencia = async () => {  
     if (!asistenciaData.empleado.trim()) {  
-      alert('Por favor ingrese el nombre del empleado que ejecuta la acción');  
+      notify.error('Por favor ingrese el nombre del empleado que ejecuta la acción');
       return;  
     }  
 
     if (!asistenciaData.folio.trim()) {  
-      alert('Por favor ingrese el número de folio');  
+      notify.error('Por favor ingrese el número de folio');
       return;  
     }  
 
     if (!asistenciaData.motivo) {  
-      alert('Por favor seleccione un motivo de asistencia');  
+      notify.error('Por favor seleccione un motivo de asistencia');
       return;  
     }  
 
@@ -649,7 +648,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
       });   
 
       if (res.ok) {   
-        alert('Asistencia en Prensa guardada exitosamente. Estado cambiado a "Reparando"');   
+        notify.success('Asistencia en Prensa guardada exitosamente');
 
         //reiniciar el form
         setAsistenciaData({  
@@ -664,11 +663,11 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
         if (activeTab === 'historial') loadHistory();  
       } else {  
         const errorData = await res.json();  
-        alert(`Error: ${errorData.message || 'No se pudo guardar'}`);  
+        notify.error(`Error: ${errorData.message || 'No se pudo guardar'}`);
       }  
     } catch (err) {   
       console.error('Error saving asistencia:', err);   
-      alert('Error al guardar la asistencia en prensa');   
+      notify.error('Error al guardar la asistencia en prensa');
     } finally {  
       setSavingAsistencia(false);  
     }  
@@ -857,7 +856,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
                       padding: '10px 14px',  
                       marginBottom: 12,  
                     }}>   
-                      <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Bajar Troquel por:</span>   
+                      <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}>🔧 Bajar Troquel por:</span>   
                     </div>   
 
                     {/* Folio input */}  
@@ -988,7 +987,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
                       padding: '10px 14px',  
                       marginBottom: 12,  
                     }}>   
-                      <span style={{ color: '#00c8ff', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Asistencia en Prensa:</span>   
+                      <span style={{ color: '#00c8ff', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}>🔧 Asistencia en Prensa:</span>   
                     </div>   
 
                     {/* Folio input */}  
@@ -1136,8 +1135,8 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
   );   
 });   
 
-// Componente principal del ekanban   
-const EKanban = ({ onLogoClick }) => {   
+// Componente principal del ekanban - INTERNAL VERSION
+const EKanbanInternal = ({ onLogoClick }) => {   
   const [selectedItem, setSelectedItem] = useState(null);   
   const [searchQuery, setSearchQuery] = useState('');   
   const [troqueles, setTroqueles] = useState({});   
@@ -1224,8 +1223,6 @@ const EKanban = ({ onLogoClick }) => {
     }  
   }, [onLogoClick]);  
 
-  //determinar que modal mostrar basado en el estado
-  const isEnPrensa = selectedItem?.status === 'En prensa'; 
   return (   
     <div style={styles.container}>   
       <div style={styles.gridOverlay} />   
@@ -1331,29 +1328,58 @@ const EKanban = ({ onLogoClick }) => {
         <StatusLegend />   
       </div>   
 
-      {/*modal condicional para cargar basado en estado*/} 
-      {selectedItem && ( 
-        isEnPrensa ? ( 
-          //mostrar el modal de detalles para el estado de en prensa
+      {/*modal condicional basado en estado - FIXED */} 
+      {selectedItem && (() => {
+        const status = selectedItem.status;
+        
+        // "En prensa" - can start repairs or assistance
+        if (status === 'En prensa') {
+          return (
+            <DetailModal   
+              item={selectedItem}   
+              fallas={fallas}   
+              asistenciaMotivos={asistenciaMotivos}  
+              onClose={handleClose}   
+              onSaveAction={fetchData}   
+            />
+          );
+        }
+        
+        // "Reparando" - active repair management
+        if (status === 'Reparando') {
+          return (
+            <RepairModal 
+              item={selectedItem} 
+              fallas={fallas}
+              modelos={[]} // Add modelos if you have them
+              onClose={handleClose} 
+              onSaveAction={fetchData} 
+            />
+          );
+        }
+        
+        // "Listo", "Listo-BackUp", "Pendiente", etc. - can send to press or repair
+        return (
           <DetailModal   
             item={selectedItem}   
             fallas={fallas}   
             asistenciaMotivos={asistenciaMotivos}  
             onClose={handleClose}   
             onSaveAction={fetchData}   
-          /> 
-        ) : ( 
-          //mostrar el modal de reparacion para todos los estados
-          <RepairModal 
-            item={selectedItem} 
-            fallas={fallas} 
-            onClose={handleClose} 
-            onSaveAction={fetchData} 
-          /> 
-        ) 
-      )} 
+          />
+        );
+      })()} 
     </div>   
   );   
 };   
+
+// Export wrapped with NotificationProvider
+const EKanban = (props) => {
+  return (
+    <NotificationProvider>
+      <EKanbanInternal {...props} />
+    </NotificationProvider>
+  );
+};
 
 export default EKanban;
