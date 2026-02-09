@@ -10,6 +10,89 @@ const PAGES = {
   ADMIN: 'admin', 
 }; 
 
+function App() {
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [user, setUser] = useState(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  //revisar si existe una sesion
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
+    }
+    setIsCheckingSession(false);
+  }, []);
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+    setCurrentView('admin');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    setCurrentView('dashboard');
+  };
+
+  const handleLogoClick = () => {
+    setCurrentView('login');
+  };
+
+  const handleNavigateBack = () => {
+    setCurrentView('dashboard');
+  };
+
+  // Show loading while checking session
+  if (isCheckingSession) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #0a0f0d 0%, #0d1a14 50%, #081210 100%)',
+        color: '#00ff88',
+        fontSize: '16px',
+      }}>
+        Cargando...
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {currentView === 'dashboard' && (
+        <EKanban 
+          onLogoClick={handleLogoClick} 
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
+      {currentView === 'login' && (
+        <Login 
+          onLoginSuccess={handleLoginSuccess} 
+          onNavigateBack={handleNavigateBack}
+        />
+      )}
+      {currentView === 'admin' && (
+        <AdminDieRegistration 
+          onNavigateBack={handleNavigateBack} 
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
+    </>
+  );
+}
+
+
 //duracion de  transicion
 const TRANSITION_DURATION = 800; 
 
@@ -639,13 +722,6 @@ const App = () => {
       </div> 
 
     </> 
-
-  ); 
-
+  );
 }; 
-
- 
-
 export default App; 
-
- 

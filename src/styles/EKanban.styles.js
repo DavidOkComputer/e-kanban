@@ -7,6 +7,7 @@ export const statusColors = {
 	'Reparando': '#ff4466',
 	'Pendiente': '#ffaa00',
 };
+
 //opciones de estatus con colores 
 export const statuses = [{
 	name: 'En prensa',
@@ -30,57 +31,112 @@ export const statuses = [{
 	name: 'Por reparar',
 	color: '#ffee00'
 }, ];
+
 export const injectStyles = () => {
 	if (document.getElementById('ekanban-styles')) return;
 	const style = document.createElement('style');
 	style.id = 'ekanban-styles';
 	style.textContent = `  
-
     @keyframes neonPulse {  
-
       0%, 100% { opacity: 1; box-shadow: 0 0 8px #009b4a, 0 0 16px rgba(0,255,136,0.4); }  
-
       50% { opacity: 0.85; box-shadow: 0 0 4px #009b4a, 0 0 8px rgba(0,255,136,0.2); }  
-
     }  
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }  
-
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }  
-
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }  
-
-    .ki { animation: neonPulse 2.5s ease-in-out infinite; transition: transform 0.2s, box-shadow 0.2s; }  
-
-    .ki:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.5) !important; }  
-
-    .search-input:focus { border-color: #009b4a !important; box-shadow: 0 0 12px rgba(0,255,136,0.4) !important; }  
-
+    
+    @keyframes fadeIn { 
+      from { opacity: 0; } 
+      to { opacity: 1; } 
+    }  
+    
+    @keyframes pulse { 
+      0%, 100% { opacity: 1; } 
+      50% { opacity: 0.5; } 
+    }  
+    
+    @keyframes modalIn { 
+      from { opacity: 0; transform: scale(0.95); } 
+      to { opacity: 1; transform: scale(1); } 
+    }  
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+    
+    .ki { 
+      animation: neonPulse 2.5s ease-in-out infinite; 
+      transition: transform 0.2s, box-shadow 0.2s; 
+    }  
+    
+    .ki:hover { 
+      transform: translateY(-4px) scale(1.08); 
+      box-shadow: 0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.5) !important; 
+    }  
+    
+    .search-input:focus { 
+      border-color: #009b4a !important; 
+      box-shadow: 0 0 12px rgba(0,255,136,0.4) !important; 
+    }  
+    
     .kanban-scroll::-webkit-scrollbar { height: 6px; }  
-
     .kanban-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 3px; }  
-
     .kanban-scroll::-webkit-scrollbar-thumb { background: #00ff88; border-radius: 3px; }  
-
-    .col-card:hover { box-shadow: 0 0 16px rgba(0,255,136,0.2), 0 6px 24px rgba(0,0,0,0.3); }  
-
-    .pri:hover { background: rgba(0,255,136,0.12) !important; transform: translateY(-1px); }  
-
-    .tab-btn:hover { background: rgba(0,255,136,0.1) !important; }  
-
-    .form-el:focus { border-color: #00ff88 !important; box-shadow: 0 0 8px rgba(0,255,136,0.3) !important; outline: none; }  
-
-    .close-btn:hover { background: rgba(255,68,102,0.9) !important; }  
-
-    .loading { animation: pulse 1s infinite; }  
-
-    .logo-btn { transition: all 0.3s ease; }  
-
-    .logo-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(0,255,136,0.5) !important; }  
-
+    
+    .col-card:hover { 
+      box-shadow: 0 0 16px rgba(0,255,136,0.2), 0 6px 24px rgba(0,0,0,0.3); 
+    }  
+    
+    .pri:hover { 
+      background: rgba(0,255,136,0.12) !important; 
+      transform: translateY(-1px); 
+    }  
+    
+    .tab-btn:hover { 
+      background: rgba(0,255,136,0.1) !important; 
+    }  
+    
+    .form-el:focus { 
+      border-color: #00ff88 !important; 
+      box-shadow: 0 0 8px rgba(0,255,136,0.3) !important; 
+      outline: none; 
+    }  
+    
+    .close-btn:hover { 
+      background: rgba(255,68,102,0.9) !important; 
+    }  
+    
+    .loading { 
+      animation: pulse 1s infinite; 
+    }  
+    
+    .logo-btn { 
+      transition: all 0.3s ease; 
+    }  
+    
+    .logo-btn:hover { 
+      transform: scale(1.05); 
+      box-shadow: 0 0 25px rgba(0,255,136,0.5) !important; 
+    }  
   `;
 	document.head.appendChild(style);
 };
+
 //estilos del componente  
 export const styles = {
 	//contenedor principal 
@@ -761,4 +817,5 @@ export const styles = {
 		boxShadow: '0 0 12px rgba(255,68,102,0.4)',
 	},
 };
+
 export default styles;
