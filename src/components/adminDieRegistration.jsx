@@ -63,205 +63,105 @@ const mapApiToForm = (apiData) => {
         rectificaciones: apiData.rectificaciones || '0',     
         tipo_troquel: apiData.tipo_troquel || 'Null',     
         ubicacion: apiData.ubicacion || '',     
-
         prensa_asignada: apiData.prensa_asignada || '',     
-
         numero_serie: apiData.numero_serie || '',     
-
         proveedor: apiData.proveedor || '',     
-
         peso_kg: apiData.peso_kg || '',     
-
         dimensiones: apiData.dimensiones || '',     
-
         material_base: apiData.material_base || '',     
-
         num_estaciones: apiData.num_estaciones || '',     
-
         cavidades: apiData.cavidades || '',    
-
         color: apiData.color || '',    
-
         ciclos: apiData.ciclos || '',    
-
         n_parte_1: apiData.n_parte_1 || '',    
-
         n_parte_2: apiData.n_parte_2 || '',    
-
         n_parte_3: apiData.n_parte_3 || '',    
-
         n_parte_4: apiData.n_parte_4 || '',    
-
         n_parte_5: apiData.n_parte_5 || '',    
-
         n_parte_6: apiData.n_parte_6 || '',    
-
         notes: apiData.notes || apiData.comentarios || '',     
-
         image_url: apiData.image_url || '',     
-
     };     
-
 };     
 
- 
-
 // Valores por defecto para las opciones (fallback)     
-
 const DEFAULT_PRESS_OPTIONS = [     
-
     { value: '', label: 'Sin asignar' },     
-
     { value: 'P1', label: 'Prensa 1 (P1)' },     
-
     { value: 'P2', label: 'Prensa 2 (P2)' },     
-
     { value: 'P3', label: 'Prensa 3 (P3)' },     
-
     { value: 'P4', label: 'Prensa 4 (P4)' },     
-
     { value: 'P5', label: 'Prensa 5 (P5)' },     
-
     { value: 'P6', label: 'Prensa 6 (P6)' },     
-
     { value: 'P7', label: 'Prensa 7 (P7)' },     
-
     { value: 'P8', label: 'Prensa 8 (P8)' },     
-
 ];     
-
- 
 
 const DEFAULT_DIE_TYPE_OPTIONS = [     
-
     { value: 'Null', label: 'Sin especificar' },    
-
     { value: 'progresivo', label: 'Progresivo' },     
-
     { value: 'transfer', label: 'Transfer' },     
-
     { value: 'simple', label: 'Simple' },    
-
     { value: 'compuesto', label: 'Compuesto' },    
-
     { value: 'multiple', label: 'Múltiple' },    
-
 ];     
-
- 
 
 const DEFAULT_STATUS_OPTIONS = [     
-
     { value: 'Pendiente', label: 'Pendiente' },     
-
     { value: 'En prensa', label: 'En Prensa' },     
-
     { value: 'Listo', label: 'Listo' },     
-
     { value: 'Listo-BackUp', label: 'Listo - BackUp' },     
-
     { value: 'Reparando', label: 'Reparando' },     
-
     { value: 'Baja', label: 'Baja / Obsoleto' },     
-
 ];     
 
- 
-
 const DEFAULT_PRESS_STATUS_OPTIONS = [  
-
     { value: 'Activa', label: 'Activa' },  
-
     { value: 'En mantenimiento', label: 'En Mantenimiento' },  
-
     { value: 'Inactiva', label: 'Inactiva' },  
-
     { value: 'Fuera de servicio', label: 'Fuera de Servicio' },  
-
 ];  
 
- 
-
-// Componente de sección colapsable - Moved outside and memoized   
-
+// Componente de sección colapsable 
 const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {     
-
     const sectionStyles = {     
-
         container: {     
-
             marginBottom: '16px',     
-
             background: 'rgba(0, 0, 0, 0.2)',     
-
             borderRadius: '12px',     
-
             border: '1px solid rgba(0, 255, 136, 0.1)',     
-
             overflow: 'hidden',     
-
             transition: 'all 0.3s ease',     
-
         },     
-
- 
 
         header: {     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             justifyContent: 'space-between',     
-
             padding: '16px 20px',     
-
             cursor: 'pointer',     
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.08)' : 'transparent',     
-
             borderBottom: isExpanded ? '1px solid rgba(0, 255, 136, 0.15)' : '1px solid transparent',     
-
             transition: 'all 0.3s ease',     
-
             userSelect: 'none',     
-
         },     
-
- 
 
         headerLeft: {     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             gap: '12px',     
-
         },     
 
- 
-
         icon: {     
-
             width: '32px',     
-
             height: '32px',     
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 255, 136, 0.1)',     
-
             borderRadius: '8px',     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             justifyContent: 'center',     
-
             fontSize: '16px',     
-
             transition: 'all 0.3s ease',     
-
         },     
 
  
@@ -8205,112 +8105,32 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
  
 
                     {/* Tabla de prensas */}  
-
- 
-
                     <div style={styles.tableContainer}>  
-
- 
-
                         <div style={styles.tableHeader}>  
-
- 
-
                             <div style={styles.tableTitle}>  
-
- 
-
-                                <span>🏭</span> Lista de Prensas  
-
- 
-
+                                Lista de Prensas  
                             </div>  
-
- 
-
                             <div style={styles.tableControls}>  
-
- 
-
                                 <input  
-
- 
-
                                     type="text"  
-
- 
-
                                     placeholder="Buscar por ID o nombre..."  
-
- 
-
                                     value={prensaSearchTerm}  
-
- 
-
                                     onChange={(e) => setPrensaSearchTerm(e.target.value)}  
-
- 
-
                                     style={styles.tableSearch}  
-
- 
-
                                 />  
-
- 
-
                                 <select  
-
- 
-
                                     value={prensaFilterStatus}  
-
- 
-
                                     onChange={(e) => setPrensaFilterStatus(e.target.value)}  
-
- 
-
                                     style={styles.tableFilter}  
-
- 
-
                                 >  
-
- 
-
                                     <option value="">Todos los estados</option>  
 
- 
-
                                     {DEFAULT_PRESS_STATUS_OPTIONS.map(opt => (  
-
- 
-
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>  
-
- 
-
                                     ))}  
-
- 
-
                                 </select>  
-
- 
-
                             </div>  
-
- 
-
                         </div>  
-
- 
-
-  
-
- 
 
                         {prensasLoading ? (  
 
@@ -8497,13 +8317,7 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
  
 
                                                     <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>  
-
- 
-
                                                         {prensa.identificador_prensa}  
-
- 
-
                                                     </td>  
 
  
