@@ -49,7 +49,7 @@ function App() {
     setCurrentView('dashboard');
   };
 
-  // Show loading while checking session
+  //mostrar estado de carga mientras se revisa la sesion
   if (isCheckingSession) {
     return (
       <div style={{
