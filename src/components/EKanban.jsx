@@ -279,7 +279,7 @@ const HistoryItem = memo(({ h }) => {
   const isAsistencia = h.tipo_registro === 'asistencia_prensa';  
   const borderColor = isAsistencia ? '#00c8ff' : '#00ff88';  
   const titleColor = isAsistencia ? '#00c8ff' : '#00ff88';  
-  const icon = isAsistencia ? '🔧' : '⚠️';  
+  const icon = isAsistencia ? '' : '';  
   const typeLabel = isAsistencia ? 'Asistencia en Prensa' : 'Baja de Troquel';  
 
   return (  
@@ -432,6 +432,8 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
   const [activeTab, setActiveTab] = useState('acciones');   
   const [action, setAction] = useState('limpieza');   
   
+  const isAuthenticated = !!user; 
+
   const handleBajaFolioChange = useCallback((e) => { 
     const value = e.target.value; 
     setBajaTroquelData(prev => ({ ...prev, folio: value })); 
@@ -545,6 +547,12 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
     
   //manejar la subida de baja de troquel
   const handleSubmitBajaTroquel = async () => {  
+
+    if (!isAuthenticated) { 
+      notify.error('Debe iniciar sesión para realizar esta acción'); 
+      return; 
+    } 
+
     if (!bajaTroquelData.empleado.trim()) {  
       notify.error('Por favor ingrese el nombre del empleado que ejecuta la acción');
       return;  
@@ -614,6 +622,11 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
 
   //manejar el subir form de asistencia en prensa
   const handleSubmitAsistencia = async () => {  
+
+    if (!isAuthenticated) { 
+      notify.error('Debe iniciar sesión para realizar esta acción'); 
+      return; 
+    } 
     if (!asistenciaData.empleado.trim()) {  
       notify.error('Por favor ingrese el nombre del empleado que ejecuta la acción');
       return;  
@@ -845,7 +858,8 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
             </div>   
 
             <div style={modalStyles.tabContent}>   
-              {activeTab === 'acciones' ? (   
+              {activeTab === 'acciones' ? (  
+                
                 <div style={modalStyles.actionsForm}>   
                   {/*columna izquierda Bajar Troquel */}  
                   <div style={modalStyles.actionsColumn}>   
@@ -856,7 +870,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
                       padding: '10px 14px',  
                       marginBottom: 12,  
                     }}>   
-                      <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}>🔧 Bajar Troquel por:</span>   
+                      <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Bajar Troquel por:</span>   
                     </div>   
 
                     {/* Folio input */}  
@@ -987,7 +1001,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
                       padding: '10px 14px',  
                       marginBottom: 12,  
                     }}>   
-                      <span style={{ color: '#00c8ff', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}>🔧 Asistencia en Prensa:</span>   
+                      <span style={{ color: '#00c8ff', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' }}> Asistencia en Prensa:</span>   
                     </div>   
 
                     {/* Folio input */}  
@@ -1048,7 +1062,7 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
                       fontSize: 14,  
                     }}>  
                       <div style={{ textAlign: 'center' }}>  
-                        <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>  
+                        <div style={{ fontSize: 32, marginBottom: 12 }}></div>  
                         Cargando historial...  
                       </div>  
                     </div>  
@@ -1135,8 +1149,8 @@ const DetailModal = memo(({ item, fallas, asistenciaMotivos, onClose, onSaveActi
   );   
 });   
 
-// Componente principal del ekanban - INTERNAL VERSION
-const EKanbanInternal = ({ onLogoClick }) => {   
+// Componente principal del ekanban 
+const EKanbanInternal = ({ onLogoClick, user, onLogout }) => {   
   const [selectedItem, setSelectedItem] = useState(null);   
   const [searchQuery, setSearchQuery] = useState('');   
   const [troqueles, setTroqueles] = useState({});   
@@ -1233,7 +1247,7 @@ const EKanbanInternal = ({ onLogoClick }) => {
             onClick={handleLogoClickInternal}  
             onMouseEnter={() => setLogoHovered(true)}  
             onMouseLeave={() => setLogoHovered(false)}  
-            title="Acceso Administrativo - Click para iniciar sesión"   
+            title={user ? "Panel de Administración" : "Iniciar Sesión - Acceso Administrativo"} 
             style={{  
               ...styles.logoButton,  
               transform: logoHovered ? 'scale(1.08)' : 'scale(1)',  
@@ -1269,7 +1283,7 @@ const EKanbanInternal = ({ onLogoClick }) => {
               whiteSpace: 'nowrap',  
               animation: 'fadeIn 0.2s ease',  
             }}>  
-              Panel de Administración  
+              {user ? 'Panel de Administración' : 'Iniciar Sesión'}   
               <div style={{  
                 position: 'absolute',  
                 top: -6,  
@@ -1289,6 +1303,61 @@ const EKanbanInternal = ({ onLogoClick }) => {
         </h1>   
 
         <div style={styles.searchContainer}>   
+        {/* User badge */} 
+
+          {user && ( 
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              marginRight: '16px', 
+            }}> 
+
+              <span style={{ 
+                background: 'rgba(0, 255, 136, 0.15)', 
+                border: '1px solid rgba(0, 255, 136, 0.3)', 
+                borderRadius: '8px', 
+                padding: '6px 12px', 
+                color: '#00ff88', 
+                fontSize: '11px', 
+                fontWeight: 600, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+              }}> 
+
+                {user.username} 
+              </span> 
+
+              <button 
+                onClick={onLogout} 
+                style={{ 
+                  background: 'transparent', 
+                  border: '1px solid rgba(255, 107, 107, 0.3)', 
+                  borderRadius: '6px', 
+                  padding: '6px 12px', 
+                  color: '#ff6b6b', 
+                  fontSize: '11px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer', 
+                  transition: 'all 0.2s ease', 
+                }} 
+
+                onMouseEnter={(e) => { 
+                  e.target.style.background = 'rgba(255, 107, 107, 0.1)'; 
+                  e.target.style.borderColor = '#ff6b6b'; 
+                }} 
+
+                onMouseLeave={(e) => { 
+                  e.target.style.background = 'transparent'; 
+                  e.target.style.borderColor = 'rgba(255, 107, 107, 0.3)'; 
+                }} 
+              > 
+                Cerrar Sesión 
+              </button> 
+            </div> 
+
+          )}
           <div style={styles.searchWrapper}>   
             <input   
               type="text"   
@@ -1328,11 +1397,11 @@ const EKanbanInternal = ({ onLogoClick }) => {
         <StatusLegend />   
       </div>   
 
-      {/*modal condicional basado en estado - FIXED */} 
+      {/*modal condicional basado en estado*/} 
       {selectedItem && (() => {
         const status = selectedItem.status;
         
-        // "En prensa" - can start repairs or assistance
+        // "En prensa" puede reiniciar la reparcion o asistencia
         if (status === 'En prensa') {
           return (
             <DetailModal   
@@ -1340,25 +1409,27 @@ const EKanbanInternal = ({ onLogoClick }) => {
               fallas={fallas}   
               asistenciaMotivos={asistenciaMotivos}  
               onClose={handleClose}   
-              onSaveAction={fetchData}   
+              onSaveAction={fetchData}  
+              user={user}
             />
           );
         }
         
-        // "Reparando" - active repair management
+        // "Reparando"
         if (status === 'Reparando') {
           return (
             <RepairModal 
               item={selectedItem} 
               fallas={fallas}
-              modelos={[]} // Add modelos if you have them
+              modelos={[]} 
               onClose={handleClose} 
-              onSaveAction={fetchData} 
+              onSaveAction={fetchData}
+              user={user}
             />
           );
         }
         
-        // "Listo", "Listo-BackUp", "Pendiente", etc. - can send to press or repair
+        // "Listo", "Listo-BackUp", "Pendiente", etc
         return (
           <DetailModal   
             item={selectedItem}   
@@ -1366,6 +1437,7 @@ const EKanbanInternal = ({ onLogoClick }) => {
             asistenciaMotivos={asistenciaMotivos}  
             onClose={handleClose}   
             onSaveAction={fetchData}   
+            user={user}
           />
         );
       })()} 
@@ -1373,7 +1445,6 @@ const EKanbanInternal = ({ onLogoClick }) => {
   );   
 };   
 
-// Export wrapped with NotificationProvider
 const EKanban = (props) => {
   return (
     <NotificationProvider>

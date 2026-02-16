@@ -10,7 +10,7 @@ const PAGES = {
   ADMIN: 'admin', 
 }; 
 
-function App() {
+function NewApp() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [user, setUser] = useState(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
@@ -92,7 +92,6 @@ function App() {
   );
 }
 
-
 //duracion de  transicion
 const TRANSITION_DURATION = 800; 
 
@@ -108,7 +107,7 @@ const transitionStyles = `
     100% { transform: translate(0); } 
   } 
 
-   @keyframes glitchSkew { 
+  @keyframes glitchSkew { 
     0% { transform: skew(0deg); } 
     20% { transform: skew(2deg); } 
     40% { transform: skew(-2deg); } 
@@ -480,7 +479,6 @@ const transitionStyles = `
     height: 20px; 
     border: 2px solid #00ff88; 
   } 
- 
 
   .cyber-frame::before { 
     top: -2px; 
@@ -564,7 +562,7 @@ const App = () => {
 
   const performTransition = useCallback((targetPage) => { 
 
-    //limpiar cualquier transicion existente 
+  //limpiar cualquier transicion existente 
     if (transitionRef.current) { 
       clearTimeout(transitionRef.current.timer1); 
       clearTimeout(transitionRef.current.timer2); 
@@ -574,7 +572,7 @@ const App = () => {
     //escoger mensaje de carga al azar
     const message = LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]; 
     setLoadingMessage(message); 
-     
+  
     //iniciar transicion 
     setIsTransitioning(true); 
     setTransitionState('exiting'); 
@@ -665,7 +663,7 @@ const App = () => {
 
   const activeClass = isTransitioning ? 'active' : ''; 
   return ( 
-   <> 
+  <> 
       {/*laminas del glitch*/} 
       <div className={`glitch-slice ${activeClass}`} /> 
       <div className={`glitch-slice ${activeClass}`} /> 
@@ -674,54 +672,30 @@ const App = () => {
       <div className={`glitch-slice ${activeClass}`} /> 
 
       {/*fondo de manejo de la info*/} 
-
       <div className={`data-stream ${activeClass}`} /> 
 
- 
-
       {/* Main glitch overlay */} 
-
       <div className={`cyber-glitch-overlay ${activeClass}`} /> 
 
- 
-
-      {/* Scanning line */} 
-
+      {/*linea de scaneo*/} 
       <div className={`cyber-scanline ${activeClass}`} /> 
 
- 
-
-      {/* Noise texture */} 
-
+      {/* textura de ruido */} 
       <div className={`noise-overlay ${activeClass}`} /> 
 
- 
-
-      {/* Animated border frame */} 
-
+      {/* animacion de frame del borde */} 
       <div className={`cyber-frame ${activeClass}`} /> 
 
- 
-
-      {/* Loading text */} 
-
+      {/*texto de carga*/} 
       <div className={`cyber-loading-text ${activeClass}`}> 
-
         {loadingMessage} 
-
       </div> 
 
- 
-
-      {/* Page container with transitions */} 
-
+      {/*contenedor de la pagina con transiciones*/} 
       <div className={`page-transition-wrapper ${getTransitionClass()}`}> 
-
         {renderPage()} 
-
       </div> 
-
     </> 
   );
 }; 
-export default App; 
+export default NewApp; 

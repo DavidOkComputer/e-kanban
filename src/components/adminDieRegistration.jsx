@@ -63,1901 +63,582 @@ const mapApiToForm = (apiData) => {
         rectificaciones: apiData.rectificaciones || '0',     
         tipo_troquel: apiData.tipo_troquel || 'Null',     
         ubicacion: apiData.ubicacion || '',     
-
         prensa_asignada: apiData.prensa_asignada || '',     
-
         numero_serie: apiData.numero_serie || '',     
-
         proveedor: apiData.proveedor || '',     
-
         peso_kg: apiData.peso_kg || '',     
-
         dimensiones: apiData.dimensiones || '',     
-
         material_base: apiData.material_base || '',     
-
         num_estaciones: apiData.num_estaciones || '',     
-
         cavidades: apiData.cavidades || '',    
-
         color: apiData.color || '',    
-
         ciclos: apiData.ciclos || '',    
-
         n_parte_1: apiData.n_parte_1 || '',    
-
         n_parte_2: apiData.n_parte_2 || '',    
-
         n_parte_3: apiData.n_parte_3 || '',    
-
         n_parte_4: apiData.n_parte_4 || '',    
-
         n_parte_5: apiData.n_parte_5 || '',    
-
         n_parte_6: apiData.n_parte_6 || '',    
-
         notes: apiData.notes || apiData.comentarios || '',     
-
         image_url: apiData.image_url || '',     
-
     };     
-
 };     
 
- 
-
 // Valores por defecto para las opciones (fallback)     
-
 const DEFAULT_PRESS_OPTIONS = [     
-
     { value: '', label: 'Sin asignar' },     
-
     { value: 'P1', label: 'Prensa 1 (P1)' },     
-
     { value: 'P2', label: 'Prensa 2 (P2)' },     
-
     { value: 'P3', label: 'Prensa 3 (P3)' },     
-
     { value: 'P4', label: 'Prensa 4 (P4)' },     
-
     { value: 'P5', label: 'Prensa 5 (P5)' },     
-
     { value: 'P6', label: 'Prensa 6 (P6)' },     
-
     { value: 'P7', label: 'Prensa 7 (P7)' },     
-
     { value: 'P8', label: 'Prensa 8 (P8)' },     
-
 ];     
-
- 
 
 const DEFAULT_DIE_TYPE_OPTIONS = [     
-
     { value: 'Null', label: 'Sin especificar' },    
-
     { value: 'progresivo', label: 'Progresivo' },     
-
     { value: 'transfer', label: 'Transfer' },     
-
     { value: 'simple', label: 'Simple' },    
-
     { value: 'compuesto', label: 'Compuesto' },    
-
     { value: 'multiple', label: 'Múltiple' },    
-
 ];     
-
- 
 
 const DEFAULT_STATUS_OPTIONS = [     
-
     { value: 'Pendiente', label: 'Pendiente' },     
-
     { value: 'En prensa', label: 'En Prensa' },     
-
     { value: 'Listo', label: 'Listo' },     
-
     { value: 'Listo-BackUp', label: 'Listo - BackUp' },     
-
     { value: 'Reparando', label: 'Reparando' },     
-
     { value: 'Baja', label: 'Baja / Obsoleto' },     
-
 ];     
 
- 
-
 const DEFAULT_PRESS_STATUS_OPTIONS = [  
-
     { value: 'Activa', label: 'Activa' },  
-
     { value: 'En mantenimiento', label: 'En Mantenimiento' },  
-
     { value: 'Inactiva', label: 'Inactiva' },  
-
     { value: 'Fuera de servicio', label: 'Fuera de Servicio' },  
-
 ];  
 
- 
-
-// Componente de sección colapsable - Moved outside and memoized   
-
+// Componente de sección colapsable 
 const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {     
-
     const sectionStyles = {     
-
         container: {     
-
             marginBottom: '16px',     
-
             background: 'rgba(0, 0, 0, 0.2)',     
-
             borderRadius: '12px',     
-
             border: '1px solid rgba(0, 255, 136, 0.1)',     
-
             overflow: 'hidden',     
-
             transition: 'all 0.3s ease',     
-
         },     
-
- 
 
         header: {     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             justifyContent: 'space-between',     
-
             padding: '16px 20px',     
-
             cursor: 'pointer',     
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.08)' : 'transparent',     
-
             borderBottom: isExpanded ? '1px solid rgba(0, 255, 136, 0.15)' : '1px solid transparent',     
-
             transition: 'all 0.3s ease',     
-
             userSelect: 'none',     
-
         },     
-
- 
 
         headerLeft: {     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             gap: '12px',     
-
         },     
-
- 
 
         icon: {     
-
             width: '32px',     
-
             height: '32px',     
-
             background: isExpanded ? 'rgba(0, 255, 136, 0.2)' : 'rgba(0, 255, 136, 0.1)',     
-
             borderRadius: '8px',     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             justifyContent: 'center',     
-
             fontSize: '16px',     
-
             transition: 'all 0.3s ease',     
-
         },     
-
- 
 
         title: {     
-
             fontSize: '14px',     
-
             fontWeight: 600,     
-
             color: isExpanded ? '#00ff88' : '#aaa',     
-
             textTransform: 'uppercase',     
-
             letterSpacing: '1px',     
-
             transition: 'color 0.3s ease',     
-
         },     
-
- 
 
         requiredBadge: {     
-
             background: 'rgba(255, 107, 107, 0.15)',     
-
             color: '#ff6b6b',     
-
             fontSize: '9px',     
-
             padding: '3px 8px',     
-
             borderRadius: '10px',     
-
             fontWeight: 600,     
-
             letterSpacing: '0.5px',     
-
         },     
-
- 
 
         chevron: {     
-
             width: '24px',     
-
             height: '24px',     
-
             display: 'flex',     
-
             alignItems: 'center',     
-
             justifyContent: 'center',     
-
             color: isExpanded ? '#00ff88' : '#666',     
-
             transition: 'transform 0.3s ease, color 0.3s ease',     
-
             transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',     
-
             fontSize: '18px',     
-
         },     
-
- 
 
         content: {     
-
             maxHeight: isExpanded ? '2000px' : '0',     
-
             opacity: isExpanded ? 1 : 0,     
-
             overflow: 'hidden',     
-
             transition: 'max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease',     
-
             padding: isExpanded ? '20px' : '0 20px',     
-
         },     
-
     };     
 
- 
-
     return (     
-
         <div style={sectionStyles.container}>     
-
             <div style={sectionStyles.header} onClick={onToggle}>            
-
                 <div style={sectionStyles.headerLeft}>     
-
                     <div style={sectionStyles.icon}>{icon || ''}</div>     
-
                     <span style={sectionStyles.title}>{title}</span>     
-
                     {isRequired && <span style={sectionStyles.requiredBadge}>REQUERIDO</span>}     
-
                 </div>     
-
                 <div style={sectionStyles.chevron}>▼</div>     
-
             </div>     
-
             <div style={sectionStyles.content}>     
-
                 {children} 
-
- 
-
-           </div>     
-
+            </div>     
         </div> 
-
- 
-
     );     
-
- 
-
 });   
-
- 
-
-  
-
- 
 
 CollapsibleSection.displayName = 'CollapsibleSection';   
 
- 
-
-  
-
- 
-
 const AdminDieRegistration = ({onNavigateBack, user }) => {     
-
- 
-
     const styles = useMemo(() => createStyles(), []);     
-
- 
-
     const years = useMemo(() => generateYears(), []);     
 
- 
-
-       
-
- 
-
     // Estado de la pestaña     
-
- 
-
     const [activeTab, setActiveTab] = useState('register');     
 
- 
-
-       
-
- 
-
     // Estado para secciones colapsables     
-
- 
-
     const [expandedSections, setExpandedSections] = useState({     
-
- 
-
         basicInfo: true,      // Abierta por defecto (requerida)     
-
- 
-
         production: false,     
-
- 
-
         technical: false,    
-
- 
-
         partNumbers: false,    
-
- 
-
         image: false,     
-
- 
-
         notes: false,     
-
- 
-
     });     
-
- 
-
-  
-
- 
 
     // Estado para opciones de dropdowns (cargadas desde la base de datos)     
-
- 
-
     const [pressOptions, setPressOptions] = useState(DEFAULT_PRESS_OPTIONS);     
-
- 
-
     const [dieTypeOptions, setDieTypeOptions] = useState(DEFAULT_DIE_TYPE_OPTIONS);     
-
- 
-
     const [statusOptions, setStatusOptions] = useState(DEFAULT_STATUS_OPTIONS);     
-
- 
-
     const [optionsLoading, setOptionsLoading] = useState(true);     
 
- 
-
-  
-
- 
-
-    // Estado del formulario - Updated to match database schema    
-
- 
-
+    // Estado del formulario
     const [formData, setFormData] = useState({     
-
- 
-
         id: '',     
-
- 
-
         name: '',     
-
- 
-
         status: 'Pendiente',     
-
- 
-
         year: new Date().getFullYear(),     
-
- 
-
         model: '',     
-
- 
-
         golpes: '',     
-
- 
-
         golpes_acum: '',     
-
- 
-
         capacidad_golpes: '',     
-
- 
-
         rectificaciones: '0',     
-
- 
-
         image_url: '',     
-
- 
-
         notes: '',     
-
- 
-
         prensa_asignada: '',     
-
- 
-
         tipo_troquel: 'Null',     
-
- 
-
         ubicacion: '',     
-
- 
-
         proveedor: '',     
-
- 
-
         peso_kg: '',     
-
- 
-
         dimensiones: '',     
-
- 
-
         material_base: '',     
-
- 
-
         num_estaciones: '',     
-
- 
-
         numero_serie: '',    
-
- 
-
         cavidades: '',    
-
- 
-
         color: '',    
-
- 
-
         ciclos: '',    
-
- 
-
         n_parte_1: '',    
-
- 
-
         n_parte_2: '',    
-
- 
-
         n_parte_3: '',    
-
- 
-
         n_parte_4: '',    
-
- 
-
         n_parte_5: '',    
-
- 
-
         n_parte_6: '',    
-
- 
-
     });     
-
- 
-
-  
-
- 
 
     const [focusedField, setFocusedField] = useState(null);     
-
- 
-
     const [isSubmitting, setIsSubmitting] = useState(false);     
-
- 
-
     const [message, setMessage] = useState({ type: '', text: '' });     
-
- 
-
     const [imagePreview, setImagePreview] = useState(null);     
 
- 
-
-  
-
- 
-
     // Estado de lista     
-
- 
-
     const [dies, setDies] = useState([]);     
-
- 
-
     const [isLoading, setIsLoading] = useState(false);     
-
- 
-
     const [searchTerm, setSearchTerm] = useState('');     
-
- 
-
     const [filterYear, setFilterYear] = useState('');     
-
- 
-
     const [filterStatus, setFilterStatus] = useState('');     
 
- 
-
-  
-
- 
-
     // Estado del modal     
-
- 
-
     const [showDeleteModal, setShowDeleteModal] = useState(false);     
-
- 
-
     const [dieToDelete, setDieToDelete] = useState(null);     
-
- 
-
     const [editingDie, setEditingDie] = useState(null);     
 
- 
-
-  
-
- 
-
     // Estadísticas     
-
- 
-
     const [stats, setStats] = useState({     
-
- 
-
         total: 0,     
-
- 
-
         activos: 0,     
-
- 
-
         reparando: 0,     
-
- 
-
         pendientes: 0,     
-
- 
-
     });     
 
- 
-
-  
-
- 
-
-    // ==================== ESTADOS PARA PRENSAS ====================  
-
- 
-
+    //estados para las prensas
     const [prensas, setPrensas] = useState([]);  
-
- 
-
     const [prensasLoading, setPrensasLoading] = useState(false);  
-
- 
-
     const [prensaSearchTerm, setPrensaSearchTerm] = useState('');  
-
- 
-
     const [prensaFilterStatus, setPrensaFilterStatus] = useState('');  
-
- 
-
     const [editingPrensa, setEditingPrensa] = useState(null);  
-
- 
-
     const [showDeletePrensaModal, setShowDeletePrensaModal] = useState(false);  
-
- 
-
     const [prensaToDelete, setPrensaToDelete] = useState(null);  
 
- 
-
-      
-
- 
-
     // Formulario de prensa  
-
- 
-
     const [prensaFormData, setPrensaFormData] = useState({  
-
- 
-
         identificador_prensa: '',  
-
- 
-
         nombre: '',  
-
- 
-
         estado: 'Activa',  
-
- 
-
         tonelaje: '',  
-
- 
-
         marca: '',  
-
- 
-
         modelo: '',  
-
- 
-
         año_fabricacion: new Date().getFullYear(),  
-
- 
-
         numero_serie: '',  
-
- 
-
         ubicacion: '',  
-
- 
-
         velocidad_max: '',  
-
- 
-
         carrera: '',  
-
- 
-
         area_trabajo: '',  
-
- 
-
         fecha_ultimo_mantenimiento: '',  
-
- 
-
         notas: '',  
-
- 
-
     });  
-
- 
-
-  
-
- 
 
     const [prensaExpandedSections, setPrensaExpandedSections] = useState({  
-
- 
-
         basicInfo: true,  
-
- 
-
         technical: false,  
-
- 
-
         maintenance: false,  
-
- 
-
         notes: false,  
-
- 
-
     });  
 
- 
-
-     
-
-    // ==================== ESTADOS PARA MODELOS ==================== 
-
+    //estados para modelos
     const [modelos, setModelos] = useState([]); 
-
     const [modelosLoading, setModelosLoading] = useState(false); 
-
     const [modeloSearchTerm, setModeloSearchTerm] = useState(''); 
-
     const [modeloFilterTroquel, setModeloFilterTroquel] = useState(''); 
-
     const [editingModelo, setEditingModelo] = useState(null); 
-
     const [showDeleteModeloModal, setShowDeleteModeloModal] = useState(false); 
-
     const [modeloToDelete, setModeloToDelete] = useState(null); 
 
-     
-
     // Formulario de modelo 
-
     const [modeloFormData, setModeloFormData] = useState({ 
-
         nombre_modelo: '', 
-
         troquel_id: '', 
-
         descripcion: '', 
-
     }); 
 
- 
-
-    // Toggle para secciones colapsables - memoized callbacks   
-
- 
-
+    // Toggle para secciones colapsables
     const toggleSection = useCallback((sectionKey) => {   
-
- 
-
         setExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));    
-
- 
-
     }, []);     
-
- 
-
-       
-
- 
 
     // Expandir todas las secciones     
-
- 
-
     const expandAllSections = useCallback(() => {     
-
- 
-
         setExpandedSections({     
-
- 
-
             basicInfo: true,     
-
- 
-
             production: true,     
-
- 
-
             technical: true,    
-
- 
-
             partNumbers: true,    
-
- 
-
             image: true,     
-
- 
-
             notes: true,     
-
- 
-
         });     
-
- 
-
     }, []);     
-
- 
-
-  
-
- 
 
     // Colapsar todas las secciones excepto la básica     
-
- 
-
     const collapseAllSections = useCallback(() => {     
-
- 
-
         setExpandedSections({     
-
- 
-
             basicInfo: true,     
-
- 
-
             production: false,     
-
- 
-
             technical: false,    
-
- 
-
             partNumbers: false,    
-
- 
-
             image: false,     
-
- 
-
             notes: false,     
-
- 
-
         });     
-
- 
-
     }, []);     
-
- 
-
-  
-
- 
 
     // Toggle para secciones de prensa  
-
- 
-
     const togglePrensaSection = useCallback((sectionKey) => {  
-
- 
-
         setPrensaExpandedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));  
-
- 
-
     }, []);  
-
- 
-
-  
-
- 
 
     const expandAllPrensaSections = useCallback(() => {  
-
- 
-
         setPrensaExpandedSections({  
-
- 
-
             basicInfo: true,  
-
- 
-
             technical: true,  
-
- 
-
             maintenance: true,  
-
- 
-
             notes: true,  
-
- 
-
         });  
-
- 
-
     }, []);  
-
- 
-
-  
-
- 
 
     const collapseAllPrensaSections = useCallback(() => {  
-
- 
-
         setPrensaExpandedSections({  
-
- 
-
             basicInfo: true,  
-
- 
-
             technical: false,  
-
- 
-
             maintenance: false,  
-
- 
-
             notes: false,  
-
- 
-
         });  
-
- 
-
     }, []);  
 
- 
-
-  
-
- 
-
     // Cargar opciones de dropdowns desde la base de datos     
-
- 
-
     useEffect(() => {     
-
- 
-
         const fetchDropdownOptions = async () => {     
-
- 
-
             setOptionsLoading(true);     
-
- 
-
             try {     
-
- 
-
-  
-
- 
 
                 // Fetch prensas     
-
- 
-
                 const prensasResponse = await fetch(`${API_BASE}/prensas.php`, {     
-
- 
-
                     credentials: 'include',     
-
- 
-
                 });     
 
- 
-
                 if (prensasResponse.ok) {     
-
- 
-
                     const prensasData = await prensasResponse.json();     
-
- 
-
                     if (Array.isArray(prensasData) && prensasData.length > 0) {    
-
- 
-
                         setPressOptions(prensasData);    
-
- 
-
                     }     
-
- 
-
                 }	     
 
- 
-
-  
-
- 
-
                 // Fetch tipos de troquel     
-
- 
-
                 const tiposResponse = await fetch(`${API_BASE}/tipos_troquel.php`, {credentials: 'include',});     
-
- 
-
                 if (tiposResponse.ok) {     
-
- 
-
                     const tiposData = await tiposResponse.json();     
 
- 
-
                     if (Array.isArray(tiposData) && tiposData.length > 0) {     
-
- 
-
                         setDieTypeOptions(tiposData);     
-
- 
-
                     }     
-
- 
-
                 }     
 
- 
-
-  
-
- 
 
                 // Fetch estados     
-
- 
-
                 const estadosResponse = await fetch(`${API_BASE}/estados.php`, {credentials: 'include',});     
-
- 
-
                 if (estadosResponse.ok) {     
-
- 
-
                     const estadosData = await estadosResponse.json();     
-
- 
-
                     if (Array.isArray(estadosData) && estadosData.length > 0) {     
-
- 
-
                         setStatusOptions(estadosData);     
-
- 
-
                     }     
-
- 
-
                 }     
-
- 
-
             } catch (error) {     
-
- 
-
                 console.error('Error fetching dropdown options:', error);     
-
- 
-
             } finally {     
-
- 
-
                 setOptionsLoading(false);     
-
- 
-
             }     
-
- 
-
         };     
-
- 
-
         fetchDropdownOptions();     
-
- 
-
     }, []);     
 
- 
-
-  
-
- 
-
     // Obtener troqueles cuando se cambia a pestaña de administración     
-
- 
-
     useEffect(() => {     
-
- 
-
         if (activeTab === 'manage') {     
-
- 
-
             fetchDies();     
-
- 
-
         }     
-
- 
-
     }, [activeTab, filterYear, filterStatus]);     
 
- 
-
-  
-
- 
-
     // Obtener prensas cuando se cambia a pestaña de prensas  
-
- 
-
     useEffect(() => {  
-
- 
-
         if (activeTab === 'prensas' || activeTab === 'prensas-manage') {  
-
- 
-
             fetchPrensas();  
-
- 
-
         }  
-
- 
-
     }, [activeTab, prensaFilterStatus]);  
 
- 
-
-     
-
     // Obtener modelos cuando se cambia a pestaña de modelos 
-
     useEffect(() => { 
-
         if (activeTab === 'modelos') { 
-
             fetchModelos(); 
-
             fetchDiesForModelos(); 
-
         } 
-
     }, [activeTab, modeloFilterTroquel]); 
 
- 
-
     const fetchDies = async () => {     
-
- 
-
         setIsLoading(true);     
 
- 
-
             try {     
-
- 
-
                 let url = `${API_BASE}/troqueles.php`;     
-
- 
-
                 const params = new URLSearchParams();     
 
- 
-
                 if (filterYear) params.append('year', filterYear);     
-
- 
-
                 if (filterStatus) params.append('status', filterStatus);     
 
- 
-
-                       
-
- 
-
                 //usar el endpoint de busqueda si se aplican los filtros, sino usar el endpoint principal    
-
- 
-
                 if (params.toString()) {     
-
- 
-
                     url = `${API_BASE}/troqueles.php/search?${params.toString()}`;     
-
- 
-
                 }     
-
- 
-
-  
-
- 
 
                 const response = await fetch(url, {credentials: 'include',});     
 
- 
-
-                   
-
- 
-
                 //manejar respuestas tanto en objeto como array    
-
- 
-
                 const handleResponse = (data) => {     
-
- 
-
                     if (Array.isArray(data)) { return data;}     
 
- 
-
-                           
-
- 
-
                     //si estan agrupadas por año hacerlo array o aplanar    
-
- 
-
                     if (typeof data === 'object' && data !== null) {     
-
- 
-
                         const flattened = [];     
-
- 
-
                         Object.values(data).forEach(yearGroup => {     
-
- 
-
                             if (Array.isArray(yearGroup)) {     
-
- 
-
                                 flattened.push(...yearGroup);     
-
- 
-
                             }     
-
- 
-
                         });     
-
- 
-
                         return flattened;     
-
- 
-
                     }     
-
- 
-
                     return [];     
-
- 
-
                 };     
 
- 
-
-                   
-
- 
-
                 const data = await response.json();     
-
- 
-
                 const processedData = handleResponse(data);     
-
- 
-
                 setDies(processedData);     
 
- 
-
-                   
-
- 
-
                 // Calcular estadísticas     
-
- 
-
                 const total = processedData.length;     
-
- 
-
                 const activos = processedData.filter(d => {     
-
- 
-
                     const status = d.status || d.estado;     
-
- 
-
                     return status === 'En prensa' || status === 'Listo' || status === 'Listo-BackUp';     
-
- 
-
                 }).length;     
 
- 
-
                 const reparando = processedData.filter(d => (d.status || d.estado) === 'Reparando').length;     
-
- 
-
                 const pendientes = processedData.filter(d => (d.status || d.estado) === 'Pendiente').length;     
 
- 
-
-                   
-
- 
-
                 setStats({ total, activos, reparando, pendientes });     
-
- 
-
             } catch (error) {     
 
- 
-
                 console.error('Error fetching dies:', error);     
-
- 
-
                 setMessage({ type: 'error', text: 'Error al cargar los troqueles' });     
-
- 
-
             } finally {     
-
- 
-
                 setIsLoading(false);     
-
- 
-
             }     
-
- 
-
     };     
 
- 
-
-  
-
- 
-
-    // ==================== FUNCIONES PARA PRENSAS ====================  
-
- 
-
+    //funciones para prensas
     const fetchPrensas = async () => {  
-
- 
-
         setPrensasLoading(true);  
 
- 
-
         try {  
-
- 
-
             let url = `${API_BASE}/prensas_crud.php`;  
-
- 
-
             const params = new URLSearchParams();  
-
- 
 
             if (prensaFilterStatus) params.append('estado', prensaFilterStatus);  
 
- 
-
-              
-
- 
-
             if (params.toString()) {  
-
- 
-
                 url = `${url}?${params.toString()}`;  
-
- 
-
             }  
-
- 
-
-  
-
- 
 
             const response = await fetch(url, { credentials: 'include' });  
-
- 
-
             const data = await response.json();  
 
- 
-
-              
-
- 
-
             if (Array.isArray(data)) {  
-
- 
-
                 setPrensas(data);  
-
- 
-
             } else if (data.data && Array.isArray(data.data)) {  
-
- 
-
                 setPrensas(data.data);  
-
- 
-
             } else {  
-
- 
-
                 setPrensas([]);  
-
- 
-
             }  
-
- 
-
         } catch (error) {  
 
- 
-
             console.error('Error fetching prensas:', error);  
-
- 
-
             setMessage({ type: 'error', text: 'Error al cargar las prensas' });  
-
- 
-
         } finally {  
-
- 
-
             setPrensasLoading(false);  
-
- 
-
         }  
-
- 
-
     };  
 
- 
-
-  
-
- 
-
     const handlePrensaInputChange = useCallback((e) => {  
-
- 
-
         const { name, value } = e.target;  
-
- 
-
         setPrensaFormData(prev => ({ ...prev, [name]: value }));  
-
- 
-
     }, []);  
 
- 
-
-  
-
- 
-
     const handlePrensaSubmit = async (e) => {  
-
- 
-
         e.preventDefault();  
 
- 
-
-          
-
- 
-
         // Validaciones  
-
- 
-
         if (!prensaFormData.identificador_prensa?.trim()) {  
-
- 
-
             setMessage({ type: 'error', text: 'El identificador de la prensa es requerido' });  
-
- 
-
             return;  
-
- 
-
         }  
-
- 
 
         if (!prensaFormData.nombre?.trim()) {  
-
- 
-
             setMessage({ type: 'error', text: 'El nombre de la prensa es requerido' });  
-
- 
-
             return;  
-
- 
-
         }  
 
- 
-
-  
-
- 
-
         setIsSubmitting(true);  
-
- 
-
         setMessage({ type: '', text: '' });  
 
- 
-
-  
-
- 
-
         try {  
-
- 
-
             const url = `${API_BASE}/prensas_crud.php`;  
-
- 
-
             const method = editingPrensa ? 'PUT' : 'POST';  
-
- 
-
-              
-
- 
-
             const payload = {  
-
- 
-
                 ...prensaFormData, 
-
- 
-
                 id_prensa: editingPrensa?.id_prensa, 
-
- 
-
             };  
 
- 
-
-  
-
- 
-
             const response = await fetch(url, {  
-
- 
-
                 method,  
-
- 
-
                 headers: { 'Content-Type': 'application/json' },  
-
- 
-
                 credentials: 'include',  
-
- 
-
                 body: JSON.stringify(payload),  
-
- 
-
             });  
-
- 
-
-  
-
- 
 
             const result = await response.json();  
 
- 
-
-  
-
- 
-
             if (response.ok && result.success) {  
-
- 
-
                 setMessage({  
-
- 
-
                     type: 'success',  
-
- 
-
                     text: editingPrensa  
-
- 
-
                         ? `Prensa ${prensaFormData.identificador_prensa} actualizada exitosamente`  
-
- 
-
                         : `Prensa ${prensaFormData.identificador_prensa} registrada exitosamente`  
-
- 
-
                 });  
-
- 
-
                 handlePrensaReset();  
-
- 
-
                 fetchPrensas();  
 
- 
-
                 if (editingPrensa) {  
-
- 
-
                     setEditingPrensa(null);  
-
- 
-
                 }  
 
- 
-
             } else {  
-
- 
-
                 throw new Error(result.message || 'Error al guardar la prensa');  
-
- 
-
             }  
 
- 
-
         } catch (error) {  
-
- 
-
             console.error('Error saving prensa:', error);  
-
- 
-
             setMessage({ type: 'error', text: error.message || 'Error al guardar la prensa' });  
-
- 
-
         } finally {  
-
- 
-
             setIsSubmitting(false);  
-
- 
-
             setTimeout(() => setMessage({ type: '', text: '' }), 5000);  
-
- 
-
         }  
-
- 
-
     };  
 
- 
-
-  
-
- 
-
     const handlePrensaReset = useCallback(() => {  
-
- 
-
         setPrensaFormData({  
-
- 
-
             identificador_prensa: '',  
-
- 
-
             nombre: '',  
-
- 
-
             estado: 'Activa',  
-
- 
-
             tonelaje: '',  
-
- 
-
             marca: '',  
-
- 
-
             modelo: '',  
-
- 
-
             año_fabricacion: new Date().getFullYear(),  
 
  
@@ -6318,7 +4999,7 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
 
  
 
-                            <div style={{ ...styles.statIcon, background: 'rgba(255, 200, 0, 0.15)', color: '#ffc800' }}>🔧</div>     
+                            <div style={{ ...styles.statIcon, background: 'rgba(255, 200, 0, 0.15)', color: '#ffc800' }}></div>     
 
  
 
@@ -8205,112 +6886,32 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
  
 
                     {/* Tabla de prensas */}  
-
- 
-
                     <div style={styles.tableContainer}>  
-
- 
-
                         <div style={styles.tableHeader}>  
-
- 
-
                             <div style={styles.tableTitle}>  
-
- 
-
-                                <span>🏭</span> Lista de Prensas  
-
- 
-
+                                Lista de Prensas  
                             </div>  
-
- 
-
                             <div style={styles.tableControls}>  
-
- 
-
                                 <input  
-
- 
-
                                     type="text"  
-
- 
-
                                     placeholder="Buscar por ID o nombre..."  
-
- 
-
                                     value={prensaSearchTerm}  
-
- 
-
                                     onChange={(e) => setPrensaSearchTerm(e.target.value)}  
-
- 
-
                                     style={styles.tableSearch}  
-
- 
-
                                 />  
-
- 
-
                                 <select  
-
- 
-
                                     value={prensaFilterStatus}  
-
- 
-
                                     onChange={(e) => setPrensaFilterStatus(e.target.value)}  
-
- 
-
                                     style={styles.tableFilter}  
-
- 
-
                                 >  
-
- 
-
                                     <option value="">Todos los estados</option>  
 
- 
-
                                     {DEFAULT_PRESS_STATUS_OPTIONS.map(opt => (  
-
- 
-
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>  
-
- 
-
                                     ))}  
-
- 
-
                                 </select>  
-
- 
-
                             </div>  
-
- 
-
                         </div>  
-
- 
-
-  
-
- 
 
                         {prensasLoading ? (  
 
@@ -8497,13 +7098,7 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
  
 
                                                     <td style={{ ...styles.td, color: '#00ff88', fontWeight: 600 }}>  
-
- 
-
                                                         {prensa.identificador_prensa}  
-
- 
-
                                                     </td>  
 
  
