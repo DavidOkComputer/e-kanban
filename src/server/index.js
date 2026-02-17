@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
+
 // Middleware 
 app.use(cors({
 	origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
@@ -13,7 +14,8 @@ app.use(cors({
 	allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-// Database connection pool 
+
+//conexion a la base de datos
 const pool = mysql.createPool({
 	host: process.env.DB_HOST || '127.0.0.1',
 	port: process.env.DB_PORT || 3306,
@@ -24,8 +26,8 @@ const pool = mysql.createPool({
 	connectionLimit: 10,
 	queueLimit: 0
 });
-// ==================== AUTH ENDPOINTS ==================== 
-// LOGIN endpoint 
+
+//endpoints de autenticacion
 app.post('/api/login', async (req, res) => {
 	try {
 		const {
@@ -38,7 +40,8 @@ app.post('/api/login', async (req, res) => {
 				message: 'Usuario y contraseña son requeridos'
 			});
 		}
-		// Find user by username 
+
+		//buscar por nombre de usuario
 		const [users] = await pool.query('SELECT * FROM tbl_usuarios WHERE nombre_usuario = ? AND activo = 1',
 			[username]);
 		if (users.length === 0) {
@@ -48,7 +51,8 @@ app.post('/api/login', async (req, res) => {
 			});
 		}
 		const user = users[0];
-		// Verify password (acceso column contains hashed password) 
+
+		//verificar contrasenia
 		const passwordMatch = await bcrypt.compare(password, user.acceso);
 		if (!passwordMatch) {
 			return res.status(401).json({
@@ -56,10 +60,11 @@ app.post('/api/login', async (req, res) => {
 				message: 'Usuario o contraseña incorrectos'
 			});
 		}
-		// Update last access 
+
+		//actualizar registro de ultimo acceso
 		await pool.query('UPDATE tbl_usuarios SET ultimo_acceso = NOW() WHERE id_usuario = ?',
 			[user.id_usuario]);
-		// Return user data (without password) 
+		//devolver info del usurio, sin contrasenia 
 		res.json({
 			success: true,
 			message: 'Login exitoso',
@@ -78,7 +83,8 @@ app.post('/api/login', async (req, res) => {
 		});
 	}
 });
-// ==================== HEALTH & CATALOGS ==================== 
+
+//estado y apis disponibles
 app.get('/api/health', async (req, res) => {
 	try {
 		const [rows] = await pool.query('SELECT 1');
@@ -181,15 +187,13 @@ app.get('/api/fallas', async (req, res) => {
 		});
 	}
 });
-// ==================== TROQUELES ENDPOINTS ==================== 
+
+//enpoint de troqueles
 app.get('/api/troqueles', async (req, res) => {
 	try {
 		const [troqueles] = await pool.query(` 
-
       SELECT * FROM tbl_troqueles 
-
-      ORDER BY año DESC, id_troquel 
-
+    	ORDER BY año DESC, id_troquel 
     `);
 		const groupedByYear = {};
 		troqueles.forEach(t => {
@@ -237,14 +241,12 @@ app.get('/api/troqueles', async (req, res) => {
 		});
 	}
 });
+
 app.get('/api/troqueles/list', async (req, res) => {
 	try {
 		const [troqueles] = await pool.query(` 
-
       SELECT * FROM tbl_troqueles 
-
-      ORDER BY creado_en DESC 
-
+    	ORDER BY creado_en DESC 
     `);
 		res.json(troqueles);
 	} catch (error) {
@@ -255,6 +257,7 @@ app.get('/api/troqueles/list', async (req, res) => {
 		});
 	}
 });
+
 app.get('/api/troqueles/search', async (req, res) => {
 	try {
 		const {
@@ -288,6 +291,7 @@ app.get('/api/troqueles/search', async (req, res) => {
 		});
 	}
 });
+
 app.get('/api/troqueles/:id', async (req, res) => {
 	try {
 		const [troqueles] = await pool.query('SELECT * FROM tbl_troqueles WHERE id_troquel = ?',
@@ -307,30 +311,21 @@ app.get('/api/troqueles/:id', async (req, res) => {
 		});
 	}
 });
-// ==================== REPAIR CYCLES ENDPOINTS ==================== 
-// Get active cycle for a troquel 
+
+//enpoints de ciclos de reparacion
+//obtener ciclo activo para el troquel
 app.get('/api/troqueles/:id/ciclo-activo', async (req, res) => {
 	try {
 		const [rows] = await pool.query(` 
-
-      SELECT 
-
-        cr.*, 
-
-        TIMESTAMPDIFF(MINUTE, cr.fecha_inicio_reparacion, NOW()) AS minutos_transcurridos, 
-
-        TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_transcurridas, 
-
-        TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_transcurridos 
-
-      FROM tbl_ciclos_reparacion cr 
-
-      WHERE cr.troquel_id = ? AND cr.ciclo_activo = TRUE 
-
-      ORDER BY cr.fecha_inicio_reparacion DESC 
-
-      LIMIT 1 
-
+    	SELECT 
+        	cr.*, 
+        	TIMESTAMPDIFF(MINUTE, cr.fecha_inicio_reparacion, NOW()) AS minutos_transcurridos, 
+        	TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_transcurridas, 
+        	TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_transcurridos 
+    	FROM tbl_ciclos_reparacion cr 
+    		WHERE cr.troquel_id = ? AND cr.ciclo_activo = TRUE 
+    	ORDER BY cr.fecha_inicio_reparacion DESC 
+    	LIMIT 1 
     `, [req.params.id]);
 		if (rows.length === 0) {
 			return res.json({
@@ -340,13 +335,9 @@ app.get('/api/troqueles/:id/ciclo-activo', async (req, res) => {
 		}
 		// Get technicians for the cycle 
 		const [tecnicos] = await pool.query(` 
-
-      SELECT * FROM tbl_tecnicos_ciclo 
-
-      WHERE ciclo_id = ? 
-
-      ORDER BY fecha_inicio ASC 
-
+      	SELECT * FROM tbl_tecnicos_ciclo 
+    		WHERE ciclo_id = ? 
+    	ORDER BY fecha_inicio ASC 
     `, [rows[0].id_ciclo_reparacion]);
 		res.json({
 			ciclo: rows[0],
@@ -359,36 +350,24 @@ app.get('/api/troqueles/:id/ciclo-activo', async (req, res) => {
 		});
 	}
 });
-// Get repair history for a troquel 
+
+//obtener el historial de reparacion para el troquel 
 app.get('/api/troqueles/:id/ciclos-historial', async (req, res) => {
 	try {
 		const limit = parseInt(req.query.limit) || 20;
 		const [rows] = await pool.query(` 
-
-      SELECT 
-
-        cr.*, 
-
-        CASE 
-
-          WHEN cr.tiempo_reparacion_horas <= 4 THEN 'Rápida (≤4h)' 
-
-          WHEN cr.tiempo_reparacion_horas <= 24 THEN 'Normal (4-24h)' 
-
-          WHEN cr.tiempo_reparacion_horas <= 72 THEN 'Extendida (1-3 días)' 
-
-          ELSE 'Prolongada (>3 días)' 
-
-        END AS clasificacion_tiempo 
-
-      FROM tbl_ciclos_reparacion cr 
-
-      WHERE cr.troquel_id = ? 
-
-      ORDER BY cr.fecha_inicio_reparacion DESC 
-
-      LIMIT ? 
-
+    		SELECT 
+        		cr.*, 
+        		CASE 
+        			WHEN cr.tiempo_reparacion_horas <= 4 THEN 'Rápida (≤4h)' 
+        			WHEN cr.tiempo_reparacion_horas <= 24 THEN 'Normal (4-24h)' 
+        			WHEN cr.tiempo_reparacion_horas <= 72 THEN 'Extendida (1-3 días)' 
+        			ELSE 'Prolongada (>3 días)' 
+        		END AS clasificacion_tiempo 
+    		FROM tbl_ciclos_reparacion cr 
+    			WHERE cr.troquel_id = ? 
+    			ORDER BY cr.fecha_inicio_reparacion DESC 
+    		LIMIT ? 
     `, [req.params.id, limit]);
 		res.json(rows);
 	} catch (error) {
@@ -398,41 +377,26 @@ app.get('/api/troqueles/:id/ciclos-historial', async (req, res) => {
 		});
 	}
 });
-// Get troquel statistics 
+
+//obtener estadisticas del troquel
 app.get('/api/troqueles/:id/estadisticas', async (req, res) => {
 	try {
 		const [stats] = await pool.query(` 
-
-      SELECT 
-
-        troquel_id, 
-
-        COUNT(*) AS total_reparaciones, 
-
-        COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS reparaciones_completadas, 
-
-        COUNT(CASE WHEN ciclo_activo = TRUE THEN 1 END) AS reparaciones_activas, 
-
-        AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS promedio_horas_reparacion, 
-
-        MIN(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS min_horas_reparacion, 
-
-        MAX(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS max_horas_reparacion, 
-
-        SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS total_fallas, 
-
-        SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS total_limpiezas, 
-
-        SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS total_cambios_modelo, 
-
-        SUM(CASE WHEN motivo_entrada = 'Mantenimiento Preventivo' THEN 1 ELSE 0 END) AS total_mantenimientos 
-
-      FROM tbl_ciclos_reparacion 
-
-      WHERE troquel_id = ? 
-
-      GROUP BY troquel_id 
-
+    		SELECT 
+        		troquel_id, 
+        			COUNT(*) AS total_reparaciones, 
+        			COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS reparaciones_completadas, 
+        			COUNT(CASE WHEN ciclo_activo = TRUE THEN 1 END) AS reparaciones_activas, 
+				        AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS promedio_horas_reparacion, 
+			    	    MIN(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS min_horas_reparacion, 
+       				 	MAX(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS max_horas_reparacion, 
+        				SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS total_fallas, 
+				        SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS total_limpiezas, 
+				        SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS total_cambios_modelo, 
+				        SUM(CASE WHEN motivo_entrada = 'Mantenimiento Preventivo' THEN 1 ELSE 0 END) AS total_mantenimientos 
+	    	FROM tbl_ciclos_reparacion 
+	    		WHERE troquel_id = ? 
+    		GROUP BY troquel_id 
     `, [req.params.id]);
 		res.json(stats[0] || {
 			total_reparaciones: 0,
@@ -446,63 +410,39 @@ app.get('/api/troqueles/:id/estadisticas', async (req, res) => {
 		});
 	}
 });
-// Get all active repairs 
+
+//obtener todas las reparaciones actvas
 app.get('/api/reparaciones-activas', async (req, res) => {
 	try {
 		const [rows] = await pool.query(` 
-
-      SELECT 
-
-        cr.id_ciclo_reparacion, 
-
-        cr.troquel_id, 
-
-        cr.troquel_nombre, 
-
-        cr.modelo, 
-
-        cr.fecha_inicio_reparacion, 
-
-        cr.motivo_entrada, 
-
-        cr.falla_descripcion, 
-
-        cr.prioridad, 
-
-        cr.prensa_origen, 
-
-        cr.nivel_reparacion, 
-
-        cr.grupo_reparacion, 
-
-        cr.fecha_bajado, 
-
-        cr.fecha_recepcion_taller, 
-
-        cr.fecha_inicio_trabajo, 
-
-        TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_en_reparacion, 
-
-        TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_en_reparacion 
-
-      FROM tbl_ciclos_reparacion cr 
-
-      WHERE cr.ciclo_activo = TRUE 
-
-      ORDER BY cr.prioridad ASC, cr.fecha_inicio_reparacion ASC 
-
+    		SELECT 
+        		cr.id_ciclo_reparacion, 
+        		cr.troquel_id, 
+        		cr.troquel_nombre, 
+		        cr.modelo, 
+		        cr.fecha_inicio_reparacion, 
+		        cr.motivo_entrada, 
+		        cr.falla_descripcion, 
+		        cr.prioridad, 
+		        cr.prensa_origen, 
+		        cr.nivel_reparacion, 
+		        cr.grupo_reparacion, 
+		        cr.fecha_bajado, 
+	    	    cr.fecha_recepcion_taller, 
+		        cr.fecha_inicio_trabajo, 
+			        TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_en_reparacion, 
+			        TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_en_reparacion 
+    		FROM tbl_ciclos_reparacion cr 
+    			WHERE cr.ciclo_activo = TRUE 
+    				ORDER BY cr.prioridad ASC, cr.fecha_inicio_reparacion ASC 
     `);
-		// Get technicians for each active repair 
+		//obtener los tecnicos para cada reparacion activa
 		for (let row of rows) {
 			const [tecnicos] = await pool.query(` 
-
-        SELECT empleado_nombre, grupo, tipo 
-
-        FROM tbl_tecnicos_ciclo 
-
-        WHERE ciclo_id = ? AND fecha_fin IS NULL 
-
-      `, [row.id_ciclo_reparacion]);
+        		SELECT empleado_nombre, grupo, tipo 
+        			FROM tbl_tecnicos_ciclo 
+        		WHERE ciclo_id = ? AND fecha_fin IS NULL 
+    	`, [row.id_ciclo_reparacion]);
 			row.tecnicos = tecnicos;
 		}
 		res.json(rows);
@@ -513,40 +453,26 @@ app.get('/api/reparaciones-activas', async (req, res) => {
 		});
 	}
 });
-// Get monthly summary 
+
+//obtener resumen mensual
 app.get('/api/resumen-mensual', async (req, res) => {
 	try {
 		const year = req.query.year || new Date().getFullYear();
 		const [rows] = await pool.query(` 
-
-      SELECT 
-
-        YEAR(fecha_inicio_reparacion) AS anio, 
-
-        MONTH(fecha_inicio_reparacion) AS mes, 
-
-        DATE_FORMAT(fecha_inicio_reparacion, '%Y-%m') AS periodo, 
-
-        COUNT(*) AS total_reparaciones, 
-
-        COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS completadas, 
-
-        ROUND(AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END), 2) AS promedio_horas, 
-
-        SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS por_falla, 
-
-        SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS por_limpieza, 
-
-        SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS por_cambio_modelo 
-
-      FROM tbl_ciclos_reparacion 
-
-      WHERE YEAR(fecha_inicio_reparacion) = ? 
-
-      GROUP BY YEAR(fecha_inicio_reparacion), MONTH(fecha_inicio_reparacion) 
-
-      ORDER BY anio DESC, mes DESC 
-
+    		SELECT 
+        		YEAR(fecha_inicio_reparacion) AS anio, 
+        		MONTH(fecha_inicio_reparacion) AS mes, 
+        		DATE_FORMAT(fecha_inicio_reparacion, '%Y-%m') AS periodo, 
+		        COUNT(*) AS total_reparaciones, 
+		        COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS completadas, 
+        		ROUND(AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END), 2) AS promedio_horas, 
+        		SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS por_falla, 
+		        SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS por_limpieza, 
+		        SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS por_cambio_modelo 
+		    FROM tbl_ciclos_reparacion 
+		    	WHERE YEAR(fecha_inicio_reparacion) = ? 
+    		GROUP BY YEAR(fecha_inicio_reparacion), MONTH(fecha_inicio_reparacion) 
+    		ORDER BY anio DESC, mes DESC 
     `, [year]);
 		res.json(rows);
 	} catch (error) {
@@ -556,7 +482,8 @@ app.get('/api/resumen-mensual', async (req, res) => {
 		});
 	}
 });
-// Start new repair cycle 
+
+//empezar nuevo ciclo de reparacion
 app.post('/api/troqueles/:id/iniciar-ciclo', async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
@@ -576,13 +503,11 @@ app.post('/api/troqueles/:id/iniciar-ciclo', async (req, res) => {
 			grupo,
 			prioridad
 		} = req.body;
-		// Check for existing active cycle 
+
+		//revisar si existe algun ciclo activo
 		const [existing] = await connection.query(` 
-
-      SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion 
-
-      WHERE troquel_id = ? AND ciclo_activo = TRUE 
-
+    		SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion 
+    			WHERE troquel_id = ? AND ciclo_activo = TRUE 
     `, [req.params.id]);
 		if (existing.length > 0) {
 			await connection.rollback();
@@ -591,27 +516,18 @@ app.post('/api/troqueles/:id/iniciar-ciclo', async (req, res) => {
 				ciclo_id: existing[0].id_ciclo_reparacion
 			});
 		}
-		// Insert new repair cycle 
+
+		//insertar nuevo ciclo de reparacion
 		const [result] = await connection.query(` 
-
-      INSERT INTO tbl_ciclos_reparacion ( 
-
-        troquel_id, troquel_nombre, modelo, 
-
-        fecha_inicio_reparacion, motivo_entrada, 
-
-        falla_id, falla_descripcion, 
-
-        folio_entrada, empleado_registro, comentarios_entrada, 
-
-        status_anterior, prensa_origen, 
-
-        nivel_reparacion, grupo_reparacion, prioridad, 
-
-        fecha_bajado, ciclo_activo 
-
-      ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
-
+    		INSERT INTO tbl_ciclos_reparacion ( 
+        		troquel_id, troquel_nombre, modelo, 
+        		fecha_inicio_reparacion, motivo_entrada, 
+		        falla_id, falla_descripcion, 
+		        folio_entrada, empleado_registro, comentarios_entrada, 
+		        status_anterior, prensa_origen, 
+		        nivel_reparacion, grupo_reparacion, prioridad, 
+		        fecha_bajado, ciclo_activo 
+	    	) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
     `, [
 			req.params.id, troquel_nombre, modelo,
 			motivo_entrada, falla_id || null, falla_descripcion || null,
@@ -619,12 +535,11 @@ app.post('/api/troqueles/:id/iniciar-ciclo', async (req, res) => {
 			status_anterior || 'En prensa', prensa_origen || null,
 			nivel || null, grupo || null, prioridad || 3
 		]);
-		// Update troquel status to Reparando 
+
+		//actualizar el estado del troquel a reparando
 		await connection.query(` 
-
-      UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ? 
-
-    `, [req.params.id]);
+    		UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ? 
+	    `, [req.params.id]);
 		await connection.commit();
 		res.json({
 			success: true,
@@ -641,7 +556,8 @@ app.post('/api/troqueles/:id/iniciar-ciclo', async (req, res) => {
 		connection.release();
 	}
 });
-// Update repair process step 
+
+//actualizar pasos de proceso de reparacion
 app.post('/api/ciclos/:id/actualizar-paso', async (req, res) => {
 	try {
 		const {
@@ -664,22 +580,16 @@ app.post('/api/ciclos/:id/actualizar-paso', async (req, res) => {
 				});
 		}
 		await pool.query(` 
+    		UPDATE tbl_ciclos_reparacion 
+    			SET ${field} = NOW() 
+    		WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
+    	`, [req.params.id]);
 
-      UPDATE tbl_ciclos_reparacion 
-
-      SET ${field} = NOW() 
-
-      WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
-
-    `, [req.params.id]);
-		// Get updated cycle 
+		//obtener ciclo actualizado
 		const [updated] = await pool.query(` 
-
-      SELECT fecha_bajado, fecha_recepcion_taller, fecha_inicio_trabajo, fecha_termino_trabajo 
-
-      FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
-
-    `, [req.params.id]);
+    		SELECT fecha_bajado, fecha_recepcion_taller, fecha_inicio_trabajo, fecha_termino_trabajo 
+    		FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
+	    `, [req.params.id]);
 		res.json({
 			success: true,
 			proceso: updated[0]
@@ -691,7 +601,8 @@ app.post('/api/ciclos/:id/actualizar-paso', async (req, res) => {
 		});
 	}
 });
-// Add technician to repair cycle 
+
+//agregar tecnico a ciclo de reparacion
 app.post('/api/ciclos/:id/tecnicos', async (req, res) => {
 	try {
 		const {
@@ -701,17 +612,13 @@ app.post('/api/ciclos/:id/tecnicos', async (req, res) => {
 			tipo
 		} = req.body;
 		const [result] = await pool.query(` 
-
-      INSERT INTO tbl_tecnicos_ciclo (ciclo_id, empleado_numero, empleado_nombre, grupo, tipo) 
-
-      VALUES (?, ?, ?, ?, ?) 
-
-    `, [req.params.id, empleado_numero || null, empleado_nombre, grupo || null, tipo || 'Técnico']);
-		// Get inserted technician 
+    		INSERT INTO tbl_tecnicos_ciclo (ciclo_id, empleado_numero, empleado_nombre, grupo, tipo) 
+    		VALUES (?, ?, ?, ?, ?) 
+    	`, [req.params.id, empleado_numero || null, empleado_nombre, grupo || null, tipo || 'Técnico']);
+		
+		//obtener tecnico insertado
 		const [tecnico] = await pool.query(` 
-
-      SELECT * FROM tbl_tecnicos_ciclo WHERE id_tecnicos_ciclos = ? 
-
+      		SELECT * FROM tbl_tecnicos_ciclo WHERE id_tecnicos_ciclos = ? 
     `, [result.insertId]);
 		res.json({
 			success: true,
@@ -724,14 +631,13 @@ app.post('/api/ciclos/:id/tecnicos', async (req, res) => {
 		});
 	}
 });
-// Remove technician from repair cycle 
+
+//quitar tecnico del ciclo de reparacion
 app.delete('/api/tecnicos/:id', async (req, res) => {
 	try {
 		await pool.query(` 
-
-      UPDATE tbl_tecnicos_ciclo SET fecha_fin = NOW() WHERE id_tecnicos_ciclos = ? AND fecha_fin IS NULL 
-
-    `, [req.params.id]);
+    		UPDATE tbl_tecnicos_ciclo SET fecha_fin = NOW() WHERE id_tecnicos_ciclos = ? AND fecha_fin IS NULL 
+	    `, [req.params.id]);
 		res.json({
 			success: true
 		});
@@ -742,16 +648,15 @@ app.delete('/api/tecnicos/:id', async (req, res) => {
 		});
 	}
 });
-// Update cycle priority 
+
+//actualizar prioridad de ciclo
 app.post('/api/ciclos/:id/prioridad', async (req, res) => {
 	try {
 		const {
 			prioridad
 		} = req.body;
 		await pool.query(` 
-
-      UPDATE tbl_ciclos_reparacion SET prioridad = ? WHERE id_ciclo_reparacion = ? 
-
+    		UPDATE tbl_ciclos_reparacion SET prioridad = ? WHERE id_ciclo_reparacion = ? 
     `, [prioridad, req.params.id]);
 		res.json({
 			success: true
@@ -763,29 +668,25 @@ app.post('/api/ciclos/:id/prioridad', async (req, res) => {
 		});
 	}
 });
-// Add detail/fault to cycle 
+
+//agregar detalle of falla al ciclo
 app.post('/api/ciclos/:id/agregar-detalle', async (req, res) => {
 	try {
 		const {
 			falla_id,
 			falla_descripcion
 		} = req.body;
-		// Get current fault info 
+		
+		//obtener datos de la falla actual
 		const [current] = await pool.query(` 
-
-      SELECT falla_descripcion FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
-
-    `, [req.params.id]);
-		// Append new fault to existing 
+    		SELECT falla_descripcion FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
+	    `, [req.params.id]);
+		//agregar nueva falla a la ya eixstente
 		const newDescripcion = current[0].falla_descripcion ? `${current[0].falla_descripcion}; ${falla_descripcion}` : falla_descripcion;
 		await pool.query(` 
-
-      UPDATE tbl_ciclos_reparacion 
-
-      SET falla_id = COALESCE(falla_id, ?), falla_descripcion = ? 
-
-      WHERE id_ciclo_reparacion = ? 
-
+    		UPDATE tbl_ciclos_reparacion 
+    			SET falla_id = COALESCE(falla_id, ?), falla_descripcion = ? 
+    		WHERE id_ciclo_reparacion = ? 
     `, [falla_id, newDescripcion, req.params.id]);
 		res.json({
 			success: true
@@ -797,7 +698,8 @@ app.post('/api/ciclos/:id/agregar-detalle', async (req, res) => {
 		});
 	}
 });
-// Set cycle as pending 
+
+//poner el ciclo como pendiente
 app.post('/api/ciclos/:id/pendiente', async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
@@ -809,9 +711,7 @@ app.post('/api/ciclos/:id/pendiente', async (req, res) => {
 		} = req.body;
 		// Get cycle info 
 		const [ciclo] = await connection.query(` 
-
-      SELECT troquel_id FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
-
+    		SELECT troquel_id FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? 
     `, [req.params.id]);
 		if (ciclo.length === 0) {
 			await connection.rollback();
@@ -819,32 +719,22 @@ app.post('/api/ciclos/:id/pendiente', async (req, res) => {
 				error: 'Repair cycle not found'
 			});
 		}
-		// Close current cycle with pending status 
+
+		//cerrar ciclo actual con estado pendiente
 		await connection.query(` 
-
-      UPDATE tbl_ciclos_reparacion 
-
-      SET 
-
-        fecha_fin_reparacion = NOW(), 
-
-        status_salida = 'Pendiente', 
-
-        empleado_cierre = ?, 
-
-        comentarios_salida = ?, 
-
-        ciclo_activo = FALSE 
-
-      WHERE id_ciclo_reparacion = ? 
-
-    `, [empleado, `Pendiente hasta: ${fecha_liberacion}. Motivo: ${motivo}`, req.params.id]);
-		// Update troquel status 
+			UPDATE tbl_ciclos_reparacion 
+    			SET 
+		        fecha_fin_reparacion = NOW(), 
+		        status_salida = 'Pendiente', 
+        		empleado_cierre = ?, 
+		        comentarios_salida = ?, 
+		        ciclo_activo = FALSE 
+	    	WHERE id_ciclo_reparacion = ? 
+    	`, [empleado, `Pendiente hasta: ${fecha_liberacion}. Motivo: ${motivo}`, req.params.id]);
+		//actualizar el estado del troquel
 		await connection.query(` 
-
-      UPDATE tbl_troqueles SET estado = 'Pendiente' WHERE id_troquel = ? 
-
-    `, [ciclo[0].troquel_id]);
+    		UPDATE tbl_troqueles SET estado = 'Pendiente' WHERE id_troquel = ? 
+	    `, [ciclo[0].troquel_id]);
 		await connection.commit();
 		res.json({
 			success: true
@@ -859,7 +749,8 @@ app.post('/api/ciclos/:id/pendiente', async (req, res) => {
 		connection.release();
 	}
 });
-// Close repair cycle 
+
+//cerrar e ciclo de reparacion
 app.post('/api/ciclos/:id/cerrar', async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
@@ -870,58 +761,40 @@ app.post('/api/ciclos/:id/cerrar', async (req, res) => {
 			comentarios,
 			folio
 		} = req.body;
-		// Get cycle to find troquel_id 
+		//obtener el ciclo para encontrar el id del troquel
 		const [ciclo] = await connection.query(` 
-
-      SELECT troquel_id FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
-
-    `, [req.params.id]);
+	    	SELECT troquel_id FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
+    	`, [req.params.id]);
 		if (ciclo.length === 0) {
 			await connection.rollback();
 			return res.status(404).json({
 				error: 'Active repair cycle not found'
 			});
 		}
-		// Close the repair cycle 
+		//cerrar el ciclo de reparacion
 		await connection.query(` 
-
-      UPDATE tbl_ciclos_reparacion 
-
-      SET 
-
-        fecha_fin_reparacion = NOW(), 
-
-        status_salida = ?, 
-
-        empleado_cierre = ?, 
-
-        comentarios_salida = ?, 
-
-        folio_salida = ?, 
-
-        fecha_termino_trabajo = COALESCE(fecha_termino_trabajo, NOW()), 
-
-        ciclo_activo = FALSE 
-
-      WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
-
-    `, [status_salida, empleado_cierre, comentarios || null, folio || null, req.params.id]);
-		// Close all technician assignments 
+    		UPDATE tbl_ciclos_reparacion 
+    			SET 
+        			fecha_fin_reparacion = NOW(), 
+			        status_salida = ?, 
+			        empleado_cierre = ?, 
+			        comentarios_salida = ?, 
+			        folio_salida = ?, 
+			        fecha_termino_trabajo = COALESCE(fecha_termino_trabajo, NOW()), 
+			        ciclo_activo = FALSE 
+	    		WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE 
+	    `, [status_salida, empleado_cierre, comentarios || null, folio || null, req.params.id]);
+	
+		//cerrar todas las asignaciones de tecnicos
 		await connection.query(` 
-
-      UPDATE tbl_tecnicos_ciclo 
-
-      SET fecha_fin = NOW() 
-
-      WHERE ciclo_id = ? AND fecha_fin IS NULL 
-
-    `, [req.params.id]);
-		// Update troquel status 
+    		UPDATE tbl_tecnicos_ciclo 
+    			SET fecha_fin = NOW() 
+    				WHERE ciclo_id = ? AND fecha_fin IS NULL 
+	    `, [req.params.id]);
+		//actualizar el estado del troquel
 		await connection.query(` 
-
-      UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ? 
-
-    `, [status_salida, ciclo[0].troquel_id]);
+    		UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ? 
+	    `, [status_salida, ciclo[0].troquel_id]);
 		await connection.commit();
 		res.json({
 			success: true,
@@ -937,8 +810,9 @@ app.post('/api/ciclos/:id/cerrar', async (req, res) => {
 		connection.release();
 	}
 });
-// ==================== TROQUEL ACTIONS & HISTORY ==================== 
-// Record action and start new cycle 
+
+//acciones de troquel e historial
+//registrar accion y empezar un nuevo ciclo
 app.post('/api/troqueles/:id/action', async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
@@ -955,14 +829,12 @@ app.post('/api/troqueles/:id/action', async (req, res) => {
 			grupo,
 			new_status
 		} = req.body;
-		// Get troquel info 
+
+		//obtener info de troquel
 		const [troquelInfo] = await connection.query(` 
-
-      SELECT id_troquel as troquel_id, nombre, modelo, estado as status, prensa_asignada as prensa_actual 
-
-      FROM tbl_troqueles WHERE id_troquel = ? 
-
-    `, [req.params.id]);
+    		SELECT id_troquel as troquel_id, nombre, modelo, estado as status, prensa_asignada as prensa_actual 
+    		FROM tbl_troqueles WHERE id_troquel = ? 
+	    `, [req.params.id]);
 		if (troquelInfo.length === 0) {
 			await connection.rollback();
 			return res.status(404).json({
@@ -974,72 +846,54 @@ app.post('/api/troqueles/:id/action', async (req, res) => {
 		let falla_descripcion = null;
 		if (falla_id) {
 			const [falla] = await connection.query(` 
-
-        SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ? 
-
-      `, [falla_id]);
+		        SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ? 
+	    	`, [falla_id]);
 			if (falla.length > 0) {
 				falla_descripcion = falla[0].descripcion;
 			}
 		}
-		// Insert into history 
+
+		//insertar en el historial
 		const [historyResult] = await connection.query(` 
-
-      INSERT INTO tbl_historial ( 
-
-        troquel_id, tipo_registro, action_type, id_falla, modelo_nuevo, 
-
-        folio, comentarios, empleado_troquel, nivel_setup, grupo 
-
-      ) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?) 
-
-    `, [
+    	INSERT INTO tbl_historial ( 
+        	troquel_id, tipo_registro, action_type, id_falla, modelo_nuevo, 
+        	folio, comentarios, empleado_troquel, nivel_setup, grupo 
+    	) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?) 
+	    `, [
 			req.params.id, tipo_accion, falla_id || null, modelo_nuevo_id || null,
 			folio, comentarios || null, empleado, nivel || null, grupo || null
 		]);
-		// Update troquel status 
+
+		//actualizar estatus del troquel
 		if (new_status) {
 			await connection.query(` 
+        	UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ? 
+    	`, [new_status, req.params.id]);
 
-        UPDATE tbl_troqueles SET estado = ? WHERE id_troquel = ? 
-
-      `, [new_status, req.params.id]);
-			// If changing to Reparando, create new repair cycle 
+			//si esta cambiando a reparando, crear nuevo ciclo de reparacion 
 			if (new_status === 'Reparando') {
-				// Map action type to motivo_entrada enum 
+				//mapear el tipo de accion del motivo de entrada
 				let motivo_entrada = 'Otro';
 				if (tipo_accion === 'Falla de Troquel') motivo_entrada = 'Falla de Troquel';
 				else if (tipo_accion === 'Limpieza General') motivo_entrada = 'Limpieza General';
 				else if (tipo_accion === 'Cambio de Modelo') motivo_entrada = 'Cambio de Modelo';
-				// Check for existing active cycles 
+				//revisar por ciclos activos existentes
 				const [existingCycle] = await connection.query(` 
-
-          SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion 
-
-          WHERE troquel_id = ? AND ciclo_activo = TRUE 
-
-        `, [req.params.id]);
+        			SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion 
+        				WHERE troquel_id = ? AND ciclo_activo = TRUE 
+		        `, [req.params.id]);
 				if (existingCycle.length === 0) {
-					// Create new repair cycle 
+					//crear nuevo ciclo de reparacion
 					await connection.query(` 
-
-            INSERT INTO tbl_ciclos_reparacion ( 
-
-              troquel_id, troquel_nombre, modelo, 
-
-              fecha_inicio_reparacion, motivo_entrada, 
-
-              falla_id, falla_descripcion, folio_entrada, 
-
-              empleado_registro, comentarios_entrada, status_anterior, 
-
-              prensa_origen, nivel_reparacion, grupo_reparacion, 
-
-              fecha_bajado, ciclo_activo 
-
-            ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
-
-          `, [
+			            INSERT INTO tbl_ciclos_reparacion ( 
+            				troquel_id, troquel_nombre, modelo, 
+            				fecha_inicio_reparacion, motivo_entrada, 
+            				falla_id, falla_descripcion, folio_entrada, 
+            				empleado_registro, comentarios_entrada, status_anterior, 
+            				prensa_origen, nivel_reparacion, grupo_reparacion, 
+            				fecha_bajado, ciclo_activo 
+            			) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
+        			`, [
 						req.params.id,
 						troquel.nombre,
 						troquel.modelo,
@@ -1072,7 +926,7 @@ app.post('/api/troqueles/:id/action', async (req, res) => {
 		connection.release();
 	}
 });
-// Create new troquel 
+//crear nuevo troquel 
 app.post('/api/troqueles', async (req, res) => {
 	try {
 		const {
@@ -1122,26 +976,16 @@ app.post('/api/troqueles', async (req, res) => {
 			});
 		}
 		await pool.query(` 
-
-      INSERT INTO tbl_troqueles ( 
-
-        id_troquel, nombre, estado, año, modelo, 
-
-        golpes, golpes_acum, capacidad_golpes, rectificaciones, 
-
-        tipo_troquel, ubicacion, prensa_asignada, numero_serie, 
-
-        proveedor, peso_kg, dimensiones, material_base, 
-
-        num_estaciones, cavidades, color, ciclos, 
-
-        n_parte_1, n_parte_2, n_parte_3, n_parte_4, n_parte_5, n_parte_6, 
-
-        comentarios, image_url 
-
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-
-    `, [
+    		INSERT INTO tbl_troqueles ( 
+        		id_troquel, nombre, estado, año, modelo, 
+        		golpes, golpes_acum, capacidad_golpes, rectificaciones, 
+        		tipo_troquel, ubicacion, prensa_asignada, numero_serie, 
+        		proveedor, peso_kg, dimensiones, material_base, 
+        		num_estaciones, cavidades, color, ciclos, 
+        		n_parte_1, n_parte_2, n_parte_3, n_parte_4, n_parte_5, n_parte_6, 
+        		comentarios, image_url 
+    		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+	    `, [
 			id, nombre, estado, año, modelo,
 			golpes, golpes_acum, capacidad_golpes, rectificaciones,
 			tipo_troquel, ubicacion, prensa_asignada, numero_serie,
@@ -1163,7 +1007,8 @@ app.post('/api/troqueles', async (req, res) => {
 		});
 	}
 });
-// Update troquel 
+
+//actualizar troquel
 app.put('/api/troqueles/:id', async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -1207,26 +1052,16 @@ app.put('/api/troqueles/:id', async (req, res) => {
 				image_url = current.image_url
 		} = req.body;
 		await pool.query(` 
-
-      UPDATE tbl_troqueles SET 
-
-        nombre = ?, estado = ?, año = ?, modelo = ?, 
-
-        golpes = ?, golpes_acum = ?, capacidad_golpes = ?, rectificaciones = ?, 
-
-        tipo_troquel = ?, ubicacion = ?, prensa_asignada = ?, numero_serie = ?, 
-
-        proveedor = ?, peso_kg = ?, dimensiones = ?, material_base = ?, 
-
-        num_estaciones = ?, cavidades = ?, color = ?, ciclos = ?, 
-
-        n_parte_1 = ?, n_parte_2 = ?, n_parte_3 = ?, n_parte_4 = ?, n_parte_5 = ?, n_parte_6 = ?, 
-
-        comentarios = ?, image_url = ? 
-
-      WHERE id_troquel = ? 
-
-    `, [
+    		UPDATE tbl_troqueles SET 
+        		nombre = ?, estado = ?, año = ?, modelo = ?, 
+        		golpes = ?, golpes_acum = ?, capacidad_golpes = ?, rectificaciones = ?, 
+		        tipo_troquel = ?, ubicacion = ?, prensa_asignada = ?, numero_serie = ?, 
+		        proveedor = ?, peso_kg = ?, dimensiones = ?, material_base = ?, 
+		        num_estaciones = ?, cavidades = ?, color = ?, ciclos = ?, 
+		        n_parte_1 = ?, n_parte_2 = ?, n_parte_3 = ?, n_parte_4 = ?, n_parte_5 = ?, n_parte_6 = ?, 
+		        comentarios = ?, image_url = ? 
+		    WHERE id_troquel = ? 
+	    `, [
 			nombre, estado, año, modelo,
 			golpes, golpes_acum, capacidad_golpes, rectificaciones,
 			tipo_troquel, ubicacion, prensa_asignada, numero_serie,
@@ -1249,7 +1084,8 @@ app.put('/api/troqueles/:id', async (req, res) => {
 		});
 	}
 });
-// Update troquel status only 
+
+//actualizar solamente el estado del troquel
 app.patch('/api/troqueles/:id/status', async (req, res) => {
 	try {
 		const {
@@ -1268,7 +1104,8 @@ app.patch('/api/troqueles/:id/status', async (req, res) => {
 		});
 	}
 });
-// Delete troquel 
+
+//eliminar troquel
 app.delete('/api/troqueles/:id', async (req, res) => {
 	try {
 		const id = req.params.id;
@@ -1293,30 +1130,21 @@ app.delete('/api/troqueles/:id', async (req, res) => {
 		});
 	}
 });
-// Get troquel history 
+
+//obtener historial de troquel
 app.get('/api/troqueles/:id/history', async (req, res) => {
 	try {
 		const [history] = await pool.query(` 
-
-      SELECT 
-
-        h.*, 
-
-        fc.descripcion as falla_descripcion, 
-
-        ap.descripcion as motivo_descripcion 
-
-      FROM tbl_historial h 
-
-      LEFT JOIN tbl_fallas_catalogo fc ON h.id_falla = fc.id_fallas_catalogo 
-
-      LEFT JOIN tbl_asistencia_prensa ap ON h.id_falla = ap.id_asistencia_prensa 
-
-      WHERE h.troquel_id = ? 
-
-      ORDER BY h.creado_el DESC 
-
-    `, [req.params.id]);
+    	SELECT 
+	        h.*, 
+	        fc.descripcion as falla_descripcion, 
+	        ap.descripcion as motivo_descripcion 
+	    FROM tbl_historial h 
+	    	LEFT JOIN tbl_fallas_catalogo fc ON h.id_falla = fc.id_fallas_catalogo 
+    		LEFT JOIN tbl_asistencia_prensa ap ON h.id_falla = ap.id_asistencia_prensa 
+    	WHERE h.troquel_id = ? 
+    		ORDER BY h.creado_el DESC 
+    	`, [req.params.id]);
 		res.json(history.map(h => ({
 			id: h.id_historial,
 			tipo_registro: h.tipo_registro || 'legacy',
@@ -1340,7 +1168,8 @@ app.get('/api/troqueles/:id/history', async (req, res) => {
 		});
 	}
 });
-// ==================== STATISTICS & SUMMARIES ==================== 
+
+//estadisticas y resumen
 app.get('/api/estadisticas', async (req, res) => {
 	try {
 		const [total] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles');
@@ -1361,19 +1190,15 @@ app.get('/api/estadisticas', async (req, res) => {
 		});
 	}
 });
+
 app.get('/api/priority-repairs', async (req, res) => {
 	try {
 		const [repairs] = await pool.query(` 
-
-      SELECT pr.prioridad, t.id_troquel, t.nombre 
-
-      FROM tbl_prioridad_reparacion pr 
-
-      JOIN tbl_troqueles t ON pr.id_troquel = t.id_troquel 
-
-      ORDER BY pr.prioridad 
-
-    `);
+    		SELECT pr.prioridad, t.id_troquel, t.nombre 
+    			FROM tbl_prioridad_reparacion pr 
+    				JOIN tbl_troqueles t ON pr.id_troquel = t.id_troquel 
+    			ORDER BY pr.prioridad 
+	    `);
 		res.json(repairs.map(r => ({
 			priority: r.prioridad,
 			id: r.id_troquel,
@@ -1387,6 +1212,7 @@ app.get('/api/priority-repairs', async (req, res) => {
 		});
 	}
 });
+
 app.get('/api/troqueles-summary', async (req, res) => {
 	try {
 		const [summary] = await pool.query('SELECT etiqueta, count, goal, perf FROM tbl_resumen_troqueles ORDER BY FIELD(etiqueta, "UP", "BACKUP", "TOTAL")');
@@ -1398,7 +1224,7 @@ app.get('/api/troqueles-summary', async (req, res) => {
 				perf: s.perf
 			})));
 		} else {
-			// Fallback to calculated values 
+			//fallback para calcular valores
 			const [total] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles');
 			const [up] = await pool.query("SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'En prensa'");
 			const [backup] = await pool.query("SELECT COUNT(*) as count FROM tbl_troqueles WHERE estado = 'Listo-BackUp'");
@@ -1427,7 +1253,8 @@ app.get('/api/troqueles-summary', async (req, res) => {
 		});
 	}
 });
-// ==================== LEGACY ACTION ENDPOINTS (UPDATED WITH FIX) ==================== 
+
+//endpoints antiguos querse con ellos para compatibilidad
 app.post('/api/actions/baja-troquel', async (req, res) => {
 	const connection = await pool.getConnection();
 	try {
@@ -1450,7 +1277,8 @@ app.post('/api/actions/baja-troquel', async (req, res) => {
 				message: 'Troquel ID, empleado y folio son requeridos'
 			});
 		}
-		// Get troquel info 
+
+		//obtener ifno del troquel
 		const [troquelInfo] = await connection.query('SELECT nombre, modelo, estado, prensa_asignada FROM tbl_troqueles WHERE id_troquel = ?',
 			[troquel_id]);
 		if (troquelInfo.length === 0) {
@@ -1461,7 +1289,8 @@ app.post('/api/actions/baja-troquel', async (req, res) => {
 			});
 		}
 		const troquel = troquelInfo[0];
-		// Get fault description if applicable 
+		
+		//obtener descripcion de la falla si aplica
 		let falla_descripcion = null;
 		if (falla_id) {
 			const [falla] = await connection.query('SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ?',
@@ -1470,46 +1299,34 @@ app.post('/api/actions/baja-troquel', async (req, res) => {
 				falla_descripcion = falla[0].descripcion;
 			}
 		}
-		// Insert into history 
+
+		//insertar en el historial
 		await connection.query(` 
-
-      INSERT INTO tbl_historial ( 
-
-        troquel_id, tipo_registro, action_type, folio, id_falla, 
-
-        modelo_nuevo, nivel_setup, grupo, comentarios, empleado_troquel 
-
-      ) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?) 
-
-    `, [
+    		INSERT INTO tbl_historial ( 
+        		troquel_id, tipo_registro, action_type, folio, id_falla, 
+		        modelo_nuevo, nivel_setup, grupo, comentarios, empleado_troquel 
+    		) VALUES (?, 'baja_troquel', ?, ?, ?, ?, ?, ?, ?, ?) 
+	    `, [
 			troquel_id, action_type, folio.trim(), falla_id || null,
 			modelo_nuevo || null, nivel_setup || null, grupo || null,
 			comentarios || null, empleado.trim()
 		]);
-		// Update status to Reparando 
+		//actualizar estado a reparando
 		await connection.query("UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?",
 			[troquel_id]);
-		// **FIX: Create repair cycle** 
+		//crear ciclo de reparacion 
 		const [existingCycle] = await connection.query('SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion WHERE troquel_id = ? AND ciclo_activo = TRUE',
 			[troquel_id]);
 		if (existingCycle.length === 0) {
 			await connection.query(` 
-
-        INSERT INTO tbl_ciclos_reparacion ( 
-
-          troquel_id, troquel_nombre, modelo, fecha_inicio_reparacion, 
-
-          motivo_entrada, falla_id, falla_descripcion, folio_entrada, 
-
-          empleado_registro, comentarios_entrada, status_anterior, 
-
-          prensa_origen, nivel_reparacion, grupo_reparacion, 
-
-          fecha_bajado, ciclo_activo 
-
-        ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
-
-      `, [
+        		INSERT INTO tbl_ciclos_reparacion ( 
+        			troquel_id, troquel_nombre, modelo, fecha_inicio_reparacion, 
+        			motivo_entrada, falla_id, falla_descripcion, folio_entrada, 
+        			empleado_registro, comentarios_entrada, status_anterior, 
+        			prensa_origen, nivel_reparacion, grupo_reparacion, 
+        			fecha_bajado, ciclo_activo 
+        		) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE) 
+    		`, [
 				troquel_id, troquel.nombre, troquel.modelo, action_type,
 				falla_id || null, falla_descripcion, folio.trim(), empleado.trim(),
 				comentarios || null, troquel.estado, troquel.prensa_asignada,
@@ -1532,6 +1349,7 @@ app.post('/api/actions/baja-troquel', async (req, res) => {
 		connection.release();
 	}
 });
+
 app.post('/api/actions/asistencia-prensa', async (req, res) => {
 	try {
 		const {
@@ -1565,7 +1383,7 @@ app.post('/api/actions/asistencia-prensa', async (req, res) => {
 				message: 'Motivo de asistencia requerido'
 			});
 		}
-		// Get motivo description for action_type 
+		//obtener descricpcion de motivo para el tipo de accion
 		let motivoDescription = 'Asistencia en Prensa';
 		try {
 			const [motivos] = await pool.query('SELECT descripcion FROM tbl_asistencia_prensa WHERE id_asistencia_prensa = ?',
@@ -1576,28 +1394,18 @@ app.post('/api/actions/asistencia-prensa', async (req, res) => {
 		} catch (e) {
 			console.log('Could not get motivo description:', e.message);
 		}
-		// Insert into history 
+		//insertar al historial
 		const [result] = await pool.query(` 
-
-      INSERT INTO tbl_historial ( 
-
-        troquel_id, 
-
-        tipo_registro, 
-
-        action_type, 
-
-        folio, 
-
-        motivo, 
-
-        comentarios, 
-
-        empleado_asistencia 
-
-      ) VALUES (?, 'asistencia_prensa', ?, ?, ?, ?, ?) 
-
-    `, [
+    		INSERT INTO tbl_historial ( 
+        		troquel_id, 
+        		tipo_registro, 
+		        action_type, 
+		        folio, 
+		        motivo, 
+		        comentarios, 
+		        empleado_asistencia 
+	    	) VALUES (?, 'asistencia_prensa', ?, ?, ?, ?, ?) 
+	    `, [
 			troquel_id,
 			motivoDescription,
 			folio.trim(),
@@ -1618,7 +1426,8 @@ app.post('/api/actions/asistencia-prensa', async (req, res) => {
 		});
 	}
 });
-// Legacy compatibility endpoint 
+
+//compatibilidad antigua con el endpoint
 app.post('/api/actions', async (req, res) => {
 	try {
 		const {
@@ -1635,19 +1444,14 @@ app.post('/api/actions', async (req, res) => {
 			empleado_troquel,
 			empleado_asistencia
 		} = req.body;
+	
 		const [result] = await pool.query(` 
-
-      INSERT INTO tbl_historial ( 
-
-        troquel_id, tipo_registro, action_type, folio, id_falla, modelo_nuevo, 
-
-        nivel_setup, grupo, comentarios, motivo, comentarios_supervisor, 
-
-        empleado_troquel, empleado_asistencia 
-
-      ) VALUES (?, 'legacy', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-
-    `, [
+    		INSERT INTO tbl_historial ( 
+	        	troquel_id, tipo_registro, action_type, folio, id_falla, modelo_nuevo, 
+	        	nivel_setup, grupo, comentarios, motivo, comentarios_supervisor, 
+	        	empleado_troquel, empleado_asistencia 
+	    	) VALUES (?, 'legacy', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+	    `, [
 			troquel_id, action_type, folio || null, falla_id || null, modelo_nuevo,
 			nivel_setup, grupo, comentarios, motivo || null, comentarios_supervisor,
 			empleado_troquel || null, empleado_asistencia || null
@@ -1664,7 +1468,8 @@ app.post('/api/actions', async (req, res) => {
 		});
 	}
 });
-// ==================== SEARCH ==================== 
+
+//buscar
 app.get('/api/search', async (req, res) => {
 	try {
 		const {
@@ -1688,21 +1493,19 @@ app.get('/api/search', async (req, res) => {
 		});
 	}
 });
-// ==================== HELPER FUNCTIONS ==================== 
+
+//funciones  complementarias
 async function logChange(pool, troquelId, campo, valorAnterior, valorNuevo) {
 	try {
 		await pool.query(` 
-
-      INSERT INTO tbl_troqueles_historial (troquel_id, campo_modificado, valor_anterior, valor_nuevo) 
-
-      VALUES (?, ?, ?, ?) 
-
-    `, [troquelId, campo, valorAnterior, valorNuevo]);
+    		INSERT INTO tbl_troqueles_historial (troquel_id, campo_modificado, valor_anterior, valor_nuevo) 
+	    	VALUES (?, ?, ?, ?) 
+	    `, [troquelId, campo, valorAnterior, valorNuevo]);
 	} catch (error) {
 		console.error('Error logging change:', error);
 	}
 }
-// ==================== START SERVER ==================== 
+//inicializar srvidor
 app.listen(PORT, () => {
 	console.log(`\nE-Kanban Toolroom API Server running on port ${PORT}`);
 	console.log(`\nAvailable endpoints:`);
