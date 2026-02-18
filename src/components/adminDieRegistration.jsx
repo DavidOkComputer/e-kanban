@@ -1858,33 +1858,35 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
                     {/* Estadísticas */}     
                     <div style={styles.statsRow}>     
                         <div style={styles.statCard}>     
-                            <div style={{ ...styles.statIcon, background: 'rgba(0, 255, 136, 0.15)', color: '#00ff88' }}>⚙</div>     
+                            <div style={{ ...styles.statIcon, background: 'rgba(0, 255, 136, 0.15)', color: '#00ff88' }}><div style={styles.statValue}>{stats.total}</div>  </div>     
                             <div>     
-                                <div style={styles.statValue}>{stats.total}</div>     
                                 <div style={styles.statLabel}>Total Troqueles</div>     
                             </div>     
                         </div>     
 
                         <div style={styles.statCard}>     
-                            <div style={{ ...styles.statIcon, background: 'rgba(100, 255, 100, 0.15)', color: '#64ff64' }}>✓</div>     
-                            <div>     
+                            <div style={{ ...styles.statIcon, background: 'rgba(100, 255, 100, 0.15)', color: '#64ff64' }}>
                                 <div style={styles.statValue}>{stats.activos}</div>     
+                            </div>     
+                            <div>    
                                 <div style={styles.statLabel}>Activos</div>     
                             </div>     
                         </div>     
 
                         <div style={styles.statCard}>     
-                            <div style={{ ...styles.statIcon, background: 'rgba(255, 200, 0, 0.15)', color: '#ffc800' }}></div>     
+                            <div style={{ ...styles.statIcon, background: 'rgba(255, 200, 0, 0.15)', color: '#ffc800' }}>
+                                <div style={styles.statValue}>{stats.reparando}</div> 
+                            </div>     
                             <div>     
-                                <div style={styles.statValue}>{stats.reparando}</div>     
                                 <div style={styles.statLabel}>En Reparación</div>     
                             </div>     
                         </div>     
 
                         <div style={styles.statCard}>     
-                            <div style={{ ...styles.statIcon, background: 'rgba(255, 107, 107, 0.15)', color: '#ff6b6b' }}>⏳</div>     
-                            <div>     
+                            <div style={{ ...styles.statIcon, background: 'rgba(255, 107, 107, 0.15)', color: '#ff6b6b' }}>
                                 <div style={styles.statValue}>{stats.pendientes}</div>     
+                            </div>     
+                            <div>    
                                 <div style={styles.statLabel}>Pendientes</div>     
                             </div>     
                         </div>     
@@ -2197,85 +2199,8 @@ const AdminDieRegistration = ({onNavigateBack, user }) => {
                                     style={getInputStyle('tonelaje')}  
                                     placeholder="Ej: 200 ton"  
                                 />  
-                            </div>  
+                            </div>   
 
-                            <div style={styles.inputGroup}>  
-                                <label style={styles.label}>Año de Fabricación</label>  
-                                <select name="año_fabricacion"  
-                                    value={prensaFormData.año_fabricacion}  
-                                    onChange={handlePrensaInputChange}  
-                                    onFocus={() => handleFocus('año_fabricacion')}  
-                                    onBlur={handleBlur}  
-                                    style={getSelectStyle('año_fabricacion')}  
-                                >  
-                                    {years.map(y => (  
-                                        <option key={y} value={y}>{y}</option>  
-                                    ))}  
-                                </select>  
-                            </div>  
-
-                            <div style={styles.inputGroup}>  
-                                <label style={styles.label}>Número de Serie</label>  
-                                <input type="text"  
-                                    name="numero_serie"  
-                                    value={prensaFormData.numero_serie}  
-                                    onChange={handlePrensaInputChange}  
-                                    onFocus={() => handleFocus('numero_serie')}  
-                                    onBlur={handleBlur}  
-                                    style={getInputStyle('numero_serie')}  
-                                    placeholder="Ej: SN-2024-001"  
-                                    maxLength={100}  
-                                />  
-                            </div>  
-
-                            <div style={styles.inputGroup}>  
-                                <label style={styles.label}>Velocidad Máx. (SPM)</label>  
-                                <input type="text"  
-                                    name="velocidad_max"  
-                                    value={prensaFormData.velocidad_max}  
-                                    onChange={handlePrensaInputChange}  
-                                    onFocus={() => handleFocus('velocidad_max')}  
-                                    onBlur={handleBlur}  
-                                    style={getInputStyle('velocidad_max')}  
-                                    placeholder="Ej: 60"  
-                                />  
-                            </div>  
-
-                            <div style={styles.inputGroup}>  
-                                <label style={styles.label}>Carrera (mm)</label>  
-                                <input type="text"  
-                                    name="carrera"  
-                                    value={prensaFormData.carrera}  
-                                    onChange={handlePrensaInputChange}  
-                                    onFocus={() => handleFocus('carrera')}  
-                                    onBlur={handleBlur}  
-                                    style={getInputStyle('carrera')}  
-                                    placeholder="Ej: 300"  
-                                />  
-                            </div>  
-
-                            <div style={styles.inputGroup}>  
-                                <label style={styles.label}>Área de Trabajo (mm)</label>  
-                                <input type="text"  
-                                    name="area_trabajo"  
-                                    value={prensaFormData.area_trabajo}  
-                                    onChange={handlePrensaInputChange}  
-                                    onFocus={() => handleFocus('area_trabajo')}  
-                                    onBlur={handleBlur}  
-                                    style={getInputStyle('area_trabajo')}  
-                                    placeholder="Ej: 2000x1200"  
-                                />  
-                            </div>  
-                        </div>  
-                    </CollapsibleSection>  
-
-                    {/* Mantenimiento */}  
-                    <CollapsibleSection  
-                        title="Mantenimiento"  
-                        isExpanded={prensaExpandedSections.maintenance}  
-                        onToggle={togglePrensaMaintenance}  
-                    >  
-                        <div style={styles.formGrid}>  
                             <div style={styles.inputGroup}>  
                                 <label style={styles.label}>Fecha Último Mantenimiento</label>  
                                 <input type="date"  

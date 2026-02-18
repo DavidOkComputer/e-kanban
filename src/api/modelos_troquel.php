@@ -4,16 +4,16 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
- 
+
 require_once 'cors.php';
 require_once 'db_config.php';
- 
+
 // Manejar preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
- 
+
 // Incluir conexión a base de datos
 try {
     $conn = getDBConnection();
@@ -22,9 +22,9 @@ try {
     echo json_encode(['success' => false, 'message' => 'Error de conexión a la base de datos']);
     exit();
 }
- 
+
 $method = $_SERVER['REQUEST_METHOD'];
- 
+
 switch ($method) {
     case 'GET':
         getModelos($conn);
@@ -43,7 +43,7 @@ switch ($method) {
         echo json_encode(['success' => false, 'message' => 'Método no permitido']);
         break;
 }
- 
+
 function getModelos($conn) {
     try {
         $sql = "SELECT m.id_modelo, m.nombre_modelo, m.troquel_id, m.descripcion,
@@ -76,7 +76,7 @@ function getModelos($conn) {
         echo json_encode(['success' => false, 'message' => 'Error al obtener modelos: ' . $e->getMessage()]);
     }
 }
- 
+
 function createModelo($conn) {
     try {
         $data = json_decode(file_get_contents('php://input'), true);
@@ -142,7 +142,7 @@ function createModelo($conn) {
         echo json_encode(['success' => false, 'message' => 'Error al crear modelo: ' . $e->getMessage()]);
     }
 }
- 
+
 function updateModelo($conn) {
     try {
         $data = json_decode(file_get_contents('php://input'), true);
@@ -213,7 +213,7 @@ function updateModelo($conn) {
         echo json_encode(['success' => false, 'message' => 'Error al actualizar modelo: ' . $e->getMessage()]);
     }
 }
- 
+
 function deleteModelo($conn) {
     try {
         if (empty($_GET['id'])) {
