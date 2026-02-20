@@ -44,122 +44,67 @@ export const generateYears = () => {
 	}
 	return years.reverse();
 };
+
 // Animación CSS como string   
 export const cssAnimations = `     
+	@keyframes spin {     
+    	to { transform: rotate(360deg); }     
+	}     
 
-  @keyframes spin {     
-
-    to { transform: rotate(360deg); }     
-
-  }     
-
- 
-
-  @keyframes slideIn {     
-
+	@keyframes slideIn {     
     from {     
-
-      opacity: 0;     
-
-      transform: translateY(-10px);     
-
+    	opacity: 0;     
+    	transform: translateY(-10px);     
     }     
-
- 
 
     to {     
+    	opacity: 1;     
+    	transform: translateY(0);     
+    	}     
+	}     
 
-      opacity: 1;     
 
-      transform: translateY(0);     
+	@keyframes scanLine {     
+	    0% { top: 0; opacity: 1; }     
+	    50% { opacity: 0.5; }     
+	    100% { top: 100vh; opacity: 1; }     
+	}     
 
-    }     
+	option {     
+ 	   background: #1a1a2e;     
+	    color: #fff;     
+	}     
 
-  }     
+	input[type="date"]::-webkit-calendar-picker-indicator {     
+	    filter: invert(0.8);     
+	    cursor: pointer;     
+	}     
 
- 
+	::-webkit-scrollbar {     
+	    width: 8px;     
+	    height: 8px;     
+	}     
 
-  @keyframes scanLine {     
+	::-webkit-scrollbar-track {     
+	    background: rgba(0, 0, 0, 0.2);     
+	}     
 
-    0% { top: 0; opacity: 1; }     
+	::-webkit-scrollbar-thumb {     
+	    background: rgba(0, 255, 136, 0.3);     
+	    border-radius: 4px;     
+	}     
 
-    50% { opacity: 0.5; }     
+	::-webkit-scrollbar-thumb:hover {     
+	    background: rgba(0, 255, 136, 0.5);     
+	}   
 
-    100% { top: 100vh; opacity: 1; }     
-
-  }     
-
- 
-
-  option {     
-
-    background: #1a1a2e;     
-
-    color: #fff;     
-
-  }     
-
- 
-
-  input[type="date"]::-webkit-calendar-picker-indicator {     
-
-    filter: invert(0.8);     
-
-    cursor: pointer;     
-
-  }     
-
- 
-
-  ::-webkit-scrollbar {     
-
-    width: 8px;     
-
-    height: 8px;     
-
-  }     
-
- 
-
-  ::-webkit-scrollbar-track {     
-
-    background: rgba(0, 0, 0, 0.2);     
-
-  }     
-
- 
-
-  ::-webkit-scrollbar-thumb {     
-
-    background: rgba(0, 255, 136, 0.3);     
-
-    border-radius: 4px;     
-
-  }     
-
- 
-
-  ::-webkit-scrollbar-thumb:hover {     
-
-    background: rgba(0, 255, 136, 0.5);     
-
-  }   
-
- 
-
-  html, body, #root {   
-
-    height: 100%;   
-
-    margin: 0;   
-
-    padding: 0;   
-
-  }   
-
- 
-
+	html, body, #root {   
+	    height: 100%;   
+	    margin: 0;   
+	    padding: 0;   
+	}  
 `;
+
 // Objeto principal de estilos    
 export const createStyles = () => ({
 	// Contenedor principal  
@@ -181,12 +126,9 @@ export const createStyles = () => ({
 		right: 0,
 		bottom: 0,
 		backgroundImage: `     
-
-      linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),     
-
-      linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px)     
-
-    `,
+    		linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),     
+    		linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px)     
+	    `,
 		backgroundSize: '50px 50px',
 		pointerEvents: 'none',
 		zIndex: 0,
@@ -223,9 +165,9 @@ export const createStyles = () => ({
 		gap: '16px',
 	},
 	logoIcon: {
-		width: '50px',
-		height: '50px',
-		background: 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)',
+		width: '200px',
+		height: '100px',
+		background: 'transparent',
 		borderRadius: '12px',
 		display: 'flex',
 		alignItems: 'center',

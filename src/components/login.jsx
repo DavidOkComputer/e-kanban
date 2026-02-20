@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import createStyles, { cssAnimations } from '../styles/Login.styles';
-import NidecLogo from '../assets/Nidec_Institutional_Logo_White_Version.jpg';
+import NidecLogo from '../assets/Nidec_Institutional_Logo_White_Version.png';
 
 const Login = ({ onLoginSuccess, onNavigateBack }) => {
   const styles = useMemo(() => createStyles(), []);
@@ -102,10 +102,10 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           </button>
         )}
 
-        {/*login card*/}
+        {/*tarjeta de login*/}
         <div style={styles.loginCard}>
 
-          {/* LOGO INSIDE THE CARD - on top of everything */}
+          {/*logo dentro de la tarjeta*/}
           <div style={styles.logoRectangle}>
             <img
               src={NidecLogo}
@@ -208,20 +208,8 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </button>
           </form>
 
-          <div style={styles.demoHint}>
-            <span>Demo: admin / admin123</span>
-          </div>
-
-          <div style={styles.footer}>
-            <div style={styles.securityBadge}>
-              Conexión Segura
-            </div>
-          </div>
         </div>
 
-        <div style={styles.versionInfo}>
-          E-Kanban Tool Room v1.0
-        </div>
       </div>
 
       <style>{cssAnimations}</style>

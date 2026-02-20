@@ -6,6 +6,7 @@ export const statusColors = {
 	'Listo': '#00e5ff',
 	'Reparando': '#ff4466',
 	'Pendiente': '#ffaa00',
+	'Baja':'#666666'
 };
 
 //opciones de estatus con colores 
@@ -30,6 +31,9 @@ export const statuses = [{
 }, {
 	name: 'Por reparar',
 	color: '#ffee00'
+},{
+	name: 'Baja',
+	color: '#cccccc'
 }, ];
 
 export const injectStyles = () => {

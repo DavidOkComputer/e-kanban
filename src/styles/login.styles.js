@@ -110,12 +110,12 @@ const createStyles = () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '20px',
+    padding: '10px',
   },
 
   backButton: {
     position: 'absolute',
-    top: '-60px',
+    top: '-30px',
     left: '50%',
     transform: 'translateX(-50%)',
     background: 'transparent',
@@ -137,7 +137,7 @@ const createStyles = () => ({
     background: 'rgba(15, 15, 25, 0.95)',
     borderRadius: '20px',
     border: '1px solid rgba(0, 255, 136, 0.2)',
-    padding: '40px',
+    padding: '30px',
     width: '100%',
     maxWidth: '420px',
     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
@@ -145,26 +145,22 @@ const createStyles = () => ({
     animation: 'slideIn 0.5s ease-out, glow 3s ease-in-out infinite',
   },
 
-  // ========================================
-  // LOGO RECTANGLE - inside the card, centered
-  // ========================================
   logoRectangle: {
     width: '200px',
-    height: '80px',
+    height: '100px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 auto 20px auto',
+    margin: '0 auto 10px auto',
     overflow: 'hidden',
   },
 
   logoImg: {
     maxWidth: '100%',
     maxHeight: '100%',
-    objectFit: 'contain',
+    objectFit: 'cover',
   },
 
-  // E-KANBAN text below the logo
   logoTextSection: {
     display: 'flex',
     flexDirection: 'column',
