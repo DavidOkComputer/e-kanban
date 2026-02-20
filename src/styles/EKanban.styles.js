@@ -38,8 +38,8 @@ export const injectStyles = () => {
 	style.id = 'ekanban-styles';
 	style.textContent = `  
     @keyframes neonPulse {  
-      0%, 100% { opacity: 1; box-shadow: 0 0 8px #009b4a, 0 0 16px rgba(0,255,136,0.4); }  
-      50% { opacity: 0.85; box-shadow: 0 0 4px #009b4a, 0 0 8px rgba(0,255,136,0.2); }  
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--sc, #009b4a), 0 0 16px var(--sc-fade, rgba(0,255,136,0.4)); }  
+      50% { opacity: 0.85; box-shadow: 0 0 4px var(--sc, #009b4a), 0 0 8px var(--sc-fade, rgba(0,255,136,0.2)); }  
     }  
     
     @keyframes fadeIn { 
@@ -86,7 +86,7 @@ export const injectStyles = () => {
     
     .ki:hover { 
       transform: translateY(-4px) scale(1.08); 
-      box-shadow: 0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.5) !important; 
+      box-shadow: 0 0 20px var(--sc, #00ff88), 0 0 40px var(--sc-fade, rgba(0,255,136,0.5)) !important; 
     }  
     
     .search-input:focus { 

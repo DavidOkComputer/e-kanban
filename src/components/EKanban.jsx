@@ -2838,7 +2838,7 @@ const EKanbanInternal = ({ onLogoClick, user, onLogout }) => {
 
               transition: 'all 0.3s ease', 
 
-              padding: 4, 
+              padding: 6, 
 
               display: 'flex', 
 
@@ -2846,13 +2846,13 @@ const EKanbanInternal = ({ onLogoClick, user, onLogout }) => {
 
               justifyContent: 'center', 
 
-              borderRadius: '50%', 
+              borderRadius: 10, 
 
               overflow: 'hidden', 
 
-              width: 72, 
+              width: 150, 
 
-              height: 72, 
+              height: 65, 
 
             }} 
 
@@ -3324,4 +3324,4 @@ const EKanban = (props) => {
 
  
 
-export default EKanban; 
+export default EKanban;

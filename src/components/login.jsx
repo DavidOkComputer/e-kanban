@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import createStyles, { cssAnimations } from '../styles/Login.styles';
+import NidecLogo from '../assets/Nidec_Institutional_Logo_White_Version.jpg';
 
 const Login = ({ onLoginSuccess, onNavigateBack }) => {
   const styles = useMemo(() => createStyles(), []);
@@ -46,9 +47,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
         const data = await response.json();
         
         if (data.success) {
-            //almacenar info del usuario en localstorage o manejo de estados
             localStorage.setItem('user', JSON.stringify(data.user));
-            
             onLoginSuccess && onLoginSuccess(data.user);
         } else {
             setError(data.message || 'Usuario o contraseña incorrectos');
@@ -68,11 +67,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
 
   return (
     <div style={styles.container}>
-      {/* Grid Overlay */}
       <div style={styles.gridOverlay} />
       <div style={styles.scanLine} />
 
-      {/*efecto de particulas flotantes*/}
       <div style={styles.particlesContainer}>
         {[...Array(20)].map((_, i) => (
           <div
@@ -87,9 +84,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
         ))}
       </div>
 
-      {/*contenido principal*/}
       <div style={styles.loginWrapper}>
-        {/*boton de regreso*/}
         {onNavigateBack && (
           <button
             style={styles.backButton}
@@ -107,17 +102,22 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           </button>
         )}
 
-        {/*login*/}
+        {/*login card*/}
         <div style={styles.loginCard}>
-          {/*seccion de logo*/}
-          <div style={styles.logoSection}>
-            <div style={styles.logoIcon}>
-              <span style={styles.logoSymbol}>⚙</span>
-            </div>
-            <div style={styles.logoText}>
-              <span style={styles.logoTitle}>E-KANBAN</span>
-              <span style={styles.logoSubtitle}>Administracion Tool Room</span>
-            </div>
+
+          {/* LOGO INSIDE THE CARD - on top of everything */}
+          <div style={styles.logoRectangle}>
+            <img
+              src={NidecLogo}
+              alt="Nidec ACIM"
+              style={styles.logoImg}
+            />
+          </div>
+
+          {/*seccion de texto E-KANBAN*/}
+          <div style={styles.logoTextSection}>
+            <span style={styles.logoTitle}>E-KANBAN</span>
+            <span style={styles.logoSubtitle}>Administracion Tool Room</span>
           </div>
 
           {/*titulo*/}
@@ -126,7 +126,6 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             <p style={styles.subtitle}>Ingrese sus credenciales para continuar</p>
           </div>
 
-          {/*mensaje de error*/}
           {error && (
             <div style={styles.errorMessage}>
               <span style={styles.errorIcon}>⚠</span>
@@ -134,13 +133,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </div>
           )}
 
-          {/*form de login*/}
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>
-                <span style={styles.labelIcon}></span>
-                Usuario
-              </label>
+              <label style={styles.label}>Usuario</label>
               <input
                 type="text"
                 name="username"
@@ -156,9 +151,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </div>
 
             <div style={styles.inputGroup}>
-              <label style={styles.label}>
-                Contraseña
-              </label>
+              <label style={styles.label}>Contraseña</label>
               <div style={styles.passwordWrapper}>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -215,12 +208,10 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             </button>
           </form>
 
-          {/*credenciales de prueba*/}
           <div style={styles.demoHint}>
             <span>Demo: admin / admin123</span>
           </div>
 
-          {/* Footer */}
           <div style={styles.footer}>
             <div style={styles.securityBadge}>
               Conexión Segura
@@ -228,13 +219,11 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           </div>
         </div>
 
-        {/* Version info */}
         <div style={styles.versionInfo}>
           E-Kanban Tool Room v1.0
         </div>
       </div>
 
-      {/*animacion css*/}
       <style>{cssAnimations}</style>
     </div>
   );

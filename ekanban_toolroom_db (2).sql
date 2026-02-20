@@ -17,9 +17,10 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `ekanban_toolroom_db`
---
+create Database ekanban_toolroom_db;
+
+use ekanban_toolroom_db;
+
 
 DELIMITER $$
 --

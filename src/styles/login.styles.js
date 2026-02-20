@@ -43,7 +43,6 @@ export const cssAnimations = `
 `;
 
 const createStyles = () => ({
-  // Container
   container: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f23 100%)',
@@ -56,7 +55,6 @@ const createStyles = () => ({
     justifyContent: 'center',
   },
 
-  // Grid overlay
   gridOverlay: {
     position: 'fixed',
     top: 0,
@@ -72,7 +70,6 @@ const createStyles = () => ({
     zIndex: 0,
   },
 
-  // Scan line effect
   scanLine: {
     position: 'fixed',
     top: 0,
@@ -85,7 +82,6 @@ const createStyles = () => ({
     zIndex: 1,
   },
 
-  // Particles container
   particlesContainer: {
     position: 'fixed',
     top: 0,
@@ -108,7 +104,6 @@ const createStyles = () => ({
     boxShadow: '0 0 10px #00ff88, 0 0 20px rgba(0, 255, 136, 0.5)',
   },
 
-  // Login wrapper
   loginWrapper: {
     position: 'relative',
     zIndex: 10,
@@ -118,7 +113,6 @@ const createStyles = () => ({
     padding: '20px',
   },
 
-  // Back button
   backButton: {
     position: 'absolute',
     top: '-60px',
@@ -139,7 +133,6 @@ const createStyles = () => ({
     whiteSpace: 'nowrap',
   },
 
-  // Login card
   loginCard: {
     background: 'rgba(15, 15, 25, 0.95)',
     borderRadius: '20px',
@@ -152,34 +145,31 @@ const createStyles = () => ({
     animation: 'slideIn 0.5s ease-out, glow 3s ease-in-out infinite',
   },
 
-  // Logo section
-  logoSection: {
+  // ========================================
+  // LOGO RECTANGLE - inside the card, centered
+  // ========================================
+  logoRectangle: {
+    width: '200px',
+    height: '80px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '16px',
-    marginBottom: '32px',
+    margin: '0 auto 20px auto',
+    overflow: 'hidden',
   },
 
-  logoIcon: {
-    width: '60px',
-    height: '60px',
-    background: 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)',
-    borderRadius: '14px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 0 30px rgba(0, 255, 136, 0.4)',
+  logoImg: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'contain',
   },
 
-  logoSymbol: {
-    fontSize: '28px',
-    color: '#0a0a0a',
-  },
-
-  logoText: {
+  // E-KANBAN text below the logo
+  logoTextSection: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '32px',
   },
 
   logoTitle: {
@@ -195,9 +185,9 @@ const createStyles = () => ({
     color: '#888',
     letterSpacing: '2px',
     textTransform: 'uppercase',
+    marginTop: '6px',
   },
 
-  // Title section
   titleSection: {
     textAlign: 'center',
     marginBottom: '28px',
@@ -217,7 +207,6 @@ const createStyles = () => ({
     margin: 0,
   },
 
-  // Error message
   errorMessage: {
     background: 'rgba(255, 107, 107, 0.1)',
     border: '1px solid rgba(255, 107, 107, 0.3)',
@@ -236,7 +225,6 @@ const createStyles = () => ({
     fontSize: '16px',
   },
 
-  // Form
   form: {
     display: 'flex',
     flexDirection: 'column',
@@ -258,10 +246,6 @@ const createStyles = () => ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-  },
-
-  labelIcon: {
-    fontSize: '14px',
   },
 
   input: {
@@ -300,7 +284,6 @@ const createStyles = () => ({
     transition: 'opacity 0.2s',
   },
 
-  // Submit button
   submitButton: {
     background: 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)',
     border: 'none',
@@ -329,7 +312,6 @@ const createStyles = () => ({
     animation: 'spin 0.8s linear infinite',
   },
 
-  // Demo hint
   demoHint: {
     marginTop: '24px',
     padding: '12px 16px',
@@ -344,11 +326,6 @@ const createStyles = () => ({
     color: '#888',
   },
 
-  demoHintIcon: {
-    fontSize: '14px',
-  },
-
-  // Footer
   footer: {
     marginTop: '24px',
     display: 'flex',
@@ -364,7 +341,6 @@ const createStyles = () => ({
     opacity: 0.7,
   },
 
-  // Version info
   versionInfo: {
     marginTop: '24px',
     fontSize: '11px',
