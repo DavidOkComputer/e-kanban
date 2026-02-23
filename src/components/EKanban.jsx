@@ -7,6 +7,8 @@ import {
   styles     
 } from '../styles/EKanban.styles';    
 
+<link rel="icon" href="public/favicon.ico" type="image/x-icon"></link>
+
 import RepairModal from './repairModal';  
 import { NotificationProvider, useNotification } from '../context/NotificationContext'; 
 

@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware 
 app.use(cors({
-	origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+	origin: ['http://localhost:5173', 'http://localhost:3000','http://localhost:3001', 'http://10.109.17.87:5173', `http://localhost`,  `localhost`,`http://10.109.17.87`, `http://127.0.0.1`],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization']
@@ -17,7 +17,7 @@ app.use(express.json());
 
 //conexion a la base de datos
 const pool = mysql.createPool({
-	host: process.env.DB_HOST || '127.0.0.1',
+	host: process.env.DB_HOST || 'localhost',
 	port: process.env.DB_PORT || 3306,
 	user: process.env.DB_USER || 'root',
 	password: process.env.DB_PASSWORD || '',
@@ -180,6 +180,69 @@ app.delete('/api/modelos/:id', async (req, res) => {
 	} 
 }); 
 
+//actualizar modelo de troquel
+//actualizar modelo (ID en body - compatibilidad con frontend)
+app.put('/api/modelos', async (req, res) => {
+	try {
+		const { id_modelo, nombre_modelo, troquel_id, descripcion } = req.body;
+
+		if (!id_modelo) return res.status(400).json({ success: false, message: 'El ID del modelo es requerido' });
+		if (!nombre_modelo) return res.status(400).json({ success: false, message: 'El nombre del modelo es requerido' });
+		if (!troquel_id) return res.status(400).json({ success: false, message: 'El troquel es requerido' });
+
+		const [checkModelo] = await pool.query('SELECT id_modelo FROM tbl_modelos_troquel WHERE id_modelo = ?', [id_modelo]);
+		if (checkModelo.length === 0) return res.status(404).json({ success: false, message: 'Modelo no encontrado' });
+
+		const [dupCheck] = await pool.query(
+			'SELECT id_modelo FROM tbl_modelos_troquel WHERE nombre_modelo = ? AND troquel_id = ? AND id_modelo != ?',
+			[nombre_modelo, troquel_id, id_modelo]
+		);
+		if (dupCheck.length > 0) return res.status(400).json({ success: false, message: 'Ya existe otro modelo con ese nombre para este troquel' });
+
+		await pool.query(
+			'UPDATE tbl_modelos_troquel SET nombre_modelo = ?, troquel_id = ?, descripcion = ?, actualizado_en = NOW() WHERE id_modelo = ?',
+			[nombre_modelo, troquel_id, descripcion || null, id_modelo]
+		);
+
+		res.json({ success: true, message: 'Modelo actualizado exitosamente' });
+	} catch (err) {
+		console.error('Error updating modelo:', err);
+		res.status(500).json({ success: false, message: 'Error al actualizar modelo' });
+	}
+});
+
+//actualizar modelo (ID en URL)
+app.put('/api/modelos/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { nombre_modelo, troquel_id, descripcion } = req.body;
+
+		if (!nombre_modelo) return res.status(400).json({ success: false, message: 'El nombre del modelo es requerido' });
+		if (!troquel_id) return res.status(400).json({ success: false, message: 'El troquel es requerido' });
+
+		//verificar que el modelo existe
+		const [checkModelo] = await pool.query('SELECT id_modelo FROM tbl_modelos_troquel WHERE id_modelo = ?', [id]);
+		if (checkModelo.length === 0) return res.status(404).json({ success: false, message: 'Modelo no encontrado' });
+
+		//verificar que no exista otro modelo con el mismo nombre para el mismo troquel
+		const [dupCheck] = await pool.query(
+			'SELECT id_modelo FROM tbl_modelos_troquel WHERE nombre_modelo = ? AND troquel_id = ? AND id_modelo != ?',
+			[nombre_modelo, troquel_id, id]
+		);
+		if (dupCheck.length > 0) return res.status(400).json({ success: false, message: 'Ya existe otro modelo con ese nombre para este troquel' });
+
+		await pool.query(
+			'UPDATE tbl_modelos_troquel SET nombre_modelo = ?, troquel_id = ?, descripcion = ?, actualizado_en = NOW() WHERE id_modelo = ?',
+			[nombre_modelo, troquel_id, descripcion || null, id]
+		);
+
+		res.json({ success: true, message: 'Modelo actualizado exitosamente' });
+	} catch (err) {
+		console.error('Error updating modelo:', err);
+		res.status(500).json({ success: false, message: 'Error al actualizar modelo' });
+	}
+});
+
 app.get('/api/prensas', async (req, res) => {
 	try {
 		const [prensas] = await pool.query("SELECT id_prensa, nombre, descripcion, estado, tonelaje FROM tbl_prensas WHERE estado = 'activa' ORDER BY nombre ASC");
@@ -203,6 +266,241 @@ app.get('/api/prensas', async (req, res) => {
 		});
 	}
 });
+
+//endpoints CRUD de prensas
+//obtener todas las prensas o una prensa específica
+app.get('/api/prensas/crud', async (req, res) => {
+	try {
+		const { id, estado } = req.query;
+
+		if (id) {
+			const [prensa] = await pool.query('SELECT * FROM tbl_prensas WHERE id_prensa = ?', [id]);
+			if (prensa.length === 0) {
+				return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+			}
+			return res.json({ success: true, data: prensa[0] });
+		}
+
+		let sql = 'SELECT * FROM tbl_prensas';
+		const params = [];
+		if (estado) {
+			sql += ' WHERE estado = ?';
+			params.push(estado);
+		}
+		sql += ' ORDER BY identificador_prensa ASC';
+
+		const [prensas] = await pool.query(sql, params);
+		res.json(prensas);
+	} catch (error) {
+		console.error('Error fetching prensas crud:', error);
+		res.status(500).json({ success: false, message: 'Error al obtener prensas', error: error.message });
+	}
+});
+
+app.get('/api/prensas/crud/:id', async (req, res) => {
+	try {
+		const [prensa] = await pool.query('SELECT * FROM tbl_prensas WHERE id_prensa = ?', [req.params.id]);
+		if (prensa.length === 0) {
+			return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+		}
+		res.json({ success: true, data: prensa[0] });
+	} catch (error) {
+		console.error('Error fetching prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al obtener prensa', error: error.message });
+	}
+});
+
+//crear nueva prensa
+app.post('/api/prensas/crud', async (req, res) => {
+	try {
+		const { identificador_prensa, nombre, estado, tonelaje, marca, modelo, ubicacion, notas } = req.body;
+
+		if (!identificador_prensa || !identificador_prensa.trim()) {
+			return res.status(400).json({ success: false, message: 'El identificador de la prensa es requerido' });
+		}
+		if (!nombre || !nombre.trim()) {
+			return res.status(400).json({ success: false, message: 'El nombre de la prensa es requerido' });
+		}
+
+		const idUpper = identificador_prensa.trim().toUpperCase();
+
+		//verificar si ya existe una prensa con ese identificador
+		const [existing] = await pool.query('SELECT id_prensa FROM tbl_prensas WHERE identificador_prensa = ?', [idUpper]);
+		if (existing.length > 0) {
+			return res.status(409).json({ success: false, message: 'Ya existe una prensa con ese identificador' });
+		}
+
+		const [result] = await pool.query(`
+			INSERT INTO tbl_prensas (
+				identificador_prensa, nombre, estado, tonelaje, marca, modelo, ubicacion, notas, creado_en, actualizado_en
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+		`, [
+			idUpper, nombre.trim(), estado || 'Activa',
+			tonelaje || null, marca || null, modelo || null,
+			ubicacion || null, notas || null
+		]);
+
+		res.status(201).json({
+			success: true,
+			message: 'Prensa registrada exitosamente',
+			id_prensa: result.insertId,
+			identificador_prensa: idUpper
+		});
+	} catch (error) {
+		console.error('Error creating prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al crear la prensa', error: error.message });
+	}
+});
+
+//actualizar prensa
+//actualizar prensa (ID en body - compatibilidad con frontend)
+app.put('/api/prensas/crud', async (req, res) => {
+	try {
+		const data = req.body;
+		const id = data.id_prensa;
+
+		if (!id) {
+			return res.status(400).json({ success: false, message: 'El ID de la prensa es requerido para actualizar' });
+		}
+
+		const [existing] = await pool.query('SELECT id_prensa FROM tbl_prensas WHERE id_prensa = ?', [id]);
+		if (existing.length === 0) {
+			return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+		}
+
+		const allowedFields = ['nombre', 'estado', 'tonelaje', 'marca', 'modelo', 'ubicacion', 'notas'];
+		const updates = [];
+		const params = [];
+
+		for (const field of allowedFields) {
+			if (data[field] !== undefined) {
+				updates.push(`${field} = ?`);
+				params.push(data[field]);
+			}
+		}
+
+		if (updates.length === 0) {
+			return res.status(400).json({ success: false, message: 'No hay datos para actualizar' });
+		}
+
+		updates.push('actualizado_en = NOW()');
+		params.push(id);
+
+		await pool.query(`UPDATE tbl_prensas SET ${updates.join(', ')} WHERE id_prensa = ?`, params);
+
+		res.json({ success: true, message: 'Prensa actualizada exitosamente', rows_affected: 1 });
+	} catch (error) {
+		console.error('Error updating prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al actualizar la prensa', error: error.message });
+	}
+});
+
+//actualizar prensa (ID en URL)
+app.put('/api/prensas/crud/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+		const data = req.body;
+
+		const [existing] = await pool.query('SELECT id_prensa FROM tbl_prensas WHERE id_prensa = ?', [id]);
+		if (existing.length === 0) {
+			return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+		}
+
+		const allowedFields = ['nombre', 'estado', 'tonelaje', 'marca', 'modelo', 'ubicacion', 'notas'];
+		const updates = [];
+		const params = [];
+
+		for (const field of allowedFields) {
+			if (data[field] !== undefined) {
+				updates.push(`${field} = ?`);
+				params.push(data[field]);
+			}
+		}
+
+		if (updates.length === 0) {
+			return res.status(400).json({ success: false, message: 'No hay datos para actualizar' });
+		}
+
+		updates.push('actualizado_en = NOW()');
+		params.push(id);
+
+		await pool.query(`UPDATE tbl_prensas SET ${updates.join(', ')} WHERE id_prensa = ?`, params);
+
+		res.json({ success: true, message: 'Prensa actualizada exitosamente' });
+	} catch (error) {
+		console.error('Error updating prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al actualizar la prensa', error: error.message });
+	}
+});
+
+//eliminar prensa (ID en query param - compatibilidad con frontend)
+app.delete('/api/prensas/crud', async (req, res) => {
+	try {
+		const id = req.query.id;
+		if (!id) {
+			return res.status(400).json({ success: false, message: 'El ID de la prensa es requerido' });
+		}
+
+		const [existing] = await pool.query('SELECT id_prensa, identificador_prensa FROM tbl_prensas WHERE id_prensa = ?', [id]);
+		if (existing.length === 0) {
+			return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+		}
+
+		const identificador = existing[0].identificador_prensa;
+
+		const [troquelesCount] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles WHERE prensa_asignada = ?', [identificador]);
+		const desasignados = troquelesCount[0].count;
+
+		if (desasignados > 0) {
+			await pool.query('UPDATE tbl_troqueles SET prensa_asignada = NULL WHERE prensa_asignada = ?', [identificador]);
+		}
+
+		await pool.query('DELETE FROM tbl_prensas WHERE id_prensa = ?', [id]);
+
+		res.json({
+			success: true,
+			message: 'Prensa eliminada exitosamente',
+			troqueles_desasignados: desasignados
+		});
+	} catch (error) {
+		console.error('Error deleting prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al eliminar la prensa', error: error.message });
+	}
+});
+
+//eliminar prensa (ID en URL)
+app.delete('/api/prensas/crud/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		const [existing] = await pool.query('SELECT id_prensa, identificador_prensa FROM tbl_prensas WHERE id_prensa = ?', [id]);
+		if (existing.length === 0) {
+			return res.status(404).json({ success: false, message: 'Prensa no encontrada' });
+		}
+
+		const identificador = existing[0].identificador_prensa;
+
+		//verificar si hay troqueles asignados y desasignarlos
+		const [troquelesCount] = await pool.query('SELECT COUNT(*) as count FROM tbl_troqueles WHERE prensa_asignada = ?', [identificador]);
+		const desasignados = troquelesCount[0].count;
+
+		if (desasignados > 0) {
+			await pool.query('UPDATE tbl_troqueles SET prensa_asignada = NULL WHERE prensa_asignada = ?', [identificador]);
+		}
+
+		await pool.query('DELETE FROM tbl_prensas WHERE id_prensa = ?', [id]);
+
+		res.json({
+			success: true,
+			message: 'Prensa eliminada exitosamente',
+			troqueles_desasignados: desasignados
+		});
+	} catch (error) {
+		console.error('Error deleting prensa:', error);
+		res.status(500).json({ success: false, message: 'Error al eliminar la prensa', error: error.message });
+	}
+});
+
 app.get('/api/tipos_troquel', async (req, res) => {
 	try {
 		const [tipos] = await pool.query("SELECT id_tipo_troquel as id, codigo, nombre, descripcion FROM tbl_tipos_troquel WHERE activo = 1 ORDER BY nombre ASC");
@@ -1599,6 +1897,10 @@ app.listen(PORT, () => {
 	console.log(`   Health check: http://localhost:${PORT}/api/health`);
 	console.log(`   Login: POST http://localhost:${PORT}/api/login`);
 	console.log(`   Troqueles: http://localhost:${PORT}/api/troqueles`);
+	console.log(`   Modelos: http://localhost:${PORT}/api/modelos`);
+	console.log(`   Modelos Update: PUT http://localhost:${PORT}/api/modelos/:id`);
+	console.log(`   Prensas (dropdown): http://localhost:${PORT}/api/prensas`);
+	console.log(`   Prensas CRUD: http://localhost:${PORT}/api/prensas/crud`);
 	console.log(`   Active Repairs: http://localhost:${PORT}/api/reparaciones-activas`);
 	console.log(`   Statistics: http://localhost:${PORT}/api/estadisticas`);
 });

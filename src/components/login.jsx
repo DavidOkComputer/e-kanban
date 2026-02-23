@@ -2,6 +2,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import createStyles, { cssAnimations } from '../styles/Login.styles';
 import NidecLogo from '../assets/Nidec_Institutional_Logo_White_Version.png';
 
+<link rel="icon" href="public/favicon.ico" type="image/x-icon"></link>
+
 const Login = ({ onLoginSuccess, onNavigateBack }) => {
   const styles = useMemo(() => createStyles(), []);
   
