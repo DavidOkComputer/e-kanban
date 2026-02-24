@@ -1879,6 +1879,371 @@ app.get('/api/search', async (req, res) => {
 	}
 });
 
+//apis para el crud de usuarios
+app.get('/api/usuarios/crud', async (req, res) => { 
+	try { 
+		const { id, rol, activo } = req.query; 
+		
+		if (id) { 
+			const [user] = await pool.query( 
+				'SELECT id_usuario, nombre_usuario, nombre_completo, rol, activo, ultimo_acceso, fecha_creacion, fecha_modificacion FROM tbl_usuarios WHERE id_usuario = ?', 
+				[id] 
+			); 
+			
+			if (user.length === 0) { 
+				return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+			} 
+			return res.json({ success: true, data: user[0] }); 
+		} 
+
+		let sql = 'SELECT id_usuario, nombre_usuario, nombre_completo, rol, activo, ultimo_acceso, fecha_creacion, fecha_modificacion FROM tbl_usuarios'; 
+		const conditions = []; 
+		const params = []; 
+		if (rol) { 
+			conditions.push('rol = ?'); 
+			params.push(rol); 
+		} 
+		
+		if (activo !== undefined) { 
+			conditions.push('activo = ?'); 
+			params.push(activo); 
+		} 
+
+		if (conditions.length > 0) { 
+			sql += ' WHERE ' + conditions.join(' AND '); 
+		} 
+			
+		sql += ' ORDER BY id_usuario ASC'; 
+		const [users] = await pool.query(sql, params); 
+		res.json(users); 
+	} catch (error) { 
+		console.error('Error fetching usuarios:', error); 
+		res.status(500).json({ success: false, message: 'Error al obtener usuarios', error: error.message }); 
+	} 
+}); 
+
+
+app.get('/api/usuarios/crud/:id', async (req, res) => { 
+	try { 
+		const [user] = await pool.query( 
+			'SELECT id_usuario, nombre_usuario, nombre_completo, rol, activo, ultimo_acceso, fecha_creacion, fecha_modificacion FROM tbl_usuarios WHERE id_usuario = ?', 
+			[req.params.id] 
+		); 
+		
+		if (user.length === 0) { 
+			return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+		} 
+		
+		res.json({ success: true, data: user[0] }); 
+	} catch (error) { 
+		console.error('Error fetching usuario:', error); 
+		res.status(500).json({ success: false, message: 'Error al obtener usuario', error: error.message }); 
+	} 
+}); 
+
+
+app.post('/api/usuarios/crud', async (req, res) => { 
+	try { 
+		const { nombre_usuario, acceso, nombre_completo, rol } = req.body; 
+			
+		if (!nombre_usuario || !nombre_usuario.trim()) { 
+			return res.status(400).json({ success: false, message: 'El nombre de usuario es requerido' }); 
+		} 
+		
+		if (!acceso || !acceso.trim()) { 
+			return res.status(400).json({ success: false, message: 'La contraseña es requerida' }); 
+		} 
+		
+		if (!nombre_completo || !nombre_completo.trim()) { 
+			return res.status(400).json({ success: false, message: 'El nombre completo es requerido' }); 
+		} 
+
+		if (acceso.trim().length < 4) { 
+			return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 4 caracteres' }); 
+		} 
+
+		// Verificar si ya existe el nombre de usuario 
+		const [existing] = await pool.query('SELECT id_usuario FROM tbl_usuarios WHERE nombre_usuario = ?', [nombre_usuario.trim().toLowerCase()]); 
+		if (existing.length > 0) { 
+			return res.status(409).json({ success: false, message: 'Ya existe un usuario con ese nombre de usuario' }); 
+		} 
+
+ 		// Hashear la contraseña 
+		const saltRounds = 10; 
+		const hashedPassword = await bcrypt.hash(acceso.trim(), saltRounds); 
+		const validRoles = ['admin', 'supervisor', 'operator']; 
+		const userRol = validRoles.includes(rol) ? rol : 'operator'; 
+		const [result] = await pool.query(` 
+			INSERT INTO tbl_usuarios (nombre_usuario, acceso, nombre_completo, rol, activo, fecha_creacion, fecha_modificacion) 
+			VALUES (?, ?, ?, ?, 1, NOW(), NOW()) 
+		`, [ 
+		
+			nombre_usuario.trim().toLowerCase(), 
+			hashedPassword, 
+			nombre_completo.trim(), 
+			userRol 
+		]); 
+
+		res.status(201).json({ 
+			success: true, 
+			message: 'Usuario creado exitosamente', 
+			id_usuario: result.insertId 
+		});
+	} catch (error) { 
+		console.error('Error creating usuario:', error); 
+		res.status(500).json({ success: false, message: 'Error al crear el usuario', error: error.message }); 
+	} 
+}); 
+
+
+app.put('/api/usuarios/crud', async (req, res) => { 
+	try { 
+		const data = req.body; 
+		const id = data.id_usuario; 
+
+		if (!id) { 
+			return res.status(400).json({ success: false, message: 'El ID del usuario es requerido para actualizar' }); 
+		} 
+
+		const [existing] = await pool.query('SELECT id_usuario, nombre_usuario FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+		
+		if (existing.length === 0) { 
+			return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+		} 
+
+		const updates = []; 
+		const params = []; 
+
+		// Actualizar nombre de usuario si se proporciona 
+		if (data.nombre_usuario !== undefined) { 
+			const newUsername = data.nombre_usuario.trim().toLowerCase(); 
+		
+			// Verificar que no exista otro usuario con ese nombre 
+			const [dupCheck] = await pool.query('SELECT id_usuario FROM tbl_usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [newUsername, id]); 
+			
+			if (dupCheck.length > 0) { 
+				return res.status(409).json({ success: false, message: 'Ya existe otro usuario con ese nombre de usuario' }); 
+			} 
+			updates.push('nombre_usuario = ?'); 
+			params.push(newUsername); 
+		} 
+
+		// Actualizar nombre completo 
+		if (data.nombre_completo !== undefined) { 
+			updates.push('nombre_completo = ?'); 
+			params.push(data.nombre_completo.trim()); 
+		} 
+			
+		// Actualizar rol 
+		if (data.rol !== undefined) { 
+			const validRoles = ['admin', 'supervisor', 'operator']; 
+			if (!validRoles.includes(data.rol)) { 
+				return res.status(400).json({ success: false, message: 'Rol no válido. Opciones: admin, supervisor, operator' }); 
+			} 
+			updates.push('rol = ?'); 
+			params.push(data.rol); 
+		} 
+
+		// Actualizar estado activo 
+		if (data.activo !== undefined) { 
+			updates.push('activo = ?'); 
+			params.push(data.activo ? 1 : 0); 
+		} 
+
+		// Actualizar contraseña si se proporciona 
+		if (data.acceso && data.acceso.trim()) { 
+			if (data.acceso.trim().length < 4) { 
+				return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 4 caracteres' }); 
+			} 
+			const saltRounds = 10; 
+			const hashedPassword = await bcrypt.hash(data.acceso.trim(), saltRounds); 
+			updates.push('acceso = ?'); 
+			params.push(hashedPassword); 
+		} 
+			
+		if (updates.length === 0) { 
+			return res.status(400).json({ success: false, message: 'No hay datos para actualizar' }); 
+		} 
+
+		updates.push('fecha_modificacion = NOW()'); 
+		params.push(id); 
+		await pool.query(`UPDATE tbl_usuarios SET ${updates.join(', ')} WHERE id_usuario = ?`, params); 
+		res.json({ success: true, message: 'Usuario actualizado exitosamente' }); 
+	} catch (error) { 
+		console.error('Error updating usuario:', error); 
+		res.status(500).json({ success: false, message: 'Error al actualizar el usuario', error: error.message }); 
+	} 
+}); 
+
+
+app.put('/api/usuarios/crud/:id', async (req, res) => { 
+	try { 
+		const { id } = req.params; 
+		const data = req.body; 
+		const [existing] = await pool.query('SELECT id_usuario FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+		if (existing.length === 0) { 
+			return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+		} 
+		const updates = []; 
+		const params = []; 
+			
+		if (data.nombre_usuario !== undefined) { 
+			const newUsername = data.nombre_usuario.trim().toLowerCase(); 
+			const [dupCheck] = await pool.query('SELECT id_usuario FROM tbl_usuarios WHERE nombre_usuario = ? AND id_usuario != ?', [newUsername, id]); 
+			if (dupCheck.length > 0) { 
+				return res.status(409).json({ success: false, message: 'Ya existe otro usuario con ese nombre de usuario' }); 
+			} 
+			
+			updates.push('nombre_usuario = ?'); 
+			params.push(newUsername); 
+		} 
+
+		if (data.nombre_completo !== undefined) { 
+			updates.push('nombre_completo = ?'); 
+			params.push(data.nombre_completo.trim()); 
+		} 
+
+		if (data.rol !== undefined) { 
+			const validRoles = ['admin', 'supervisor', 'operator']; 
+			if (!validRoles.includes(data.rol)) { 
+				return res.status(400).json({ success: false, message: 'Rol no válido' }); 
+			} 
+
+			updates.push('rol = ?'); 
+			params.push(data.rol); 
+		} 
+
+		if (data.activo !== undefined) { 
+			updates.push('activo = ?'); 
+			params.push(data.activo ? 1 : 0); 
+		} 
+
+		if (data.acceso && data.acceso.trim()) { 
+			if (data.acceso.trim().length < 4) { 
+				return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 4 caracteres' }); 
+			} 
+
+			const saltRounds = 10; 
+			const hashedPassword = await bcrypt.hash(data.acceso.trim(), saltRounds); 
+			updates.push('acceso = ?'); 
+			params.push(hashedPassword); 
+		} 
+
+		if (updates.length === 0) { 
+			return res.status(400).json({ success: false, message: 'No hay datos para actualizar' }); 
+		} 
+		
+		updates.push('fecha_modificacion = NOW()'); 
+		params.push(id); 
+		await pool.query(`UPDATE tbl_usuarios SET ${updates.join(', ')} WHERE id_usuario = ?`, params); 
+		res.json({ success: true, message: 'Usuario actualizado exitosamente' }); 
+	} catch (error) { 
+		console.error('Error updating usuario:', error); 
+		res.status(500).json({ success: false, message: 'Error al actualizar el usuario', error: error.message }); 
+	} 
+}); 
+
+
+app.delete('/api/usuarios/crud', async (req, res) => { 
+	try { 
+			const id = req.query.id; 
+			if (!id) { 
+				return res.status(400).json({ success: false, message: 'El ID del usuario es requerido' }); 
+			} 
+			
+			const [existing] = await pool.query('SELECT id_usuario, nombre_usuario, rol FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+
+			if (existing.length === 0) { 
+				return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+			} 
+
+			// Prevenir eliminación del último admin 
+			if (existing[0].rol === 'admin') { 
+				const [adminCount] = await pool.query('SELECT COUNT(*) as count FROM tbl_usuarios WHERE rol = ? AND activo = 1', ['admin']); 
+		
+				if (adminCount[0].count <= 1) { 
+					return res.status(400).json({ success: false, message: 'No se puede eliminar el último administrador activo del sistema' }); 
+				} 
+			} 
+
+			await pool.query('DELETE FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+
+			res.json({ 
+				success: true, 
+				message: 'Usuario eliminado exitosamente' 
+			}); 
+		} catch (error) { 
+			console.error('Error deleting usuario:', error); 
+			res.status(500).json({ success: false, message: 'Error al eliminar el usuario', error: error.message }); 
+		} 
+}); 
+
+
+app.delete('/api/usuarios/crud/:id', async (req, res) => { 
+	try { 
+		const { id } = req.params; 
+		const [existing] = await pool.query('SELECT id_usuario, nombre_usuario, rol FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+
+		if (existing.length === 0) { 
+			return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+		} 
+
+		if (existing[0].rol === 'admin') { 
+			const [adminCount] = await pool.query('SELECT COUNT(*) as count FROM tbl_usuarios WHERE rol = ? AND activo = 1', ['admin']); 
+
+			if (adminCount[0].count <= 1) { 
+				return res.status(400).json({ success: false, message: 'No se puede eliminar el último administrador activo del sistema' }); 
+			} 
+		} 
+
+		await pool.query('DELETE FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+
+		res.json({ 
+			success: true, 
+			message: 'Usuario eliminado exitosamente' 
+		}); 
+	} catch (error) { 
+		console.error('Error deleting usuario:', error); 
+		res.status(500).json({ success: false, message: 'Error al eliminar el usuario', error: error.message }); 
+	} 
+}); 
+
+
+app.patch('/api/usuarios/crud/:id/toggle-active', async (req, res) => { 
+	try { 
+		const { id } = req.params; 
+		const [existing] = await pool.query('SELECT id_usuario, nombre_usuario, rol, activo FROM tbl_usuarios WHERE id_usuario = ?', [id]); 
+		
+		if (existing.length === 0) { 
+			return res.status(404).json({ success: false, message: 'Usuario no encontrado' }); 
+		} 
+
+		const user = existing[0]; 
+		const newStatus = user.activo ? 0 : 1; 
+
+		// Si se está desactivando un admin, verificar que no sea el último 
+		if (user.rol === 'admin' && newStatus === 0) { 
+			const [adminCount] = await pool.query('SELECT COUNT(*) as count FROM tbl_usuarios WHERE rol = ? AND activo = 1', ['admin']); 
+
+			if (adminCount[0].count <= 1) { 
+				return res.status(400).json({ success: false, message: 'No se puede desactivar el último administrador activo del sistema' }); 
+			} 
+		}	 
+
+		await pool.query('UPDATE tbl_usuarios SET activo = ?, fecha_modificacion = NOW() WHERE id_usuario = ?', [newStatus, id]); 
+
+		res.json({ 
+			success: true, 
+			message: newStatus ? 'Usuario activado exitosamente' : 'Usuario desactivado exitosamente', 
+			activo: newStatus 
+		}); 
+	} catch (error) { 
+		console.error('Error toggling usuario status:', error); 
+		res.status(500).json({ success: false, message: 'Error al cambiar estado del usuario', error: error.message }); 
+	} 
+}); 
+//fin de apis para crud de usuarios
+
 //funciones  complementarias
 async function logChange(pool, troquelId, campo, valorAnterior, valorNuevo) {
 	try {
