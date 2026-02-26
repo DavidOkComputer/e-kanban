@@ -1,16 +1,6 @@
 
 <?php
-/** 
-
- * API para obtener tipos de molde (dropdown) 
-
- * Endpoint: /api/tipos_molde.php 
-
- *  
-
- * GET → Lista de tipos de molde activos 
-
- */
+/*API para obtener tipos de molde en los dropdown */
 
 require_once "cors.php";
 

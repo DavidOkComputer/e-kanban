@@ -135,18 +135,6 @@ try {
   $conn->close();
 }
 
-// ============================================================================
-
-// FUNCIONES
-
-// ============================================================================
-
-/** 
-
- * GET - Todos los moldes agrupados por año (para EKanban dashboard) 
-
- */
-
 function getAllMoldes($conn)
 {
   $sql = " 
@@ -262,12 +250,6 @@ function getAllMoldes($conn)
   echo json_encode($groupedByYear);
 }
 
-/** 
-
- * GET - Lista plana de todos los moldes (para admin panel) 
-
- */
-
 function getAllMoldesList($conn)
 {
   $result = $conn->query("SELECT * FROM tbl_moldes ORDER BY creado_en DESC");
@@ -280,12 +262,6 @@ function getAllMoldesList($conn)
 
   echo json_encode($moldes);
 }
-
-/** 
-
- * GET - Molde específico por ID 
-
- */
 
 function getMolde($conn, $id)
 {
@@ -309,12 +285,6 @@ function getMolde($conn, $id)
 
   $stmt->close();
 }
-
-/** 
-
- * GET - Búsqueda con filtros 
-
- */
 
 function handleSearch($conn)
 {
@@ -386,11 +356,6 @@ function handleSearch($conn)
   $stmt->close();
 }
 
-/** 
-
- * POST - Crear nuevo molde 
-
- */
 
 function createMolde($conn)
 {
@@ -572,11 +537,6 @@ function createMolde($conn)
   $stmt->close();
 }
 
-/** 
-
- * PUT - Actualizar molde completo 
-
- */
 
 function updateMolde($conn, $id)
 {
@@ -722,7 +682,7 @@ function updateMolde($conn, $id)
   );
 
   if ($stmt->execute()) {
-    // Log change
+    //cambio en log
 
     logMoldeChange(
       $conn,
@@ -748,11 +708,6 @@ function updateMolde($conn, $id)
   $stmt->close();
 }
 
-/** 
-
- * PATCH - Actualizar solo el estado del molde 
-
- */
 
 function patchMolde($conn, $id)
 {
@@ -778,12 +733,6 @@ function patchMolde($conn, $id)
 
   $stmt->close();
 }
-
-/** 
-
- * DELETE - Eliminar molde 
-
- */
 
 function deleteMolde($conn, $id)
 {
@@ -824,12 +773,6 @@ function deleteMolde($conn, $id)
 
   $delStmt->close();
 }
-
-/** 
-
- * Helper - Log de cambios 
-
- */
 
 function logMoldeChange($conn, $moldeId, $campo, $valorAnterior, $valorNuevo)
 {

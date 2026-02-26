@@ -1,22 +1,6 @@
 
 <?php
-/** 
-
- * API para gestión de Máquinas de Inyección - CRUD Completo 
-
- * Endpoint: /api/maquinas_crud.php 
-
- *  
-
- * GET    → Obtener todas o una específica (?id=) 
-
- * POST   → Crear nueva máquina 
-
- * PUT    → Actualizar máquina (id_maquina en body) 
-
- * DELETE → Eliminar máquina (?id=) 
-
- */
+/*API para gestión de Máquinas de Inyección CRUD Completo */
 
 require_once "cors.php";
 

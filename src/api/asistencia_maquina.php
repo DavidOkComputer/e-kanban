@@ -1,16 +1,6 @@
 
 <?php
-/** 
-
- * API para obtener catálogo de asistencia en máquina 
-
- * Endpoint: /api/asistencia_maquina.php 
-
- *  
-
- * GET → Lista de tipos de asistencia activos 
-
- */
+/*API para obtener catálogo de asistencia en máquina */
 
 require_once "cors.php";
 

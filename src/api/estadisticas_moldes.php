@@ -1,24 +1,6 @@
 
 <?php
-/** 
-
- * API para Estadísticas y Resumen de Moldes 
-
- * Endpoint: /api/estadisticas_moldes.php 
-
- *  
-
- * GET /estadisticas           → Conteo total, activos, reparando, pendientes 
-
- * GET /reparaciones-activas   → Lista de reparaciones activas con técnicos 
-
- * GET /priority-repairs       → Cola de prioridad 
-
- * GET /summary                → Resumen UP/BACKUP/TOTAL 
-
- * GET /resumen-mensual        → Desglose mensual por año (?year=) 
-
- */
+/*API para Estadísticas y Resumen de Moldes */
 
 require_once "cors.php";
 
@@ -106,12 +88,6 @@ try {
   $conn->close();
 }
 
-/** 
-
- * GET - Conteos generales 
-
- */
-
 function getEstadisticas($conn)
 {
   $total = $conn
@@ -146,12 +122,6 @@ function getEstadisticas($conn)
     "pendientes" => (int) $pendientes,
   ]);
 }
-
-/** 
-
- * GET - Reparaciones activas con técnicos asignados 
-
- */
 
 function getReparacionesActivas($conn)
 {
@@ -236,12 +206,6 @@ function getReparacionesActivas($conn)
   echo json_encode($rows);
 }
 
-/** 
-
- * GET - Cola de prioridad de reparaciones 
-
- */
-
 function getPriorityRepairs($conn)
 {
   $result = $conn->query(" 
@@ -272,12 +236,6 @@ function getPriorityRepairs($conn)
 
   echo json_encode($repairs);
 }
-
-/** 
-
- * GET - Resumen UP/BACKUP/TOTAL desde tbl_resumen_moldes 
-
- */
 
 function getSummary($conn)
 {
@@ -346,12 +304,6 @@ function getSummary($conn)
   }
 }
 
-/** 
-
- * GET - Resumen mensual por año 
-
- */
-
 function getResumenMensual($conn)
 {
   $year = isset($_GET["year"]) ? intval($_GET["year"]) : date("Y");
@@ -408,4 +360,3 @@ function getResumenMensual($conn)
 
   $stmt->close();
 }
-

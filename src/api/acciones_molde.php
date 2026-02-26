@@ -1,19 +1,5 @@
-
-
 <?php
-/** 
-
- * API para Acciones e Historial de Moldes 
-
- * Endpoint: /api/acciones_molde.php 
-
- *  
-
- * POST /action/{moldeId}   → Registrar acción (baja_molde) y opcionalmente iniciar ciclo 
-
- * GET  /history/{moldeId}   → Obtener historial del molde 
-
- */
+/*API para Acciones e Historial de Moldes */
 
 require_once "cors.php";
 
@@ -79,12 +65,6 @@ try {
 } finally {
   $conn->close();
 }
-
-/** 
-
- * POST - Registrar acción y opcionalmente iniciar ciclo de reparación 
-
- */
 
 function registrarAccion($conn, $moldeId, $input)
 {
@@ -305,12 +285,6 @@ function registrarAccion($conn, $moldeId, $input)
     ]);
   }
 }
-
-/** 
-
- * GET - Historial del molde con descripciones de falla/asistencia 
-
- */
 
 function getHistorial($conn, $moldeId)
 {

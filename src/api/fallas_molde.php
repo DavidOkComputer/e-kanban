@@ -1,16 +1,6 @@
 
 <?php
-/** 
-
- * API para obtener catálogo de fallas de molde 
-
- * Endpoint: /api/fallas_molde.php 
-
- *  
-
- * GET → Lista de fallas activas 
-
- */
+/*API para obtener catálogo de fallas de molde */
 
 require_once "cors.php";
 

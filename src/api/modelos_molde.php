@@ -1,22 +1,5 @@
-
 <?php
-/** 
-
- * API para gestión de Modelos por Molde - CRUD Completo 
-
- * Endpoint: /api/modelos_molde.php 
-
- *  
-
- * GET    → Listar modelos (opcional ?molde_id= para filtrar) 
-
- * POST   → Crear nuevo modelo 
-
- * PUT    → Actualizar modelo (id_modelo en body o URL) 
-
- * DELETE → Eliminar modelo (?id= o URL) 
-
- */
+/*API para gestión de Modelos por Molde  CRUD Completo */
 
 require_once "cors.php";
 

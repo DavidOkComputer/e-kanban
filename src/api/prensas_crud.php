@@ -1,9 +1,6 @@
 
 <?php
-/** 
- * API para gestión de Prensas - CRUD Completo 
- * Endpoint: /api/prensas_crud.php 
-**/
+/*API para gestión de Prensas  CRUD Completo */
 // Headers CORS
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
