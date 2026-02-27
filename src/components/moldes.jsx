@@ -2681,7 +2681,6 @@ const AdminMoldRegistration = ({
                                 </div>
                             ) : filteredMolds.length === 0 ? (
                                 <div style={styles.emptyState}>
-                                    <div style={styles.emptyIcon}>🔍</div>
 
                                     <div style={styles.emptyText}>No se encontraron moldes</div>
                                 </div>
@@ -3052,8 +3051,6 @@ const AdminMoldRegistration = ({
                                 </div>
                             ) : filteredMaquinas.length === 0 ? (
                                 <div style={styles.emptyState}>
-                                    <div style={styles.emptyIcon}>⚙️</div>
-
                                     <div style={styles.emptyText}>No hay máquinas registradas</div>
                                 </div>
                             ) : (
