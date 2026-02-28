@@ -1,43 +1,27 @@
 const express = require("express");
-
 const mysql = require("mysql2/promise");
-
 const cors = require("cors");
-
 const bcrypt = require("bcrypt");
-
 require("dotenv").config();
-
 const app = express();
-
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-
       "http://localhost:3000",
-
       "http://localhost:3001",
-
       "http://10.109.17.87:5173",
-
       `http://localhost`,
-
       `localhost`,
-
       `http://10.109.17.87`,
-
       `http://127.0.0.1`,
     ],
 
     credentials: true,
-
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
@@ -48,24 +32,16 @@ app.use(express.json());
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
-
   port: process.env.DB_PORT || 3306,
-
   user: process.env.DB_USER || "root",
-
   password: process.env.DB_PASSWORD || "",
-
   database: process.env.DB_NAME || "ekanban_toolroom_db",
-
   waitForConnections: true,
-
   connectionLimit: 10,
-
   queueLimit: 0,
 });
 
 //endpoints de autenticacion
-
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -73,23 +49,19 @@ app.post("/api/login", async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-
         message: "Usuario y contraseña son requeridos",
       });
     }
 
     //buscar por nombre de usuario
-
     const [users] = await pool.query(
       "SELECT * FROM tbl_usuarios WHERE nombre_usuario = ? AND activo = 1",
-
       [username],
     );
 
     if (users.length === 0) {
       return res.status(401).json({
         success: false,
-
         message: "Usuario o contraseña incorrectos",
       });
     }
@@ -97,68 +69,53 @@ app.post("/api/login", async (req, res) => {
     const user = users[0];
 
     //verificar contrasenia
-
     const passwordMatch = await bcrypt.compare(password, user.acceso);
 
     if (!passwordMatch) {
       return res.status(401).json({
         success: false,
-
         message: "Usuario o contraseña incorrectos",
       });
     }
 
     //actualizar registro de ultimo acceso
-
     await pool.query(
       "UPDATE tbl_usuarios SET ultimo_acceso = NOW() WHERE id_usuario = ?",
-
       [user.id_usuario],
     );
 
     //devolver info del usurio, sin contrasenia
-
     res.json({
       success: true,
-
       message: "Login exitoso",
-
       user: {
         id: user.id_usuario,
-
         username: user.nombre_usuario,
-
         nombre: user.nombre_completo,
-
         rol: user.rol,
       },
     });
   } catch (error) {
     console.error("Login error:", error);
-
     res.status(500).json({
       success: false,
-
       message: "Error del servidor",
     });
   }
 });
 
 //estado y apis disponibles
-
 app.get("/api/health", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT 1");
 
     res.json({
       status: "OK",
-
       database: "Connected",
     });
   } catch (error) {
     res.status(500).json({
       status: "Error",
-
       message: error.message,
     });
   }
@@ -167,36 +124,23 @@ app.get("/api/health", async (req, res) => {
 app.get("/api/modelos", async (req, res) => {
   try {
     const { troquel_id } = req.query;
-
     let query = `  
-
     	SELECT   
-
         	m.id_modelo,  
-
         m.nombre_modelo,  
-
         m.troquel_id,  
-
         m.descripcion,  
-
         m.creado_en,  
-
         m.actualizado_en,  
-
         t.nombre AS troquel_nombre  
-
 FROM tbl_modelos_troquel m  
-
     			LEFT JOIN tbl_troqueles t ON m.troquel_id = t.id_troquel  
-
     	`;
 
     const params = [];
 
     if (troquel_id) {
       query += " WHERE m.troquel_id = ?";
-
       params.push(troquel_id);
     }
 
@@ -210,7 +154,6 @@ FROM tbl_modelos_troquel m
 
     res.status(500).json({
       success: false,
-
       message: "Error al obtener modelos",
     });
   }
@@ -222,71 +165,50 @@ app.post("/api/modelos", async (req, res) => {
 
     if (!nombre_modelo)
       return res
-
         .status(400)
 
         .json({
           success: false,
-
           message: "El nombre del modelo es requerido",
         });
 
     if (!troquel_id)
       return res
-
         .status(400)
-
         .json({ success: false, message: "El troquel es requerido" });
 
     //revisar si existe el troquel
-
     const [troquelCheck] = await pool.query(
       "SELECT id_troquel FROM tbl_troqueles WHERE id_troquel = ?",
-
       [troquel_id],
     );
 
     if (troquelCheck.length === 0)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El troquel especificado no existe",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El troquel especificado no existe",
+      });
 
     //revisar duplicados
-
     const [dupCheck] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE nombre_modelo = ? AND troquel_id = ?",
-
       [nombre_modelo, troquel_id],
     );
 
     if (dupCheck.length > 0)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "Ya existe un modelo con ese nombre para este troquel",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe un modelo con ese nombre para este troquel",
+      });
 
     const [result] = await pool.query(
       "INSERT INTO tbl_modelos_troquel (nombre_modelo, troquel_id, descripcion) VALUES (?, ?, ?)",
-
       [nombre_modelo, troquel_id, descripcion || null],
     );
 
     res.status(201).json({
       success: true,
-
       message: "Modelo creado exitosamente",
-
       id_modelo: result.insertId,
     });
   } catch (err) {
@@ -294,7 +216,6 @@ app.post("/api/modelos", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al crear modelo",
     });
   }
@@ -306,22 +227,17 @@ app.delete("/api/modelos/:id", async (req, res) => {
 
     const [check] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE id_modelo = ?",
-
       [id],
     );
 
     if (check.length === 0)
       return res
-
         .status(404)
-
         .json({ success: false, message: "Modelo no encontrado" });
 
-    await pool.query(
-      "DELETE FROM tbl_modelos_troquel WHERE id_modelo = ?",
-
-      [id],
-    );
+    await pool.query("DELETE FROM tbl_modelos_troquel WHERE id_modelo = ?", [
+      id,
+    ]);
 
     res.json({ success: true, message: "Modelo eliminado exitosamente" });
   } catch (err) {
@@ -329,7 +245,6 @@ app.delete("/api/modelos/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al eliminar modelo",
     });
   }
@@ -341,67 +256,46 @@ app.put("/api/modelos", async (req, res) => {
     const { id_modelo, nombre_modelo, troquel_id, descripcion } = req.body;
 
     if (!id_modelo)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El ID del modelo es requerido",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El ID del modelo es requerido",
+      });
 
     if (!nombre_modelo)
       return res
-
         .status(400)
 
         .json({
           success: false,
-
           message: "El nombre del modelo es requerido",
         });
 
     if (!troquel_id)
       return res
-
         .status(400)
-
         .json({ success: false, message: "El troquel es requerido" });
-
     const [checkModelo] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE id_modelo = ?",
-
       [id_modelo],
     );
 
     if (checkModelo.length === 0)
       return res
-
         .status(404)
-
         .json({ success: false, message: "Modelo no encontrado" });
-
     const [dupCheck] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE nombre_modelo = ? AND troquel_id = ? AND id_modelo != ?",
-
       [nombre_modelo, troquel_id, id_modelo],
     );
 
     if (dupCheck.length > 0)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "Ya existe otro modelo con ese nombre para este troquel",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe otro modelo con ese nombre para este troquel",
+      });
 
     await pool.query(
       "UPDATE tbl_modelos_troquel SET nombre_modelo = ?, troquel_id = ?, descripcion = ?, actualizado_en = NOW() WHERE id_modelo = ?",
-
       [nombre_modelo, troquel_id, descripcion || null, id_modelo],
     );
 
@@ -411,75 +305,53 @@ app.put("/api/modelos", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al actualizar modelo",
     });
   }
 });
 
 //actualizar modelo (ID en URL)
-
 app.put("/api/modelos/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const { nombre_modelo, troquel_id, descripcion } = req.body;
 
     if (!nombre_modelo)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El nombre del modelo es requerido",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El nombre del modelo es requerido",
+      });
 
     if (!troquel_id)
       return res
-
         .status(400)
-
         .json({ success: false, message: "El troquel es requerido" });
 
     //verificar que el modelo existe
-
     const [checkModelo] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE id_modelo = ?",
-
       [id],
     );
 
     if (checkModelo.length === 0)
       return res
-
         .status(404)
-
         .json({ success: false, message: "Modelo no encontrado" });
 
     //verificar que no exista otro modelo con el mismo nombre para el mismo troquel
-
     const [dupCheck] = await pool.query(
       "SELECT id_modelo FROM tbl_modelos_troquel WHERE nombre_modelo = ? AND troquel_id = ? AND id_modelo != ?",
-
       [nombre_modelo, troquel_id, id],
     );
 
     if (dupCheck.length > 0)
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "Ya existe otro modelo con ese nombre para este troquel",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe otro modelo con ese nombre para este troquel",
+      });
 
     await pool.query(
       "UPDATE tbl_modelos_troquel SET nombre_modelo = ?, troquel_id = ?, descripcion = ?, actualizado_en = NOW() WHERE id_modelo = ?",
-
       [nombre_modelo, troquel_id, descripcion || null, id],
     );
 
@@ -489,7 +361,6 @@ app.put("/api/modelos/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al actualizar modelo",
     });
   }
@@ -504,7 +375,6 @@ app.get("/api/prensas", async (req, res) => {
     const options = [
       {
         value: "",
-
         label: "Sin asignar",
       },
     ];
@@ -512,9 +382,7 @@ app.get("/api/prensas", async (req, res) => {
     prensas.forEach((p) => {
       options.push({
         value: p.nombre || p.id_prensa,
-
         label: p.nombre + (p.tonelaje ? ` (${p.tonelaje} ton)` : ""),
-
         descripcion: p.descripcion,
       });
     });
@@ -525,16 +393,13 @@ app.get("/api/prensas", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
 });
 
 //endpoints CRUD de prensas
-
 //obtener todas las prensas o una prensa específica
-
 app.get("/api/prensas/crud", async (req, res) => {
   try {
     const { id, estado } = req.query;
@@ -542,44 +407,33 @@ app.get("/api/prensas/crud", async (req, res) => {
     if (id) {
       const [prensa] = await pool.query(
         "SELECT * FROM tbl_prensas WHERE id_prensa = ?",
-
         [id],
       );
 
       if (prensa.length === 0) {
         return res
-
           .status(404)
-
           .json({ success: false, message: "Prensa no encontrada" });
       }
-
       return res.json({ success: true, data: prensa[0] });
     }
 
     let sql = "SELECT * FROM tbl_prensas";
-
     const params = [];
 
     if (estado) {
       sql += " WHERE estado = ?";
-
       params.push(estado);
     }
 
     sql += " ORDER BY identificador_prensa ASC";
-
     const [prensas] = await pool.query(sql, params);
-
     res.json(prensas);
   } catch (error) {
     console.error("Error fetching prensas crud:", error);
-
     res.status(500).json({
       success: false,
-
       message: "Error al obtener prensas",
-
       error: error.message,
     });
   }
@@ -589,15 +443,12 @@ app.get("/api/prensas/crud/:id", async (req, res) => {
   try {
     const [prensa] = await pool.query(
       "SELECT * FROM tbl_prensas WHERE id_prensa = ?",
-
       [req.params.id],
     );
 
     if (prensa.length === 0) {
       return res
-
         .status(404)
-
         .json({ success: false, message: "Prensa no encontrada" });
     }
 
@@ -607,119 +458,77 @@ app.get("/api/prensas/crud/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al obtener prensa",
-
       error: error.message,
     });
   }
 });
 
 //crear nueva prensa
-
 app.post("/api/prensas/crud", async (req, res) => {
   try {
     const {
       identificador_prensa,
-
       nombre,
-
       estado,
-
       tonelaje,
-
       marca,
-
       modelo,
-
       ubicacion,
-
       notas,
     } = req.body;
 
     if (!identificador_prensa || !identificador_prensa.trim()) {
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El identificador de la prensa es requerido",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El identificador de la prensa es requerido",
+      });
     }
 
     if (!nombre || !nombre.trim()) {
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El nombre de la prensa es requerido",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El nombre de la prensa es requerido",
+      });
     }
 
     const idUpper = identificador_prensa.trim().toUpperCase();
 
     //verificar si ya existe una prensa con ese identificador
-
     const [existing] = await pool.query(
       "SELECT id_prensa FROM tbl_prensas WHERE identificador_prensa = ?",
-
       [idUpper],
     );
 
     if (existing.length > 0) {
-      return res
-
-        .status(409)
-
-        .json({
-          success: false,
-
-          message: "Ya existe una prensa con ese identificador",
-        });
+      return res.status(409).json({
+        success: false,
+        message: "Ya existe una prensa con ese identificador",
+      });
     }
 
     const [result] = await pool.query(
-      ` 
-
-INSERT INTO tbl_prensas ( 
-
-identificador_prensa, nombre, estado, tonelaje, marca, modelo, ubicacion, notas, creado_en, actualizado_en 
-
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()) 
-
-`,
+      `INSERT INTO tbl_prensas ( 
+          identificador_prensa, nombre, estado, tonelaje, marca, modelo, ubicacion, notas, creado_en, actualizado_en 
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()) 
+      `,
 
       [
         idUpper,
-
         nombre.trim(),
-
         estado || "Activa",
-
         tonelaje || null,
-
         marca || null,
-
         modelo || null,
-
         ubicacion || null,
-
         notas || null,
       ],
     );
 
     res.status(201).json({
       success: true,
-
       message: "Prensa registrada exitosamente",
-
       id_prensa: result.insertId,
-
       identificador_prensa: idUpper,
     });
   } catch (error) {
@@ -727,105 +536,75 @@ identificador_prensa, nombre, estado, tonelaje, marca, modelo, ubicacion, notas,
 
     res.status(500).json({
       success: false,
-
       message: "Error al crear la prensa",
-
       error: error.message,
     });
   }
 });
 
 //actualizar prensa
-
 //actualizar prensa (ID en body - compatibilidad con frontend)
-
 app.put("/api/prensas/crud", async (req, res) => {
   try {
     const data = req.body;
-
     const id = data.id_prensa;
 
     if (!id) {
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "El ID de la prensa es requerido para actualizar",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "El ID de la prensa es requerido para actualizar",
+      });
     }
 
     const [existing] = await pool.query(
       "SELECT id_prensa FROM tbl_prensas WHERE id_prensa = ?",
-
       [id],
     );
 
     if (existing.length === 0) {
       return res
-
         .status(404)
-
         .json({ success: false, message: "Prensa no encontrada" });
     }
 
     const allowedFields = [
       "nombre",
-
       "estado",
-
       "tonelaje",
-
       "marca",
-
       "modelo",
-
       "ubicacion",
-
       "notas",
     ];
 
     const updates = [];
-
     const params = [];
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
         updates.push(`${field} = ?`);
-
         params.push(data[field]);
       }
     }
 
     if (updates.length === 0) {
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "No hay datos para actualizar",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "No hay datos para actualizar",
+      });
     }
 
     updates.push("actualizado_en = NOW()");
-
     params.push(id);
 
     await pool.query(
       `UPDATE tbl_prensas SET ${updates.join(", ")} WHERE id_prensa = ?`,
-
       params,
     );
 
     res.json({
       success: true,
-
       message: "Prensa actualizada exitosamente",
-
       rows_affected: 1,
     });
   } catch (error) {
@@ -833,83 +612,60 @@ app.put("/api/prensas/crud", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al actualizar la prensa",
-
       error: error.message,
     });
   }
 });
 
 //actualizar prensa (ID en URL)
-
 app.put("/api/prensas/crud/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const data = req.body;
-
     const [existing] = await pool.query(
       "SELECT id_prensa FROM tbl_prensas WHERE id_prensa = ?",
-
       [id],
     );
 
     if (existing.length === 0) {
       return res
-
         .status(404)
-
         .json({ success: false, message: "Prensa no encontrada" });
     }
 
     const allowedFields = [
       "nombre",
-
       "estado",
-
       "tonelaje",
-
       "marca",
-
       "modelo",
-
       "ubicacion",
-
       "notas",
     ];
 
     const updates = [];
-
     const params = [];
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
         updates.push(`${field} = ?`);
-
         params.push(data[field]);
       }
     }
 
     if (updates.length === 0) {
-      return res
-
-        .status(400)
-
-        .json({
-          success: false,
-
-          message: "No hay datos para actualizar",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "No hay datos para actualizar",
+      });
     }
 
     updates.push("actualizado_en = NOW()");
-
     params.push(id);
 
     await pool.query(
       `UPDATE tbl_prensas SET ${updates.join(", ")} WHERE id_prensa = ?`,
-
       params,
     );
 
@@ -919,43 +675,35 @@ app.put("/api/prensas/crud/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al actualizar la prensa",
-
       error: error.message,
     });
   }
 });
 
 //eliminar prensa (ID en query param - compatibilidad con frontend)
-
 app.delete("/api/prensas/crud", async (req, res) => {
   try {
     const id = req.query.id;
 
     if (!id) {
       return res
-
         .status(400)
 
         .json({
           success: false,
-
           message: "El ID de la prensa es requerido",
         });
     }
 
     const [existing] = await pool.query(
       "SELECT id_prensa, identificador_prensa FROM tbl_prensas WHERE id_prensa = ?",
-
       [id],
     );
 
     if (existing.length === 0) {
       return res
-
         .status(404)
-
         .json({ success: false, message: "Prensa no encontrada" });
     }
 
@@ -963,7 +711,6 @@ app.delete("/api/prensas/crud", async (req, res) => {
 
     const [troquelesCount] = await pool.query(
       "SELECT COUNT(*) as count FROM tbl_troqueles WHERE prensa_asignada = ?",
-
       [identificador],
     );
 
@@ -972,7 +719,6 @@ app.delete("/api/prensas/crud", async (req, res) => {
     if (desasignados > 0) {
       await pool.query(
         "UPDATE tbl_troqueles SET prensa_asignada = NULL WHERE prensa_asignada = ?",
-
         [identificador],
       );
     }
@@ -981,51 +727,39 @@ app.delete("/api/prensas/crud", async (req, res) => {
 
     res.json({
       success: true,
-
       message: "Prensa eliminada exitosamente",
-
       troqueles_desasignados: desasignados,
     });
   } catch (error) {
     console.error("Error deleting prensa:", error);
-
     res.status(500).json({
       success: false,
-
       message: "Error al eliminar la prensa",
-
       error: error.message,
     });
   }
 });
 
 //eliminar prensa (ID en URL)
-
 app.delete("/api/prensas/crud/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const [existing] = await pool.query(
       "SELECT id_prensa, identificador_prensa FROM tbl_prensas WHERE id_prensa = ?",
-
       [id],
     );
 
     if (existing.length === 0) {
       return res
-
         .status(404)
-
         .json({ success: false, message: "Prensa no encontrada" });
     }
 
     const identificador = existing[0].identificador_prensa;
 
     //verificar si hay troqueles asignados y desasignarlos
-
     const [troquelesCount] = await pool.query(
       "SELECT COUNT(*) as count FROM tbl_troqueles WHERE prensa_asignada = ?",
-
       [identificador],
     );
 
@@ -1034,7 +768,6 @@ app.delete("/api/prensas/crud/:id", async (req, res) => {
     if (desasignados > 0) {
       await pool.query(
         "UPDATE tbl_troqueles SET prensa_asignada = NULL WHERE prensa_asignada = ?",
-
         [identificador],
       );
     }
@@ -1043,9 +776,7 @@ app.delete("/api/prensas/crud/:id", async (req, res) => {
 
     res.json({
       success: true,
-
       message: "Prensa eliminada exitosamente",
-
       troqueles_desasignados: desasignados,
     });
   } catch (error) {
@@ -1053,9 +784,7 @@ app.delete("/api/prensas/crud/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: "Error al eliminar la prensa",
-
       error: error.message,
     });
   }
@@ -1069,9 +798,7 @@ app.get("/api/tipos_troquel", async (req, res) => {
 
     const options = tipos.map((t) => ({
       value: t.codigo || t.id,
-
       label: t.nombre,
-
       descripcion: t.descripcion,
     }));
 
@@ -1081,7 +808,6 @@ app.get("/api/tipos_troquel", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1095,11 +821,8 @@ app.get("/api/estados", async (req, res) => {
 
     const options = estados.map((e) => ({
       value: e.codigo || e.nombre,
-
       label: e.nombre,
-
       color: e.color,
-
       descripcion: e.descripcion,
     }));
 
@@ -1109,7 +832,6 @@ app.get("/api/estados", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1124,7 +846,6 @@ app.get("/api/asistencia-prensa", async (req, res) => {
     res.json(
       asistencias.map((a) => ({
         id: a.id,
-
         description: a.descripcion,
       })),
     );
@@ -1133,7 +854,6 @@ app.get("/api/asistencia-prensa", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1148,7 +868,6 @@ app.get("/api/fallas", async (req, res) => {
     res.json(
       fallas.map((f) => ({
         id: f.id_fallas_catalogo,
-
         description: f.descripcion,
       })),
     );
@@ -1157,28 +876,20 @@ app.get("/api/fallas", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
 });
 
 //enpoint de troqueles
-
 app.get("/api/troqueles", async (req, res) => {
   try {
     const [troqueles] = await pool.query(`  
-
       SELECT t.*, cr.prioridad AS prioridad_reparacion 
-
       FROM tbl_troqueles t 
-
       LEFT JOIN tbl_ciclos_reparacion cr 
-
         ON cr.troquel_id COLLATE utf8mb4_general_ci = t.id_troquel AND cr.ciclo_activo = TRUE 
-
     	ORDER BY t.año DESC, t.id_troquel  
-
     `);
 
     const groupedByYear = {};
@@ -1192,61 +903,33 @@ app.get("/api/troqueles", async (req, res) => {
 
       groupedByYear[year].push({
         id: t.id_troquel,
-
         name: t.nombre,
-
         status: t.estado,
-
         model: t.modelo,
-
         golpes: t.golpes,
-
         golpesAcum: t.golpes_acum,
-
         capacidadGolpes: t.capacidad_golpes,
-
         rectificaciones: t.rectificaciones,
-
         tipoTroquel: t.tipo_troquel,
-
         ubicacion: t.ubicacion,
-
         prensaAsignada: t.prensa_asignada,
-
         imageUrl: t.image_url,
-
         numeroSerie: t.numero_serie,
-
         proveedor: t.proveedor,
-
         pesoKg: t.peso_kg,
-
         dimensiones: t.dimensiones,
-
         materialBase: t.material_base,
-
         numEstaciones: t.num_estaciones,
-
         cavidades: t.cavidades,
-
         color: t.color,
-
         ciclos: t.ciclos,
-
         nParte1: t.n_parte_1,
-
         nParte2: t.n_parte_2,
-
         nParte3: t.n_parte_3,
-
         nParte4: t.n_parte_4,
-
         nParte5: t.n_parte_5,
-
         nParte6: t.n_parte_6,
-
         comentarios: t.comentarios,
-
         prioridad_reparacion: t.prioridad_reparacion || null,
       });
     });
@@ -1257,7 +940,6 @@ app.get("/api/troqueles", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1266,11 +948,8 @@ app.get("/api/troqueles", async (req, res) => {
 app.get("/api/troqueles/list", async (req, res) => {
   try {
     const [troqueles] = await pool.query(`  
-
       SELECT * FROM tbl_troqueles  
-
     	ORDER BY creado_en DESC  
-
     `);
 
     res.json(troqueles);
@@ -1279,7 +958,6 @@ app.get("/api/troqueles/list", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1288,28 +966,22 @@ app.get("/api/troqueles/list", async (req, res) => {
 app.get("/api/troqueles/search", async (req, res) => {
   try {
     const { year, status, search } = req.query;
-
     let sql = "SELECT * FROM tbl_troqueles WHERE 1=1";
-
     const params = [];
 
     if (year) {
       sql += " AND año = ?";
-
       params.push(parseInt(year));
     }
 
     if (status) {
       sql += " AND estado = ?";
-
       params.push(status);
     }
 
     if (search) {
       sql += " AND (id_troquel LIKE ? OR nombre LIKE ? OR modelo LIKE ?)";
-
       const searchTerm = `%${search}%`;
-
       params.push(searchTerm, searchTerm, searchTerm);
     }
 
@@ -1323,7 +995,6 @@ app.get("/api/troqueles/search", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -1333,14 +1004,12 @@ app.get("/api/troqueles/:id", async (req, res) => {
   try {
     const [troqueles] = await pool.query(
       "SELECT * FROM tbl_troqueles WHERE id_troquel = ?",
-
       [req.params.id],
     );
 
     if (troqueles.length === 0) {
       return res.status(404).json({
         success: false,
-
         message: "Troquel no encontrado",
       });
     }
@@ -1351,71 +1020,46 @@ app.get("/api/troqueles/:id", async (req, res) => {
 
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
 });
 
 //enpoints de ciclos de reparacion
-
 //obtener ciclo activo para el troquel
-
 app.get("/api/troqueles/:id/ciclo-activo", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `  
-
-    	SELECT  
-
+      `SELECT  
         	cr.*,  
-
         	TIMESTAMPDIFF(MINUTE, cr.fecha_inicio_reparacion, NOW()) AS minutos_transcurridos,  
-
         	TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_transcurridas,  
-
         	TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_transcurridos  
-
-    	FROM tbl_ciclos_reparacion cr  
-
-    		WHERE cr.troquel_id = ? AND cr.ciclo_activo = TRUE  
-
-    	ORDER BY cr.fecha_inicio_reparacion DESC  
-
-    	LIMIT 1  
-
+      	FROM tbl_ciclos_reparacion cr  
+      		WHERE cr.troquel_id = ? AND cr.ciclo_activo = TRUE  
+          	ORDER BY cr.fecha_inicio_reparacion DESC  
+      	LIMIT 1  
     `,
-
       [req.params.id],
     );
 
     if (rows.length === 0) {
       return res.json({
         ciclo: null,
-
         message: "No active repair cycle found",
       });
     }
 
     //obtener el tecnico para el ciclo
-
     const [tecnicos] = await pool.query(
-      `  
-
-      	SELECT * FROM tbl_tecnicos_ciclo  
-
+      `SELECT * FROM tbl_tecnicos_ciclo  
     		WHERE ciclo_id = ?  
-
-    	ORDER BY fecha_inicio ASC  
-
-    `,
-
+    	ORDER BY fecha_inicio ASC`,
       [rows[0].id_ciclo_reparacion],
     );
 
     res.json({
       ciclo: rows[0],
-
       tecnicos: tecnicos,
     });
   } catch (error) {
@@ -1428,47 +1072,29 @@ app.get("/api/troqueles/:id/ciclo-activo", async (req, res) => {
 });
 
 //obtener el historial de reparacion para el troquel
-
 app.get("/api/troqueles/:id/ciclos-historial", async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
 
     const [rows] = await pool.query(
-      `  
-
-    		SELECT  
-
+      `SELECT  
         		cr.*,  
-
         		CASE  
-
         			WHEN cr.tiempo_reparacion_horas <= 4 THEN 'Rápida (≤4h)'  
-
         			WHEN cr.tiempo_reparacion_horas <= 24 THEN 'Normal (4-24h)'  
-
         			WHEN cr.tiempo_reparacion_horas <= 72 THEN 'Extendida (1-3 días)'  
-
         			ELSE 'Prolongada (>3 días)'  
-
         		END AS clasificacion_tiempo  
-
     		FROM tbl_ciclos_reparacion cr  
-
     			WHERE cr.troquel_id = ?  
-
     			ORDER BY cr.fecha_inicio_reparacion DESC  
-
-    		LIMIT ?  
-
-    `,
-
+    		LIMIT ?`,
       [req.params.id, limit],
     );
 
     res.json(rows);
   } catch (error) {
     console.error("Error fetching repair history:", error);
-
     res.status(500).json({
       error: "Failed to fetch repair history",
     });
@@ -1476,53 +1102,31 @@ app.get("/api/troqueles/:id/ciclos-historial", async (req, res) => {
 });
 
 //obtener estadisticas del troquel
-
 app.get("/api/troqueles/:id/estadisticas", async (req, res) => {
   try {
     const [stats] = await pool.query(
-      `  
-
-    		SELECT  
-
+      `SELECT  
         		troquel_id,  
-
         			COUNT(*) AS total_reparaciones,  
-
         			COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS reparaciones_completadas,  
-
         			COUNT(CASE WHEN ciclo_activo = TRUE THEN 1 END) AS reparaciones_activas,  
-
-        AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS promedio_horas_reparacion,  
-
-    	    MIN(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS min_horas_reparacion,  
-
-       				 	MAX(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS max_horas_reparacion,  
-
-        				SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS total_fallas,  
-
-        SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS total_limpiezas,  
-
-        SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS total_cambios_modelo,  
-
-        SUM(CASE WHEN motivo_entrada = 'Mantenimiento Preventivo' THEN 1 ELSE 0 END) AS total_mantenimientos  
-
-    	FROM tbl_ciclos_reparacion  
-
-    		WHERE troquel_id = ?  
-
-    		GROUP BY troquel_id  
-
-    `,
-
+          AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS promedio_horas_reparacion,  
+      	    MIN(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS min_horas_reparacion,  
+         				 	MAX(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END) AS max_horas_reparacion,  
+          				SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS total_fallas,  
+          SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS total_limpiezas,  
+          SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS total_cambios_modelo,  
+          SUM(CASE WHEN motivo_entrada = 'Mantenimiento Preventivo' THEN 1 ELSE 0 END) AS total_mantenimientos  
+      	FROM tbl_ciclos_reparacion  
+      		WHERE troquel_id = ?  
+        		GROUP BY troquel_id`,
       [req.params.id],
     );
 
     res.json(
       stats[0] || {
         total_reparaciones: 0,
-
         reparaciones_completadas: 0,
-
         promedio_horas_reparacion: null,
       },
     );
@@ -1536,70 +1140,38 @@ app.get("/api/troqueles/:id/estadisticas", async (req, res) => {
 });
 
 //obtener todas las reparaciones actvas
-
 app.get("/api/reparaciones-activas", async (req, res) => {
   try {
     const [rows] = await pool.query(`  
-
     		SELECT  
-
         		cr.id_ciclo_reparacion,  
-
         		cr.troquel_id,  
-
         		cr.troquel_nombre,  
-
         cr.modelo,  
-
         cr.fecha_inicio_reparacion,  
-
         cr.motivo_entrada,  
-
         cr.falla_descripcion,  
-
         cr.prioridad,  
-
         cr.prensa_origen,  
-
         cr.nivel_reparacion,  
-
         cr.grupo_reparacion,  
-
         cr.fecha_bajado,  
-
     	    cr.fecha_recepcion_taller,  
-
         cr.fecha_inicio_trabajo,  
-
         TIMESTAMPDIFF(HOUR, cr.fecha_inicio_reparacion, NOW()) AS horas_en_reparacion,  
-
         TIMESTAMPDIFF(DAY, cr.fecha_inicio_reparacion, NOW()) AS dias_en_reparacion  
-
     		FROM tbl_ciclos_reparacion cr  
-
     			WHERE cr.ciclo_activo = TRUE  
-
-    				ORDER BY cr.prioridad ASC, cr.fecha_inicio_reparacion ASC  
-
-    `);
+    				ORDER BY cr.prioridad ASC, cr.fecha_inicio_reparacion ASC`);
 
     //obtener los tecnicos para cada reparacion activa
-
     for (let row of rows) {
       const [tecnicos] = await pool.query(
-        `  
-
-        		SELECT empleado_nombre, grupo, tipo  
-
+        `SELECT empleado_nombre, grupo, tipo  
         			FROM tbl_tecnicos_ciclo  
-
-        		WHERE ciclo_id = ? AND fecha_fin IS NULL  
-
-    	`,
-
+        		WHERE ciclo_id = ? AND fecha_fin IS NULL`,
         [row.id_ciclo_reparacion],
       );
-
       row.tecnicos = tecnicos;
     }
 
@@ -1614,44 +1186,26 @@ app.get("/api/reparaciones-activas", async (req, res) => {
 });
 
 //obtener resumen mensual
-
 app.get("/api/resumen-mensual", async (req, res) => {
   try {
     const year = req.query.year || new Date().getFullYear();
 
     const [rows] = await pool.query(
-      `  
-
-    		SELECT  
-
+      `SELECT  
         		YEAR(fecha_inicio_reparacion) AS anio,  
-
         		MONTH(fecha_inicio_reparacion) AS mes,  
-
         		DATE_FORMAT(fecha_inicio_reparacion, '%Y-%m') AS periodo,  
-
         COUNT(*) AS total_reparaciones,  
-
         COUNT(CASE WHEN ciclo_activo = FALSE THEN 1 END) AS completadas,  
-
         		ROUND(AVG(CASE WHEN ciclo_activo = FALSE THEN tiempo_reparacion_horas END), 2) AS promedio_horas,  
-
         		SUM(CASE WHEN motivo_entrada = 'Falla de Troquel' THEN 1 ELSE 0 END) AS por_falla,  
-
         SUM(CASE WHEN motivo_entrada = 'Limpieza General' THEN 1 ELSE 0 END) AS por_limpieza,  
-
         SUM(CASE WHEN motivo_entrada = 'Cambio de Modelo' THEN 1 ELSE 0 END) AS por_cambio_modelo  
-
     FROM tbl_ciclos_reparacion  
-
     	WHERE YEAR(fecha_inicio_reparacion) = ?  
-
     		GROUP BY YEAR(fecha_inicio_reparacion), MONTH(fecha_inicio_reparacion)  
-
     		ORDER BY anio DESC, mes DESC  
-
     `,
-
       [year],
     );
 
@@ -1666,7 +1220,6 @@ app.get("/api/resumen-mensual", async (req, res) => {
 });
 
 //empezar nuevo ciclo de reparacion
-
 app.post("/api/troqueles/:id/iniciar-ciclo", async (req, res) => {
   const connection = await pool.getConnection();
 
@@ -1675,43 +1228,24 @@ app.post("/api/troqueles/:id/iniciar-ciclo", async (req, res) => {
 
     const {
       troquel_nombre,
-
       modelo,
-
       motivo_entrada,
-
       falla_id,
-
       falla_descripcion,
-
       folio,
-
       empleado,
-
       comentarios,
-
       status_anterior,
-
       prensa_origen,
-
       nivel,
-
       grupo,
-
       prioridad,
     } = req.body;
 
     //revisar si existe algun ciclo activo
-
     const [existing] = await connection.query(
-      `  
-
-    		SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion  
-
-    			WHERE troquel_id = ? AND ciclo_activo = TRUE  
-
-    `,
-
+      `SELECT id_ciclo_reparacion FROM tbl_ciclos_reparacion  
+    			WHERE troquel_id = ? AND ciclo_activo = TRUE`,
       [req.params.id],
     );
 
@@ -1720,76 +1254,43 @@ app.post("/api/troqueles/:id/iniciar-ciclo", async (req, res) => {
 
       return res.status(400).json({
         error: "Active repair cycle already exists",
-
         ciclo_id: existing[0].id_ciclo_reparacion,
       });
     }
 
     //insertar nuevo ciclo de reparacion
-
     const [result] = await connection.query(
-      `  
-
-    		INSERT INTO tbl_ciclos_reparacion (  
-
+      `INSERT INTO tbl_ciclos_reparacion (  
         		troquel_id, troquel_nombre, modelo,  
-
         		fecha_inicio_reparacion, motivo_entrada,  
-
         falla_id, falla_descripcion,  
-
         folio_entrada, empleado_registro, comentarios_entrada,  
-
         status_anterior, prensa_origen,  
-
         nivel_reparacion, grupo_reparacion, prioridad,  
-
         fecha_bajado, ciclo_activo  
-
-    	) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)  
-
-    `,
+    	) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)`,
 
       [
         req.params.id,
-
         troquel_nombre,
-
         modelo,
-
         motivo_entrada,
-
         falla_id || null,
-
         falla_descripcion || null,
-
         folio,
-
         empleado,
-
         comentarios || null,
-
         status_anterior || "En prensa",
-
         prensa_origen || null,
-
         nivel || null,
-
         grupo || null,
-
         prioridad || 3,
       ],
     );
 
     //actualizar el estado del troquel a reparando
-
     await connection.query(
-      `  
-
-    		UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?  
-
-    `,
-
+      `UPDATE tbl_troqueles SET estado = 'Reparando' WHERE id_troquel = ?`,
       [req.params.id],
     );
 
@@ -1797,14 +1298,11 @@ app.post("/api/troqueles/:id/iniciar-ciclo", async (req, res) => {
 
     res.json({
       success: true,
-
       ciclo_id: result.insertId,
-
       message: "Repair cycle started successfully",
     });
   } catch (error) {
     await connection.rollback();
-
     console.error("Error starting repair cycle:", error);
 
     res.status(500).json({
@@ -1816,27 +1314,22 @@ app.post("/api/troqueles/:id/iniciar-ciclo", async (req, res) => {
 });
 
 //actualizar pasos de proceso de reparacion
-
 app.post("/api/ciclos/:id/actualizar-paso", async (req, res) => {
   try {
     const { paso } = req.body;
-
     let field;
 
     switch (paso) {
       case "recepcion":
         field = "fecha_recepcion_taller";
-
         break;
 
       case "inicio":
         field = "fecha_inicio_trabajo";
-
         break;
 
       case "termino":
         field = "fecha_termino_trabajo";
-
         break;
 
       default:
@@ -1846,36 +1339,21 @@ app.post("/api/ciclos/:id/actualizar-paso", async (req, res) => {
     }
 
     await pool.query(
-      `  
-
-    		UPDATE tbl_ciclos_reparacion  
-
+      `UPDATE tbl_ciclos_reparacion  
     			SET ${field} = NOW()  
-
-    		WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE  
-
-    	`,
-
+    		WHERE id_ciclo_reparacion = ? AND ciclo_activo = TRUE`,
       [req.params.id],
     );
 
     //obtener ciclo actualizado
-
     const [updated] = await pool.query(
-      `  
-
-    		SELECT fecha_bajado, fecha_recepcion_taller, fecha_inicio_trabajo, fecha_termino_trabajo  
-
-    		FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ?  
-
-    `,
-
+      `SELECT fecha_bajado, fecha_recepcion_taller, fecha_inicio_trabajo, fecha_termino_trabajo  
+    		FROM tbl_ciclos_reparacion WHERE id_ciclo_reparacion = ?`,
       [req.params.id],
     );
 
     res.json({
       success: true,
-
       proceso: updated[0],
     });
   } catch (error) {
@@ -1888,29 +1366,17 @@ app.post("/api/ciclos/:id/actualizar-paso", async (req, res) => {
 });
 
 //agregar tecnico a ciclo de reparacion
-
 app.post("/api/ciclos/:id/tecnicos", async (req, res) => {
   try {
     const { empleado_numero, empleado_nombre, grupo, tipo } = req.body;
-
     const [result] = await pool.query(
-      `  
-
-    		INSERT INTO tbl_tecnicos_ciclo (ciclo_id, empleado_numero, empleado_nombre, grupo, tipo)  
-
-    		VALUES (?, ?, ?, ?, ?)  
-
-    	`,
-
+      `INSERT INTO tbl_tecnicos_ciclo (ciclo_id, empleado_numero, empleado_nombre, grupo, tipo)  
+        VALUES (?, ?, ?, ?, ?)`,
       [
         req.params.id,
-
         empleado_numero || null,
-
         empleado_nombre,
-
         grupo || null,
-
         tipo || "Técnico",
       ],
     );
@@ -1918,11 +1384,7 @@ app.post("/api/ciclos/:id/tecnicos", async (req, res) => {
     //obtener tecnico insertado
 
     const [tecnico] = await pool.query(
-      `  
-
-      		SELECT * FROM tbl_tecnicos_ciclo WHERE id_tecnicos_ciclos = ?  
-
-    `,
+      `SELECT * FROM tbl_tecnicos_ciclo WHERE id_tecnicos_ciclos = ?`,
 
       [result.insertId],
     );

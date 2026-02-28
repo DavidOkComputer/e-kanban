@@ -1,6 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 
-import createStyles, { getStatusStyle, generateYears, cssAnimations } from "../styles/adminDieRegistration.styles";
+import createStyles, {
+  getStatusStyle,
+  generateYears,
+  cssAnimations,
+} from "../styles/adminDieRegistration.styles";
 
 // Configuración de la API
 
@@ -9,177 +13,177 @@ const API_BASE = "http://localhost:3001/api";
 // Mapear datos del formulario al formato de la API
 
 const mapMoldFormToApi = (formData) => {
-    return {
-        id_molde: formData.id?.trim().toUpperCase(),
+  return {
+    id_molde: formData.id?.trim().toUpperCase(),
 
-        nombre: formData.name?.trim(),
+    nombre: formData.name?.trim(),
 
-        estado: formData.status,
+    estado: formData.status,
 
-        año: parseInt(formData.year),
+    año: parseInt(formData.year),
 
-        modelo: formData.model?.trim() || null,
+    modelo: formData.model?.trim() || null,
 
-        ciclos_inyeccion: formData.ciclos_inyeccion || "-",
+    ciclos_inyeccion: formData.ciclos_inyeccion || "-",
 
-        ciclos_acumulados: formData.ciclos_acumulados || "-",
+    ciclos_acumulados: formData.ciclos_acumulados || "-",
 
-        capacidad_ciclos: formData.capacidad_ciclos || "-",
+    capacidad_ciclos: formData.capacidad_ciclos || "-",
 
-        mantenimientos_preventivos: formData.mantenimientos_preventivos || "0",
+    mantenimientos_preventivos: formData.mantenimientos_preventivos || "0",
 
-        tipo_molde: formData.tipo_molde || "Null",
+    tipo_molde: formData.tipo_molde || "Null",
 
-        ubicacion: formData.ubicacion || null,
+    ubicacion: formData.ubicacion || null,
 
-        maquina_asignada: formData.maquina_asignada || null,
+    maquina_asignada: formData.maquina_asignada || null,
 
-        numero_serie: formData.numero_serie || null,
+    numero_serie: formData.numero_serie || null,
 
-        proveedor: formData.proveedor || null,
+    proveedor: formData.proveedor || null,
 
-        peso_kg: formData.peso_kg || null,
+    peso_kg: formData.peso_kg || null,
 
-        dimensiones: formData.dimensiones || null,
+    dimensiones: formData.dimensiones || null,
 
-        material_base: formData.material_base || null,
+    material_base: formData.material_base || null,
 
-        num_cavidades: formData.num_cavidades || null,
+    num_cavidades: formData.num_cavidades || null,
 
-        material_inyeccion: formData.material_inyeccion || null,
+    material_inyeccion: formData.material_inyeccion || null,
 
-        peso_pieza_g: formData.peso_pieza_g || null,
+    peso_pieza_g: formData.peso_pieza_g || null,
 
-        peso_colada_g: formData.peso_colada_g || null,
+    peso_colada_g: formData.peso_colada_g || null,
 
-        tiempo_ciclo_seg: formData.tiempo_ciclo_seg || null,
+    tiempo_ciclo_seg: formData.tiempo_ciclo_seg || null,
 
-        temperatura_molde_c: formData.temperatura_molde_c || null,
+    temperatura_molde_c: formData.temperatura_molde_c || null,
 
-        presion_inyeccion_bar: formData.presion_inyeccion_bar || null,
+    presion_inyeccion_bar: formData.presion_inyeccion_bar || null,
 
-        tonelaje_requerido: formData.tonelaje_requerido || null,
+    tonelaje_requerido: formData.tonelaje_requerido || null,
 
-        tipo_colada: formData.tipo_colada || "Null",
+    tipo_colada: formData.tipo_colada || "Null",
 
-        num_puntos_inyeccion: formData.num_puntos_inyeccion || null,
+    num_puntos_inyeccion: formData.num_puntos_inyeccion || null,
 
-        marca_colada_caliente: formData.marca_colada_caliente || null,
+    marca_colada_caliente: formData.marca_colada_caliente || null,
 
-        circuitos_enfriamiento: formData.circuitos_enfriamiento || null,
+    circuitos_enfriamiento: formData.circuitos_enfriamiento || null,
 
-        tipo_enfriamiento: formData.tipo_enfriamiento || "Null",
+    tipo_enfriamiento: formData.tipo_enfriamiento || "Null",
 
-        tipo_expulsion: formData.tipo_expulsion || "Null",
+    tipo_expulsion: formData.tipo_expulsion || "Null",
 
-        carrera_expulsion_mm: formData.carrera_expulsion_mm || null,
+    carrera_expulsion_mm: formData.carrera_expulsion_mm || null,
 
-        color: formData.color || null,
+    color: formData.color || null,
 
-        n_parte_1: formData.n_parte_1 || null,
+    n_parte_1: formData.n_parte_1 || null,
 
-        n_parte_2: formData.n_parte_2 || null,
+    n_parte_2: formData.n_parte_2 || null,
 
-        n_parte_3: formData.n_parte_3 || null,
+    n_parte_3: formData.n_parte_3 || null,
 
-        n_parte_4: formData.n_parte_4 || null,
+    n_parte_4: formData.n_parte_4 || null,
 
-        n_parte_5: formData.n_parte_5 || null,
+    n_parte_5: formData.n_parte_5 || null,
 
-        n_parte_6: formData.n_parte_6 || null,
+    n_parte_6: formData.n_parte_6 || null,
 
-        comentarios: formData.notes || null,
+    comentarios: formData.notes || null,
 
-        image_url: formData.image_url || null,
-    };
+    image_url: formData.image_url || null,
+  };
 };
 
 // Mapear datos de la API al formato del formulario
 
 const mapApiToMoldForm = (apiData) => {
-    return {
-        id: apiData.id || apiData.id_molde || "",
+  return {
+    id: apiData.id || apiData.id_molde || "",
 
-        name: apiData.name || apiData.nombre || "",
+    name: apiData.name || apiData.nombre || "",
 
-        status: apiData.status || apiData.estado || "Pendiente",
+    status: apiData.status || apiData.estado || "Pendiente",
 
-        year: apiData.year || apiData.año || new Date().getFullYear(),
+    year: apiData.year || apiData.año || new Date().getFullYear(),
 
-        model: apiData.model || apiData.modelo || "",
+    model: apiData.model || apiData.modelo || "",
 
-        ciclos_inyeccion: apiData.ciclos_inyeccion || "",
+    ciclos_inyeccion: apiData.ciclos_inyeccion || "",
 
-        ciclos_acumulados: apiData.ciclos_acumulados || "",
+    ciclos_acumulados: apiData.ciclos_acumulados || "",
 
-        capacidad_ciclos: apiData.capacidad_ciclos || "",
+    capacidad_ciclos: apiData.capacidad_ciclos || "",
 
-        mantenimientos_preventivos: apiData.mantenimientos_preventivos || "0",
+    mantenimientos_preventivos: apiData.mantenimientos_preventivos || "0",
 
-        tipo_molde: apiData.tipo_molde || "Null",
+    tipo_molde: apiData.tipo_molde || "Null",
 
-        ubicacion: apiData.ubicacion || "",
+    ubicacion: apiData.ubicacion || "",
 
-        maquina_asignada: apiData.maquina_asignada || "",
+    maquina_asignada: apiData.maquina_asignada || "",
 
-        numero_serie: apiData.numero_serie || "",
+    numero_serie: apiData.numero_serie || "",
 
-        proveedor: apiData.proveedor || "",
+    proveedor: apiData.proveedor || "",
 
-        peso_kg: apiData.peso_kg || "",
+    peso_kg: apiData.peso_kg || "",
 
-        dimensiones: apiData.dimensiones || "",
+    dimensiones: apiData.dimensiones || "",
 
-        material_base: apiData.material_base || "",
+    material_base: apiData.material_base || "",
 
-        num_cavidades: apiData.num_cavidades || "",
+    num_cavidades: apiData.num_cavidades || "",
 
-        material_inyeccion: apiData.material_inyeccion || "",
+    material_inyeccion: apiData.material_inyeccion || "",
 
-        peso_pieza_g: apiData.peso_pieza_g || "",
+    peso_pieza_g: apiData.peso_pieza_g || "",
 
-        peso_colada_g: apiData.peso_colada_g || "",
+    peso_colada_g: apiData.peso_colada_g || "",
 
-        tiempo_ciclo_seg: apiData.tiempo_ciclo_seg || "",
+    tiempo_ciclo_seg: apiData.tiempo_ciclo_seg || "",
 
-        temperatura_molde_c: apiData.temperatura_molde_c || "",
+    temperatura_molde_c: apiData.temperatura_molde_c || "",
 
-        presion_inyeccion_bar: apiData.presion_inyeccion_bar || "",
+    presion_inyeccion_bar: apiData.presion_inyeccion_bar || "",
 
-        tonelaje_requerido: apiData.tonelaje_requerido || "",
+    tonelaje_requerido: apiData.tonelaje_requerido || "",
 
-        tipo_colada: apiData.tipo_colada || "Null",
+    tipo_colada: apiData.tipo_colada || "Null",
 
-        num_puntos_inyeccion: apiData.num_puntos_inyeccion || "",
+    num_puntos_inyeccion: apiData.num_puntos_inyeccion || "",
 
-        marca_colada_caliente: apiData.marca_colada_caliente || "",
+    marca_colada_caliente: apiData.marca_colada_caliente || "",
 
-        circuitos_enfriamiento: apiData.circuitos_enfriamiento || "",
+    circuitos_enfriamiento: apiData.circuitos_enfriamiento || "",
 
-        tipo_enfriamiento: apiData.tipo_enfriamiento || "Null",
+    tipo_enfriamiento: apiData.tipo_enfriamiento || "Null",
 
-        tipo_expulsion: apiData.tipo_expulsion || "Null",
+    tipo_expulsion: apiData.tipo_expulsion || "Null",
 
-        carrera_expulsion_mm: apiData.carrera_expulsion_mm || "",
+    carrera_expulsion_mm: apiData.carrera_expulsion_mm || "",
 
-        color: apiData.color || "",
+    color: apiData.color || "",
 
-        n_parte_1: apiData.n_parte_1 || "",
+    n_parte_1: apiData.n_parte_1 || "",
 
-        n_parte_2: apiData.n_parte_2 || "",
+    n_parte_2: apiData.n_parte_2 || "",
 
-        n_parte_3: apiData.n_parte_3 || "",
+    n_parte_3: apiData.n_parte_3 || "",
 
-        n_parte_4: apiData.n_parte_4 || "",
+    n_parte_4: apiData.n_parte_4 || "",
 
-        n_parte_5: apiData.n_parte_5 || "",
+    n_parte_5: apiData.n_parte_5 || "",
 
-        n_parte_6: apiData.n_parte_6 || "",
+    n_parte_6: apiData.n_parte_6 || "",
 
-        notes: apiData.notes || apiData.comentarios || "",
+    notes: apiData.notes || apiData.comentarios || "",
 
-        image_url: apiData.image_url || "",
-    };
+    image_url: apiData.image_url || "",
+  };
 };
 
 // Defaults
@@ -187,3263 +191,3493 @@ const mapApiToMoldForm = (apiData) => {
 const DEFAULT_MACHINE_OPTIONS = [{ value: "", label: "Sin asignar" }];
 
 const DEFAULT_MOLD_TYPE_OPTIONS = [
-    { value: "Null", label: "Sin especificar" },
+  { value: "Null", label: "Sin especificar" },
 
-    { value: "dos_placas", label: "Dos Placas" },
+  { value: "dos_placas", label: "Dos Placas" },
 
-    { value: "tres_placas", label: "Tres Placas" },
+  { value: "tres_placas", label: "Tres Placas" },
 
-    { value: "colada_caliente", label: "Colada Caliente" },
+  { value: "colada_caliente", label: "Colada Caliente" },
 
-    { value: "stack", label: "Stack (Apilado)" },
+  { value: "stack", label: "Stack (Apilado)" },
 
-    { value: "insertos", label: "Con Insertos" },
+  { value: "insertos", label: "Con Insertos" },
 
-    { value: "desatornillado", label: "Desatornillado" },
+  { value: "desatornillado", label: "Desatornillado" },
 
-    { value: "bi_inyeccion", label: "Bi-Inyección" },
+  { value: "bi_inyeccion", label: "Bi-Inyección" },
 
-    { value: "compresion", label: "Compresión" },
+  { value: "compresion", label: "Compresión" },
 ];
 
 const DEFAULT_STATUS_OPTIONS = [
-    { value: "Pendiente", label: "Pendiente" },
+  { value: "Pendiente", label: "Pendiente" },
 
-    { value: "En maquina", label: "En Máquina" },
+  { value: "En maquina", label: "En Máquina" },
 
-    { value: "Listo", label: "Listo" },
+  { value: "Listo", label: "Listo" },
 
-    { value: "Listo-BackUp", label: "Listo - BackUp" },
+  { value: "Listo-BackUp", label: "Listo - BackUp" },
 
-    { value: "Reparando", label: "Reparando" },
+  { value: "Reparando", label: "Reparando" },
 
-    { value: "Calentando", label: "Calentando" },
+  { value: "Calentando", label: "Calentando" },
 
-    { value: "Baja", label: "Baja / Obsoleto" },
+  { value: "Baja", label: "Baja / Obsoleto" },
 ];
 
 const COLADA_OPTIONS = [
-    { value: "Null", label: "Sin especificar" },
+  { value: "Null", label: "Sin especificar" },
 
-    { value: "fria", label: "Fría" },
+  { value: "fria", label: "Fría" },
 
-    { value: "caliente", label: "Caliente (Hot Runner)" },
+  { value: "caliente", label: "Caliente (Hot Runner)" },
 
-    { value: "semi-caliente", label: "Semi-Caliente" },
+  { value: "semi-caliente", label: "Semi-Caliente" },
 
-    { value: "valvula", label: "Válvula (Valve Gate)" },
+  { value: "valvula", label: "Válvula (Valve Gate)" },
 ];
 
 const ENFRIAMIENTO_OPTIONS = [
-    { value: "Null", label: "Sin especificar" },
+  { value: "Null", label: "Sin especificar" },
 
-    { value: "agua", label: "Agua" },
+  { value: "agua", label: "Agua" },
 
-    { value: "aceite", label: "Aceite" },
+  { value: "aceite", label: "Aceite" },
 
-    { value: "mixto", label: "Mixto" },
+  { value: "mixto", label: "Mixto" },
 ];
 
 const EXPULSION_OPTIONS = [
-    { value: "Null", label: "Sin especificar" },
+  { value: "Null", label: "Sin especificar" },
 
-    { value: "pines", label: "Pines" },
+  { value: "pines", label: "Pines" },
 
-    { value: "placa", label: "Placa" },
+  { value: "placa", label: "Placa" },
 
-    { value: "aire", label: "Aire" },
+  { value: "aire", label: "Aire" },
 
-    { value: "hidraulica", label: "Hidráulica" },
+  { value: "hidraulica", label: "Hidráulica" },
 
-    { value: "mixto", label: "Mixto" },
+  { value: "mixto", label: "Mixto" },
 ];
 
 const DEFAULT_MACHINE_STATUS_OPTIONS = [
-    { value: "activa", label: "Activa" },
+  { value: "activa", label: "Activa" },
 
-    { value: "mantenimiento", label: "En Mantenimiento" },
+  { value: "mantenimiento", label: "En Mantenimiento" },
 
-    { value: "inactiva", label: "Inactiva" },
+  { value: "inactiva", label: "Inactiva" },
 ];
+
+// Format tipo values for display: null/Null → "Ninguno", underscores → spaces
+
+const formatTipoDisplay = (value) => {
+  if (!value || value.toLowerCase() === "null") return "Ninguno";
+
+  return value.replace(/_/g, " ");
+};
 
 // Image compression utility
 
 const compressImage = (
-    file,
+  file,
 
-    { maxWidth = 1200, maxHeight = 1200, quality = 0.7 } = {}
+  { maxWidth = 1200, maxHeight = 1200, quality = 0.7 } = {},
 ) => {
-    return new Promise((resolve, reject) => {
-        if (file.size < 100 * 1024) {
-            const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    if (file.size < 100 * 1024) {
+      const reader = new FileReader();
 
-            reader.onloadend = () => resolve(reader.result);
+      reader.onloadend = () => resolve(reader.result);
 
-            reader.onerror = () => reject(new Error("Error al leer la imagen"));
+      reader.onerror = () => reject(new Error("Error al leer la imagen"));
 
-            reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
 
-            return;
-        }
+      return;
+    }
 
-        const img = new Image();
+    const img = new Image();
 
-        const canvas = document.createElement("canvas");
+    const canvas = document.createElement("canvas");
 
-        const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-        img.onload = () => {
-            let { width, height } = img;
+    img.onload = () => {
+      let { width, height } = img;
 
-            if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
 
-                width = Math.round(width * ratio);
+        width = Math.round(width * ratio);
 
-                height = Math.round(height * ratio);
-            }
+        height = Math.round(height * ratio);
+      }
 
-            canvas.width = width;
+      canvas.width = width;
 
-            canvas.height = height;
+      canvas.height = height;
 
-            ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
 
-            const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";
+      const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";
 
-            let outputQuality = quality;
+      let outputQuality = quality;
 
-            let result = canvas.toDataURL(mimeType, outputQuality);
+      let result = canvas.toDataURL(mimeType, outputQuality);
 
-            while (result.length > 500 * 1024 && outputQuality > 0.2) {
-                outputQuality -= 0.1;
+      while (result.length > 500 * 1024 && outputQuality > 0.2) {
+        outputQuality -= 0.1;
 
-                result = canvas.toDataURL("image/jpeg", outputQuality);
-            }
+        result = canvas.toDataURL("image/jpeg", outputQuality);
+      }
 
-            URL.revokeObjectURL(img.src);
+      URL.revokeObjectURL(img.src);
 
-            resolve(result);
-        };
+      resolve(result);
+    };
 
-        img.onerror = () => {
-            URL.revokeObjectURL(img.src);
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src);
 
-            reject(new Error("Error al cargar la imagen para compresión"));
-        };
+      reject(new Error("Error al cargar la imagen para compresión"));
+    };
 
-        img.src = URL.createObjectURL(file);
-    });
+    img.src = URL.createObjectURL(file);
+  });
 };
 
 // Collapsible Section Component
 
-const CollapsibleSection = React.memo(({ title, icon, isExpanded, onToggle, children, isRequired }) => {
+const CollapsibleSection = React.memo(
+  ({ title, icon, isExpanded, onToggle, children, isRequired }) => {
     const sectionStyles = {
-        container: {
-            marginBottom: "16px",
+      container: {
+        marginBottom: "16px",
 
-            background: "rgba(0, 0, 0, 0.2)",
+        background: "rgba(0, 0, 0, 0.2)",
 
-            borderRadius: "12px",
+        borderRadius: "12px",
 
-            border: "1px solid rgba(0, 255, 136, 0.1)",
+        border: "1px solid rgba(0, 255, 136, 0.1)",
 
-            overflow: "hidden",
+        overflow: "hidden",
 
-            transition: "all 0.3s ease",
-        },
+        transition: "all 0.3s ease",
+      },
 
-        header: {
-            display: "flex",
+      header: {
+        display: "flex",
 
-            alignItems: "center",
+        alignItems: "center",
 
-            justifyContent: "space-between",
+        justifyContent: "space-between",
 
-            padding: "16px 20px",
+        padding: "16px 20px",
 
-            cursor: "pointer",
+        cursor: "pointer",
 
-            background: isExpanded ? "rgba(0, 255, 136, 0.08)" : "transparent",
+        background: isExpanded ? "rgba(0, 255, 136, 0.08)" : "transparent",
 
-            borderBottom: isExpanded ? "1px solid rgba(0, 255, 136, 0.15)" : "1px solid transparent",
+        borderBottom: isExpanded
+          ? "1px solid rgba(0, 255, 136, 0.15)"
+          : "1px solid transparent",
 
-            transition: "all 0.3s ease",
+        transition: "all 0.3s ease",
 
-            userSelect: "none",
-        },
+        userSelect: "none",
+      },
 
-        headerLeft: {
-            display: "flex",
+      headerLeft: {
+        display: "flex",
 
-            alignItems: "center",
+        alignItems: "center",
 
-            gap: "12px",
-        },
+        gap: "12px",
+      },
 
-        icon: {
-            fontSize: "18px",
+      icon: {
+        fontSize: "18px",
 
-            width: "28px",
+        width: "28px",
 
-            height: "28px",
+        height: "28px",
 
-            display: "flex",
+        display: "flex",
 
-            alignItems: "center",
+        alignItems: "center",
 
-            justifyContent: "center",
+        justifyContent: "center",
 
-            background: isExpanded ? "rgba(0, 255, 136, 0.15)" : "rgba(255, 255, 255, 0.05)",
+        background: isExpanded
+          ? "rgba(0, 255, 136, 0.15)"
+          : "rgba(255, 255, 255, 0.05)",
 
-            borderRadius: "8px",
+        borderRadius: "8px",
 
-            transition: "all 0.3s ease",
-        },
+        transition: "all 0.3s ease",
+      },
 
-        title: {
-            fontSize: "14px",
+      title: {
+        fontSize: "14px",
 
-            fontWeight: 600,
+        fontWeight: 600,
 
-            color: isExpanded ? "#00ff88" : "#ccc",
+        color: isExpanded ? "#00ff88" : "#ccc",
 
-            letterSpacing: "0.3px",
+        letterSpacing: "0.3px",
 
-            transition: "color 0.3s ease",
-        },
+        transition: "color 0.3s ease",
+      },
 
-        requiredBadge: {
-            background: "rgba(255, 107, 107, 0.15)",
+      requiredBadge: {
+        background: "rgba(255, 107, 107, 0.15)",
 
-            color: "#ff6b6b",
+        color: "#ff6b6b",
 
-            fontSize: "9px",
+        fontSize: "9px",
 
-            padding: "3px 8px",
+        padding: "3px 8px",
 
-            borderRadius: "10px",
+        borderRadius: "10px",
 
-            fontWeight: 600,
+        fontWeight: 600,
 
-            letterSpacing: "0.5px",
-        },
+        letterSpacing: "0.5px",
+      },
 
-        chevron: {
-            width: "24px",
+      chevron: {
+        width: "24px",
 
-            height: "24px",
+        height: "24px",
 
-            display: "flex",
+        display: "flex",
 
-            alignItems: "center",
+        alignItems: "center",
 
-            justifyContent: "center",
+        justifyContent: "center",
 
-            color: isExpanded ? "#00ff88" : "#666",
+        color: isExpanded ? "#00ff88" : "#666",
 
-            transition: "transform 0.3s ease, color 0.3s ease",
+        transition: "transform 0.3s ease, color 0.3s ease",
 
-            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
 
-            fontSize: "18px",
-        },
+        fontSize: "18px",
+      },
 
-        content: {
-            maxHeight: isExpanded ? "2000px" : "0",
+      content: {
+        maxHeight: isExpanded ? "2000px" : "0",
 
-            opacity: isExpanded ? 1 : 0,
+        opacity: isExpanded ? 1 : 0,
 
-            overflow: "hidden",
+        overflow: "hidden",
 
-            transition: "max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease",
+        transition:
+          "max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease",
 
-            padding: isExpanded ? "20px" : "0 20px",
-        },
+        padding: isExpanded ? "20px" : "0 20px",
+      },
     };
 
     return (
-        <div style={sectionStyles.container}>
-            <div style={sectionStyles.header} onClick={onToggle}>
-                <div style={sectionStyles.headerLeft}>
-                    <div style={sectionStyles.icon}>{icon || ""}</div>
+      <div style={sectionStyles.container}>
+        <div style={sectionStyles.header} onClick={onToggle}>
+          <div style={sectionStyles.headerLeft}>
+            <div style={sectionStyles.icon}>{icon || ""}</div>
 
-                    <span style={sectionStyles.title}>{title}</span>
+            <span style={sectionStyles.title}>{title}</span>
 
-                    {isRequired && <span style={sectionStyles.requiredBadge}>REQUERIDO</span>}
-                </div>
+            {isRequired && (
+              <span style={sectionStyles.requiredBadge}>REQUERIDO</span>
+            )}
+          </div>
 
-                <div style={sectionStyles.chevron}>▼</div>
-            </div>
-
-            <div style={sectionStyles.content}>{children}</div>
+          <div style={sectionStyles.chevron}>▼</div>
         </div>
+
+        <div style={sectionStyles.content}>{children}</div>
+      </div>
     );
-});
+  },
+);
 
 CollapsibleSection.displayName = "CollapsibleSection";
 
 // Maquina status style helper
 
 const getMaquinaStatusStyle = (status) => {
-    const statusColors = {
-        activa: {
-            background: "rgba(0, 255, 136, 0.15)",
+  const statusColors = {
+    activa: {
+      background: "rgba(0, 255, 136, 0.15)",
 
-            color: "#00ff88",
+      color: "#00ff88",
 
-            border: "1px solid rgba(0, 255, 136, 0.3)",
-        },
+      border: "1px solid rgba(0, 255, 136, 0.3)",
+    },
 
-        mantenimiento: {
-            background: "rgba(255, 200, 0, 0.15)",
+    mantenimiento: {
+      background: "rgba(255, 200, 0, 0.15)",
 
-            color: "#ffc800",
+      color: "#ffc800",
 
-            border: "1px solid rgba(255, 200, 0, 0.3)",
-        },
+      border: "1px solid rgba(255, 200, 0, 0.3)",
+    },
 
-        inactiva: {
-            background: "rgba(255, 107, 107, 0.15)",
+    inactiva: {
+      background: "rgba(255, 107, 107, 0.15)",
 
-            color: "#ff6b6b",
+      color: "#ff6b6b",
 
-            border: "1px solid rgba(255, 107, 107, 0.3)",
-        },
-    };
+      border: "1px solid rgba(255, 107, 107, 0.3)",
+    },
+  };
 
-    return statusColors[status] || statusColors["activa"];
+  return statusColors[status] || statusColors["activa"];
 };
 
 const AdminMoldRegistration = ({
-    onNavigateBack,
+  onNavigateBack,
 
-    user,
+  user,
 
-    initialTab,
+  initialTab,
 
-    hideChrome = false,
+  hideChrome = false,
 
-    onTabChange,
+  onTabChange,
 }) => {
-    const styles = useMemo(() => createStyles(), []);
+  const styles = useMemo(() => createStyles(), []);
 
-    const years = useMemo(() => generateYears(), []);
+  const years = useMemo(() => generateYears(), []);
 
-    // Tab state
+  // Tab state
 
-    const [activeTab, _setActiveTab] = useState(initialTab || "register");
+  const [activeTab, _setActiveTab] = useState(initialTab || "register");
 
-    // Sync tab from parent when it changes
+  // Sync tab from parent when it changes
 
-    useEffect(() => {
-        if (initialTab) _setActiveTab(initialTab);
-    }, [initialTab]);
+  useEffect(() => {
+    if (initialTab) _setActiveTab(initialTab);
+  }, [initialTab]);
 
-    // Wrap setActiveTab to notify parent
+  // Wrap setActiveTab to notify parent
 
-    const setActiveTab = useCallback(
-        (tab) => {
-            _setActiveTab(tab);
+  const setActiveTab = useCallback(
+    (tab) => {
+      _setActiveTab(tab);
 
-            if (onTabChange) onTabChange(tab);
-        },
+      if (onTabChange) onTabChange(tab);
+    },
 
-        [onTabChange]
-    );
+    [onTabChange],
+  );
 
-    // Collapsible sections
+  // Collapsible sections
 
-    const [expandedSections, setExpandedSections] = useState({
-        basicInfo: true,
+  const [expandedSections, setExpandedSections] = useState({
+    basicInfo: true,
 
-        production: false,
+    production: false,
 
-        injection: false,
+    injection: false,
 
-        colada: false,
+    colada: false,
 
-        cooling: false,
+    cooling: false,
 
-        expulsion: false,
+    expulsion: false,
 
-        technical: false,
+    technical: false,
 
-        partNumbers: false,
+    partNumbers: false,
 
-        image: false,
+    image: false,
 
-        notes: false,
+    notes: false,
+  });
+
+  // Dropdown options
+
+  const [machineOptions, setMachineOptions] = useState(DEFAULT_MACHINE_OPTIONS);
+
+  const [moldTypeOptions, setMoldTypeOptions] = useState(
+    DEFAULT_MOLD_TYPE_OPTIONS,
+  );
+
+  const [statusOptions, setStatusOptions] = useState(DEFAULT_STATUS_OPTIONS);
+
+  const [optionsLoading, setOptionsLoading] = useState(true);
+
+  // Form state
+
+  const [formData, setFormData] = useState({
+    id: "",
+
+    name: "",
+
+    status: "Pendiente",
+
+    year: new Date().getFullYear(),
+
+    model: "",
+
+    ciclos_inyeccion: "",
+
+    ciclos_acumulados: "",
+
+    capacidad_ciclos: "",
+
+    mantenimientos_preventivos: "0",
+
+    image_url: "",
+
+    notes: "",
+
+    maquina_asignada: "",
+
+    tipo_molde: "Null",
+
+    ubicacion: "",
+
+    proveedor: "",
+
+    peso_kg: "",
+
+    dimensiones: "",
+
+    material_base: "",
+
+    numero_serie: "",
+
+    num_cavidades: "",
+
+    material_inyeccion: "",
+
+    peso_pieza_g: "",
+
+    peso_colada_g: "",
+
+    tiempo_ciclo_seg: "",
+
+    temperatura_molde_c: "",
+
+    presion_inyeccion_bar: "",
+
+    tonelaje_requerido: "",
+
+    tipo_colada: "Null",
+
+    num_puntos_inyeccion: "",
+
+    marca_colada_caliente: "",
+
+    circuitos_enfriamiento: "",
+
+    tipo_enfriamiento: "Null",
+
+    tipo_expulsion: "Null",
+
+    carrera_expulsion_mm: "",
+
+    color: "",
+
+    n_parte_1: "",
+
+    n_parte_2: "",
+
+    n_parte_3: "",
+
+    n_parte_4: "",
+
+    n_parte_5: "",
+
+    n_parte_6: "",
+  });
+
+  const [focusedField, setFocusedField] = useState(null);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const [isCompressing, setIsCompressing] = useState(false);
+
+  // List state
+
+  const [molds, setMolds] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [filterYear, setFilterYear] = useState("");
+
+  const [filterStatus, setFilterStatus] = useState("");
+
+  // Modal state
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [moldToDelete, setMoldToDelete] = useState(null);
+
+  const [editingMold, setEditingMold] = useState(null);
+
+  // Stats
+
+  const [stats, setStats] = useState({
+    total: 0,
+
+    activos: 0,
+
+    reparando: 0,
+
+    pendientes: 0,
+  });
+
+  // Machine CRUD state
+
+  const [maquinas, setMaquinas] = useState([]);
+
+  const [maquinasLoading, setMaquinasLoading] = useState(false);
+
+  const [maquinaSearchTerm, setMaquinaSearchTerm] = useState("");
+
+  const [maquinaFilterStatus, setMaquinaFilterStatus] = useState("");
+
+  const [editingMaquina, setEditingMaquina] = useState(null);
+
+  const [showDeleteMaquinaModal, setShowDeleteMaquinaModal] = useState(false);
+
+  const [maquinaToDelete, setMaquinaToDelete] = useState(null);
+
+  const [maquinaFormData, setMaquinaFormData] = useState({
+    identificador_maquina: "",
+
+    nombre: "",
+
+    estado: "activa",
+
+    tonelaje_cierre: "",
+
+    marca: "",
+
+    modelo: "",
+
+    capacidad_inyeccion_g: "",
+
+    diametro_husillo_mm: "",
+
+    ubicacion: "",
+
+    notas: "",
+  });
+
+  const [maquinaExpandedSections, setMaquinaExpandedSections] = useState({
+    basicInfo: true,
+
+    technical: false,
+
+    notes: false,
+  });
+
+  // Modelo CRUD state
+
+  const [modelos, setModelos] = useState([]);
+
+  const [modelosLoading, setModelosLoading] = useState(false);
+
+  const [modeloSearchTerm, setModeloSearchTerm] = useState("");
+
+  const [modeloFilterMolde, setModeloFilterMolde] = useState("");
+
+  const [editingModelo, setEditingModelo] = useState(null);
+
+  const [showDeleteModeloModal, setShowDeleteModeloModal] = useState(false);
+
+  const [modeloToDelete, setModeloToDelete] = useState(null);
+
+  const [modeloFormData, setModeloFormData] = useState({
+    nombre_modelo: "",
+
+    molde_id: "",
+
+    descripcion: "",
+  });
+
+  // Toggle sections
+
+  const toggleSection = useCallback((sectionKey) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+
+      [sectionKey]: !prev[sectionKey],
+    }));
+  }, []);
+
+  const expandAllSections = useCallback(() => {
+    setExpandedSections({
+      basicInfo: true,
+
+      production: true,
+
+      injection: true,
+
+      colada: true,
+
+      cooling: true,
+
+      expulsion: true,
+
+      technical: true,
+
+      partNumbers: true,
+
+      image: true,
+
+      notes: true,
     });
+  }, []);
 
-    // Dropdown options
+  const collapseAllSections = useCallback(() => {
+    setExpandedSections({
+      basicInfo: true,
 
-    const [machineOptions, setMachineOptions] = useState(DEFAULT_MACHINE_OPTIONS);
+      production: false,
 
-    const [moldTypeOptions, setMoldTypeOptions] = useState(DEFAULT_MOLD_TYPE_OPTIONS);
+      injection: false,
 
-    const [statusOptions, setStatusOptions] = useState(DEFAULT_STATUS_OPTIONS);
+      colada: false,
 
-    const [optionsLoading, setOptionsLoading] = useState(true);
+      cooling: false,
 
-    // Form state
+      expulsion: false,
 
-    const [formData, setFormData] = useState({
-        id: "",
+      technical: false,
 
-        name: "",
+      partNumbers: false,
 
-        status: "Pendiente",
+      image: false,
 
-        year: new Date().getFullYear(),
-
-        model: "",
-
-        ciclos_inyeccion: "",
-
-        ciclos_acumulados: "",
-
-        capacidad_ciclos: "",
-
-        mantenimientos_preventivos: "0",
-
-        image_url: "",
-
-        notes: "",
-
-        maquina_asignada: "",
-
-        tipo_molde: "Null",
-
-        ubicacion: "",
-
-        proveedor: "",
-
-        peso_kg: "",
-
-        dimensiones: "",
-
-        material_base: "",
-
-        numero_serie: "",
-
-        num_cavidades: "",
-
-        material_inyeccion: "",
-
-        peso_pieza_g: "",
-
-        peso_colada_g: "",
-
-        tiempo_ciclo_seg: "",
-
-        temperatura_molde_c: "",
-
-        presion_inyeccion_bar: "",
-
-        tonelaje_requerido: "",
-
-        tipo_colada: "Null",
-
-        num_puntos_inyeccion: "",
-
-        marca_colada_caliente: "",
-
-        circuitos_enfriamiento: "",
-
-        tipo_enfriamiento: "Null",
-
-        tipo_expulsion: "Null",
-
-        carrera_expulsion_mm: "",
-
-        color: "",
-
-        n_parte_1: "",
-
-        n_parte_2: "",
-
-        n_parte_3: "",
-
-        n_parte_4: "",
-
-        n_parte_5: "",
-
-        n_parte_6: "",
+      notes: false,
     });
+  }, []);
 
-    const [focusedField, setFocusedField] = useState(null);
+  // Input handler
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleInputChange = useCallback((field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-    const [message, setMessage] = useState({ type: "", text: "" });
+  const handleMaquinaInputChange = useCallback((field, value) => {
+    setMaquinaFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-    const [imagePreview, setImagePreview] = useState(null);
+  const handleModeloInputChange = useCallback((field, value) => {
+    setModeloFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-    const [isCompressing, setIsCompressing] = useState(false);
+  // Dynamic input styles (matching adminDieRegistration pattern)
 
-    // List state
+  const getInputStyle = useCallback(
+    (fieldName, disabled = false) => ({
+      ...styles.input,
 
-    const [molds, setMolds] = useState([]);
+      width: "100%",
 
-    const [isLoading, setIsLoading] = useState(false);
+      boxSizing: "border-box",
 
-    const [searchTerm, setSearchTerm] = useState("");
+      borderColor:
+        focusedField === fieldName ? "#00ff88" : "rgba(255, 255, 255, 0.08)",
 
-    const [filterYear, setFilterYear] = useState("");
+      boxShadow:
+        focusedField === fieldName ? "0 0 15px rgba(0, 255, 136, 0.2)" : "none",
 
-    const [filterStatus, setFilterStatus] = useState("");
+      opacity: disabled ? 0.6 : 1,
 
-    // Modal state
+      cursor: disabled ? "not-allowed" : "text",
+    }),
 
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    [focusedField, styles.input],
+  );
 
-    const [moldToDelete, setMoldToDelete] = useState(null);
+  const getSelectStyle = useCallback(
+    (fieldName) => ({
+      ...styles.select,
 
-    const [editingMold, setEditingMold] = useState(null);
+      width: "100%",
 
-    // Stats
+      boxSizing: "border-box",
 
-    const [stats, setStats] = useState({
-        total: 0,
+      borderColor:
+        focusedField === fieldName ? "#00ff88" : "rgba(255, 255, 255, 0.08)",
 
-        activos: 0,
+      boxShadow:
+        focusedField === fieldName ? "0 0 15px rgba(0, 255, 136, 0.2)" : "none",
+    }),
 
-        reparando: 0,
+    [focusedField, styles.select],
+  );
 
-        pendientes: 0,
-    });
+  const handleFocus = useCallback((field) => {
+    setFocusedField(field);
+  }, []);
 
-    // Machine CRUD state
+  const handleBlur = useCallback(() => {
+    setFocusedField(null);
+  }, []);
 
-    const [maquinas, setMaquinas] = useState([]);
+  // Fetch dropdown options (extracted as useCallback so it can be re-called after CRUD)
 
-    const [maquinasLoading, setMaquinasLoading] = useState(false);
+  const fetchOptions = useCallback(async () => {
+    setOptionsLoading(true);
 
-    const [maquinaSearchTerm, setMaquinaSearchTerm] = useState("");
+    try {
+      const [maquinasRes, tiposRes] = await Promise.all([
+        fetch(`${API_BASE}/maquinas`)
+          .then((r) => r.json())
 
-    const [maquinaFilterStatus, setMaquinaFilterStatus] = useState("");
+          .catch(() => null),
 
-    const [editingMaquina, setEditingMaquina] = useState(null);
+        fetch(`${API_BASE}/tipos_molde`)
+          .then((r) => r.json())
 
-    const [showDeleteMaquinaModal, setShowDeleteMaquinaModal] = useState(false);
+          .catch(() => null),
+      ]);
 
-    const [maquinaToDelete, setMaquinaToDelete] = useState(null);
+      if (maquinasRes && Array.isArray(maquinasRes)) {
+        setMachineOptions([
+          { value: "", label: "Sin asignar" },
+          ...maquinasRes,
+        ]);
+      }
 
-    const [maquinaFormData, setMaquinaFormData] = useState({
-        identificador_maquina: "",
+      if (tiposRes && Array.isArray(tiposRes)) {
+        setMoldTypeOptions([
+          { value: "Null", label: "Sin especificar" },
+          ...tiposRes,
+        ]);
+      }
+    } catch (error) {
+      console.error("Error loading options:", error);
+    } finally {
+      setOptionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
 
-        nombre: "",
+  // Fetch molds list
+
+  const fetchMolds = useCallback(async () => {
+    setIsLoading(true);
 
-        estado: "activa",
+    try {
+      const res = await fetch(`${API_BASE}/moldes/list`);
 
-        tonelaje_cierre: "",
+      const data = await res.json();
 
-        marca: "",
+      setMolds(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching molds:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-        modelo: "",
+  // Fetch stats
 
-        capacidad_inyeccion_g: "",
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/estadisticas-moldes`);
 
-        diametro_husillo_mm: "",
+      const data = await res.json();
 
-        ubicacion: "",
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  }, []);
 
-        notas: "",
-    });
+  // Fetch machines list
 
-    const [maquinaExpandedSections, setMaquinaExpandedSections] = useState({
-        basicInfo: true,
+  const fetchMaquinas = useCallback(async () => {
+    setMaquinasLoading(true);
 
-        technical: false,
+    try {
+      const res = await fetch(`${API_BASE}/maquinas/crud`);
 
-        notes: false,
-    });
+      const data = await res.json();
 
-    // Modelo CRUD state
+      setMaquinas(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching maquinas:", error);
+    } finally {
+      setMaquinasLoading(false);
+    }
+  }, []);
 
-    const [modelos, setModelos] = useState([]);
+  // Fetch modelos list
 
-    const [modelosLoading, setModelosLoading] = useState(false);
+  const fetchModelos = useCallback(async () => {
+    setModelosLoading(true);
 
-    const [modeloSearchTerm, setModeloSearchTerm] = useState("");
+    try {
+      const res = await fetch(`${API_BASE}/modelos-molde`);
 
-    const [modeloFilterMolde, setModeloFilterMolde] = useState("");
+      const data = await res.json();
 
-    const [editingModelo, setEditingModelo] = useState(null);
+      setModelos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching modelos:", error);
+    } finally {
+      setModelosLoading(false);
+    }
+  }, []);
 
-    const [showDeleteModeloModal, setShowDeleteModeloModal] = useState(false);
+  useEffect(() => {
+    if (activeTab === "list") {
+      fetchMolds();
 
-    const [modeloToDelete, setModeloToDelete] = useState(null);
+      fetchStats();
+    } else if (activeTab === "maquinas") {
+      fetchMaquinas();
+    } else if (activeTab === "modelos") {
+      fetchModelos();
 
-    const [modeloFormData, setModeloFormData] = useState({
-        nombre_modelo: "",
+      fetchMolds();
+    } else if (activeTab === "register") {
+      fetchOptions();
+    }
+  }, [
+    activeTab,
+    fetchMolds,
+    fetchStats,
+    fetchMaquinas,
+    fetchModelos,
+    fetchOptions,
+  ]);
 
-        molde_id: "",
+  // Image handler
 
-        descripcion: "",
-    });
+  const handleImageChange = useCallback(async (e) => {
+    const file = e.target.files[0];
 
-    // Toggle sections
+    if (!file) return;
 
-    const toggleSection = useCallback((sectionKey) => {
-        setExpandedSections((prev) => ({
-            ...prev,
+    if (!file.type.startsWith("image/")) {
+      setMessage({
+        type: "error",
 
-            [sectionKey]: !prev[sectionKey],
-        }));
-    }, []);
+        text: "Solo se permiten archivos de imagen",
+      });
 
-    const expandAllSections = useCallback(() => {
-        setExpandedSections({
-            basicInfo: true,
+      return;
+    }
 
-            production: true,
+    setIsCompressing(true);
 
-            injection: true,
+    try {
+      const compressed = await compressImage(file);
 
-            colada: true,
+      setFormData((prev) => ({ ...prev, image_url: compressed }));
 
-            cooling: true,
+      setImagePreview(compressed);
+    } catch {
+      setMessage({ type: "error", text: "Error al procesar la imagen" });
+    } finally {
+      setIsCompressing(false);
+    }
+  }, []);
 
-            expulsion: true,
+  // Submit mold form
 
-            technical: true,
+  const handleSubmit = useCallback(
+    async (e) => {
+      e?.preventDefault();
 
-            partNumbers: true,
+      if (!formData.id.trim() || !formData.name.trim() || !formData.year) {
+        setMessage({
+          type: "error",
 
-            image: true,
-
-            notes: true,
-        });
-    }, []);
-
-    const collapseAllSections = useCallback(() => {
-        setExpandedSections({
-            basicInfo: true,
-
-            production: false,
-
-            injection: false,
-
-            colada: false,
-
-            cooling: false,
-
-            expulsion: false,
-
-            technical: false,
-
-            partNumbers: false,
-
-            image: false,
-
-            notes: false,
-        });
-    }, []);
-
-    // Input handler
-
-    const handleInputChange = useCallback((field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    }, []);
-
-    const handleMaquinaInputChange = useCallback((field, value) => {
-        setMaquinaFormData((prev) => ({ ...prev, [field]: value }));
-    }, []);
-
-    const handleModeloInputChange = useCallback((field, value) => {
-        setModeloFormData((prev) => ({ ...prev, [field]: value }));
-    }, []);
-
-    // Dynamic input styles (matching adminDieRegistration pattern)
-
-    const getInputStyle = useCallback(
-        (fieldName, disabled = false) => ({
-            ...styles.input,
-
-            width: "100%",
-
-            boxSizing: "border-box",
-
-            borderColor: focusedField === fieldName ? "#00ff88" : "rgba(255, 255, 255, 0.08)",
-
-            boxShadow: focusedField === fieldName ? "0 0 15px rgba(0, 255, 136, 0.2)" : "none",
-
-            opacity: disabled ? 0.6 : 1,
-
-            cursor: disabled ? "not-allowed" : "text",
-        }),
-
-        [focusedField, styles.input]
-    );
-
-    const getSelectStyle = useCallback(
-        (fieldName) => ({
-            ...styles.select,
-
-            width: "100%",
-
-            boxSizing: "border-box",
-
-            borderColor: focusedField === fieldName ? "#00ff88" : "rgba(255, 255, 255, 0.08)",
-
-            boxShadow: focusedField === fieldName ? "0 0 15px rgba(0, 255, 136, 0.2)" : "none",
-        }),
-
-        [focusedField, styles.select]
-    );
-
-    const handleFocus = useCallback((field) => {
-        setFocusedField(field);
-    }, []);
-
-    const handleBlur = useCallback(() => {
-        setFocusedField(null);
-    }, []);
-
-    // Fetch dropdown options (extracted as useCallback so it can be re-called after CRUD)
-
-    const fetchOptions = useCallback(async () => {
-        setOptionsLoading(true);
-
-        try {
-            const [maquinasRes, tiposRes] = await Promise.all([
-                fetch(`${API_BASE}/maquinas`)
-                    .then((r) => r.json())
-
-                    .catch(() => null),
-
-                fetch(`${API_BASE}/tipos_molde`)
-                    .then((r) => r.json())
-
-                    .catch(() => null),
-            ]);
-
-            if (maquinasRes && Array.isArray(maquinasRes)) {
-                setMachineOptions([{ value: "", label: "Sin asignar" }, ...maquinasRes]);
-            }
-
-            if (tiposRes && Array.isArray(tiposRes)) {
-                setMoldTypeOptions([{ value: "Null", label: "Sin especificar" }, ...tiposRes]);
-            }
-        } catch (error) {
-            console.error("Error loading options:", error);
-        } finally {
-            setOptionsLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchOptions();
-    }, [fetchOptions]);
-
-    // Fetch molds list
-
-    const fetchMolds = useCallback(async () => {
-        setIsLoading(true);
-
-        try {
-            const res = await fetch(`${API_BASE}/moldes/list`);
-
-            const data = await res.json();
-
-            setMolds(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Error fetching molds:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    // Fetch stats
-
-    const fetchStats = useCallback(async () => {
-        try {
-            const res = await fetch(`${API_BASE}/estadisticas-moldes`);
-
-            const data = await res.json();
-
-            setStats(data);
-        } catch (error) {
-            console.error("Error fetching stats:", error);
-        }
-    }, []);
-
-    // Fetch machines list
-
-    const fetchMaquinas = useCallback(async () => {
-        setMaquinasLoading(true);
-
-        try {
-            const res = await fetch(`${API_BASE}/maquinas/crud`);
-
-            const data = await res.json();
-
-            setMaquinas(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Error fetching maquinas:", error);
-        } finally {
-            setMaquinasLoading(false);
-        }
-    }, []);
-
-    // Fetch modelos list
-
-    const fetchModelos = useCallback(async () => {
-        setModelosLoading(true);
-
-        try {
-            const res = await fetch(`${API_BASE}/modelos-molde`);
-
-            const data = await res.json();
-
-            setModelos(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Error fetching modelos:", error);
-        } finally {
-            setModelosLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (activeTab === "list") {
-            fetchMolds();
-
-            fetchStats();
-        } else if (activeTab === "maquinas") {
-            fetchMaquinas();
-        } else if (activeTab === "modelos") {
-            fetchModelos();
-
-            fetchMolds();
-        } else if (activeTab === "register") {
-            fetchOptions();
-        }
-    }, [activeTab, fetchMolds, fetchStats, fetchMaquinas, fetchModelos, fetchOptions]);
-
-    // Image handler
-
-    const handleImageChange = useCallback(async (e) => {
-        const file = e.target.files[0];
-
-        if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-            setMessage({
-                type: "error",
-
-                text: "Solo se permiten archivos de imagen",
-            });
-
-            return;
-        }
-
-        setIsCompressing(true);
-
-        try {
-            const compressed = await compressImage(file);
-
-            setFormData((prev) => ({ ...prev, image_url: compressed }));
-
-            setImagePreview(compressed);
-        } catch {
-            setMessage({ type: "error", text: "Error al procesar la imagen" });
-        } finally {
-            setIsCompressing(false);
-        }
-    }, []);
-
-    // Submit mold form
-
-    const handleSubmit = useCallback(
-        async (e) => {
-            e?.preventDefault();
-
-            if (!formData.id.trim() || !formData.name.trim() || !formData.year) {
-                setMessage({
-                    type: "error",
-
-                    text: "ID, Nombre y Año son campos requeridos",
-                });
-
-                setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-
-                return;
-            }
-
-            setIsSubmitting(true);
-
-            setMessage({ type: "", text: "" });
-
-            try {
-                const apiData = mapMoldFormToApi(formData);
-
-                const isEditing = !!editingMold;
-
-                const url = isEditing
-                    ? `${API_BASE}/moldes/${editingMold.id_molde || editingMold.id}`
-                    : `${API_BASE}/moldes`;
-
-                const method = isEditing ? "PUT" : "POST";
-
-                const res = await fetch(url, {
-                    method,
-
-                    headers: { "Content-Type": "application/json" },
-
-                    body: JSON.stringify(apiData),
-                });
-
-                const result = await res.json();
-
-                if (res.ok && result.success) {
-                    setMessage({
-                        type: "success",
-
-                        text: isEditing ? "Molde actualizado exitosamente" : "Molde registrado exitosamente",
-                    });
-
-                    resetForm();
-                } else {
-                    setMessage({
-                        type: "error",
-
-                        text: result.message || "Error al guardar el molde",
-                    });
-                }
-            } catch (error) {
-                setMessage({
-                    type: "error",
-
-                    text: "Error de conexión con el servidor",
-                });
-            } finally {
-                setIsSubmitting(false);
-
-                setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-            }
-        },
-
-        [formData, editingMold]
-    );
-
-    const resetForm = useCallback(() => {
-        setFormData({
-            id: "",
-
-            name: "",
-
-            status: "Pendiente",
-
-            year: new Date().getFullYear(),
-
-            model: "",
-
-            ciclos_inyeccion: "",
-
-            ciclos_acumulados: "",
-
-            capacidad_ciclos: "",
-
-            mantenimientos_preventivos: "0",
-
-            image_url: "",
-
-            notes: "",
-
-            maquina_asignada: "",
-
-            tipo_molde: "Null",
-
-            ubicacion: "",
-
-            proveedor: "",
-
-            peso_kg: "",
-
-            dimensiones: "",
-
-            material_base: "",
-
-            numero_serie: "",
-
-            num_cavidades: "",
-
-            material_inyeccion: "",
-
-            peso_pieza_g: "",
-
-            peso_colada_g: "",
-
-            tiempo_ciclo_seg: "",
-
-            temperatura_molde_c: "",
-
-            presion_inyeccion_bar: "",
-
-            tonelaje_requerido: "",
-
-            tipo_colada: "Null",
-
-            num_puntos_inyeccion: "",
-
-            marca_colada_caliente: "",
-
-            circuitos_enfriamiento: "",
-
-            tipo_enfriamiento: "Null",
-
-            tipo_expulsion: "Null",
-
-            carrera_expulsion_mm: "",
-
-            color: "",
-
-            n_parte_1: "",
-
-            n_parte_2: "",
-
-            n_parte_3: "",
-
-            n_parte_4: "",
-
-            n_parte_5: "",
-
-            n_parte_6: "",
+          text: "ID, Nombre y Año son campos requeridos",
         });
 
-        setEditingMold(null);
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
 
-        setImagePreview(null);
+        return;
+      }
 
-        collapseAllSections();
-    }, [collapseAllSections]);
+      setIsSubmitting(true);
 
-    // Edit mold
+      setMessage({ type: "", text: "" });
 
-    const handleEdit = useCallback(
-        (mold) => {
-            setFormData(mapApiToMoldForm(mold));
+      try {
+        const apiData = mapMoldFormToApi(formData);
 
-            setEditingMold(mold);
+        const isEditing = !!editingMold;
 
-            setImagePreview(mold.image_url || null);
+        const url = isEditing
+          ? `${API_BASE}/moldes/${editingMold.id_molde || editingMold.id}`
+          : `${API_BASE}/moldes`;
 
-            setActiveTab("register");
+        const method = isEditing ? "PUT" : "POST";
 
-            expandAllSections();
-        },
+        const res = await fetch(url, {
+          method,
 
-        [expandAllSections, setActiveTab]
-    );
+          headers: { "Content-Type": "application/json" },
 
-    // Delete mold
-
-    const handleDeleteClick = useCallback((mold) => {
-        setMoldToDelete(mold);
-
-        setShowDeleteModal(true);
-    }, []);
-
-    const handleDeleteConfirm = useCallback(async () => {
-        if (!moldToDelete) return;
-
-        try {
-            const id = moldToDelete.id_molde || moldToDelete.id;
-
-            const res = await fetch(`${API_BASE}/moldes/${id}`, {
-                method: "DELETE",
-            });
-
-            const result = await res.json();
-
-            if (res.ok && result.success) {
-                setMessage({
-                    type: "success",
-
-                    text: "Molde eliminado exitosamente",
-                });
-
-                fetchMolds();
-
-                fetchStats();
-            } else {
-                setMessage({
-                    type: "error",
-
-                    text: result.message || "Error al eliminar",
-                });
-            }
-        } catch {
-            setMessage({ type: "error", text: "Error de conexión" });
-        } finally {
-            setShowDeleteModal(false);
-
-            setMoldToDelete(null);
-
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-        }
-    }, [moldToDelete, fetchMolds, fetchStats]);
-
-    // Machine CRUD handlers
-
-    const handleMaquinaSubmit = useCallback(async () => {
-        if (!maquinaFormData.identificador_maquina.trim() || !maquinaFormData.nombre.trim()) {
-            setMessage({
-                type: "error",
-
-                text: "Identificador y nombre son requeridos",
-            });
-
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-
-            return;
-        }
-
-        try {
-            const isEditing = !!editingMaquina;
-
-            const url = `${API_BASE}/maquinas/crud`;
-
-            const method = isEditing ? "PUT" : "POST";
-
-            const body = isEditing ? { ...maquinaFormData, id_maquina: editingMaquina.id_maquina } : maquinaFormData;
-
-            const res = await fetch(url, {
-                method,
-
-                headers: { "Content-Type": "application/json" },
-
-                body: JSON.stringify(body),
-            });
-
-            const result = await res.json();
-
-            if (res.ok && (result.success || result.id_maquina)) {
-                setMessage({
-                    type: "success",
-
-                    text: isEditing ? "Máquina actualizada" : "Máquina registrada",
-                });
-
-                resetMaquinaForm();
-
-                setMaquinaExpandedSections({
-                    basicInfo: true,
-
-                    technical: false,
-
-                    notes: false,
-                });
-
-                fetchMaquinas();
-
-                fetchOptions(); // Refresh dropdown options for mold registration form
-            } else {
-                setMessage({
-                    type: "error",
-
-                    text: result.message || "Error al guardar máquina",
-                });
-            }
-        } catch {
-            setMessage({ type: "error", text: "Error de conexión" });
-        } finally {
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-        }
-    }, [maquinaFormData, editingMaquina, fetchMaquinas, fetchOptions]);
-
-    const resetMaquinaForm = useCallback(() => {
-        setMaquinaFormData({
-            identificador_maquina: "",
-
-            nombre: "",
-
-            estado: "activa",
-
-            tonelaje_cierre: "",
-
-            marca: "",
-
-            modelo: "",
-
-            capacidad_inyeccion_g: "",
-
-            diametro_husillo_mm: "",
-
-            ubicacion: "",
-
-            notas: "",
+          body: JSON.stringify(apiData),
         });
 
-        setEditingMaquina(null);
-    }, []);
+        const result = await res.json();
 
-    const handleEditMaquina = useCallback((maq) => {
-        setMaquinaFormData({
-            identificador_maquina: maq.identificador_maquina || "",
+        if (res.ok && result.success) {
+          setMessage({
+            type: "success",
 
-            nombre: maq.nombre || "",
+            text: isEditing
+              ? "Molde actualizado exitosamente"
+              : "Molde registrado exitosamente",
+          });
 
-            estado: maq.estado || "activa",
+          resetForm();
+        } else {
+          setMessage({
+            type: "error",
 
-            tonelaje_cierre: maq.tonelaje_cierre || "",
+            text: result.message || "Error al guardar el molde",
+          });
+        }
+      } catch (error) {
+        setMessage({
+          type: "error",
 
-            marca: maq.marca || "",
+          text: "Error de conexión con el servidor",
+        });
+      } finally {
+        setIsSubmitting(false);
 
-            modelo: maq.modelo || "",
+        setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      }
+    },
 
-            capacidad_inyeccion_g: maq.capacidad_inyeccion_g || "",
+    [formData, editingMold],
+  );
 
-            diametro_husillo_mm: maq.diametro_husillo_mm || "",
+  const resetForm = useCallback(() => {
+    setFormData({
+      id: "",
 
-            ubicacion: maq.ubicacion || "",
+      name: "",
 
-            notas: maq.notas || "",
+      status: "Pendiente",
+
+      year: new Date().getFullYear(),
+
+      model: "",
+
+      ciclos_inyeccion: "",
+
+      ciclos_acumulados: "",
+
+      capacidad_ciclos: "",
+
+      mantenimientos_preventivos: "0",
+
+      image_url: "",
+
+      notes: "",
+
+      maquina_asignada: "",
+
+      tipo_molde: "Null",
+
+      ubicacion: "",
+
+      proveedor: "",
+
+      peso_kg: "",
+
+      dimensiones: "",
+
+      material_base: "",
+
+      numero_serie: "",
+
+      num_cavidades: "",
+
+      material_inyeccion: "",
+
+      peso_pieza_g: "",
+
+      peso_colada_g: "",
+
+      tiempo_ciclo_seg: "",
+
+      temperatura_molde_c: "",
+
+      presion_inyeccion_bar: "",
+
+      tonelaje_requerido: "",
+
+      tipo_colada: "Null",
+
+      num_puntos_inyeccion: "",
+
+      marca_colada_caliente: "",
+
+      circuitos_enfriamiento: "",
+
+      tipo_enfriamiento: "Null",
+
+      tipo_expulsion: "Null",
+
+      carrera_expulsion_mm: "",
+
+      color: "",
+
+      n_parte_1: "",
+
+      n_parte_2: "",
+
+      n_parte_3: "",
+
+      n_parte_4: "",
+
+      n_parte_5: "",
+
+      n_parte_6: "",
+    });
+
+    setEditingMold(null);
+
+    setImagePreview(null);
+
+    collapseAllSections();
+  }, [collapseAllSections]);
+
+  // Edit mold
+
+  const handleEdit = useCallback(
+    (mold) => {
+      setFormData(mapApiToMoldForm(mold));
+
+      setEditingMold(mold);
+
+      setImagePreview(mold.image_url || null);
+
+      setActiveTab("register");
+
+      expandAllSections();
+    },
+
+    [expandAllSections, setActiveTab],
+  );
+
+  // Delete mold
+
+  const handleDeleteClick = useCallback((mold) => {
+    setMoldToDelete(mold);
+
+    setShowDeleteModal(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!moldToDelete) return;
+
+    try {
+      const id = moldToDelete.id_molde || moldToDelete.id;
+
+      const res = await fetch(`${API_BASE}/moldes/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        setMessage({
+          type: "success",
+
+          text: "Molde eliminado exitosamente",
         });
 
-        setEditingMaquina(maq);
+        fetchMolds();
+
+        fetchStats();
+      } else {
+        setMessage({
+          type: "error",
+
+          text: result.message || "Error al eliminar",
+        });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Error de conexión" });
+    } finally {
+      setShowDeleteModal(false);
+
+      setMoldToDelete(null);
+
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
+  }, [moldToDelete, fetchMolds, fetchStats]);
+
+  // Machine CRUD handlers
+
+  const handleMaquinaSubmit = useCallback(async () => {
+    if (
+      !maquinaFormData.identificador_maquina.trim() ||
+      !maquinaFormData.nombre.trim()
+    ) {
+      setMessage({
+        type: "error",
+
+        text: "Identificador y nombre son requeridos",
+      });
+
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+
+      return;
+    }
+
+    try {
+      const isEditing = !!editingMaquina;
+
+      const url = `${API_BASE}/maquinas/crud`;
+
+      const method = isEditing ? "PUT" : "POST";
+
+      const body = isEditing
+        ? { ...maquinaFormData, id_maquina: editingMaquina.id_maquina }
+        : maquinaFormData;
+
+      const res = await fetch(url, {
+        method,
+
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify(body),
+      });
+
+      const result = await res.json();
+
+      if (res.ok && (result.success || result.id_maquina)) {
+        setMessage({
+          type: "success",
+
+          text: isEditing ? "Máquina actualizada" : "Máquina registrada",
+        });
+
+        resetMaquinaForm();
 
         setMaquinaExpandedSections({
-            basicInfo: true,
+          basicInfo: true,
 
-            technical: true,
+          technical: false,
 
-            notes: true,
+          notes: false,
         });
-    }, []);
 
-    const handleDeleteMaquinaClick = useCallback((maq) => {
-        setMaquinaToDelete(maq);
+        fetchMaquinas();
 
-        setShowDeleteMaquinaModal(true);
-    }, []);
+        fetchOptions(); // Refresh dropdown options for mold registration form
+      } else {
+        setMessage({
+          type: "error",
 
-    const handleDeleteMaquinaConfirm = useCallback(async () => {
-        if (!maquinaToDelete) return;
-
-        try {
-            const res = await fetch(
-                `${API_BASE}/maquinas/crud?id=${maquinaToDelete.id_maquina}`,
-
-                { method: "DELETE" }
-            );
-
-            const result = await res.json();
-
-            if (res.ok && result.success) {
-                setMessage({
-                    type: "success",
-
-                    text: "Máquina eliminada exitosamente",
-                });
-
-                fetchMaquinas();
-
-                fetchOptions(); // Refresh dropdown options
-            } else {
-                setMessage({
-                    type: "error",
-
-                    text: result.message || "Error al eliminar",
-                });
-            }
-        } catch {
-            setMessage({ type: "error", text: "Error de conexión" });
-        } finally {
-            setShowDeleteMaquinaModal(false);
-
-            setMaquinaToDelete(null);
-
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-        }
-    }, [maquinaToDelete, fetchMaquinas, fetchOptions]);
-
-    // Modelo CRUD handlers
-
-    const handleModeloSubmit = useCallback(async () => {
-        if (!modeloFormData.nombre_modelo.trim() || !modeloFormData.molde_id.trim()) {
-            setMessage({
-                type: "error",
-
-                text: "Nombre del modelo y Molde son requeridos",
-            });
-
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-
-            return;
-        }
-
-        try {
-            const isEditing = !!editingModelo;
-
-            const url = `${API_BASE}/modelos-molde`;
-
-            const method = isEditing ? "PUT" : "POST";
-
-            const body = isEditing ? { ...modeloFormData, id_modelo: editingModelo.id_modelo } : modeloFormData;
-
-            const res = await fetch(url, {
-                method,
-
-                headers: { "Content-Type": "application/json" },
-
-                body: JSON.stringify(body),
-            });
-
-            const result = await res.json();
-
-            if (res.ok && (result.success || result.id_modelo)) {
-                setMessage({
-                    type: "success",
-
-                    text: isEditing ? "Modelo actualizado" : "Modelo creado",
-                });
-
-                setModeloFormData({
-                    nombre_modelo: "",
-
-                    molde_id: "",
-
-                    descripcion: "",
-                });
-
-                setEditingModelo(null);
-
-                fetchModelos();
-            } else {
-                setMessage({
-                    type: "error",
-
-                    text: result.message || "Error al guardar modelo",
-                });
-            }
-        } catch {
-            setMessage({ type: "error", text: "Error de conexión" });
-        } finally {
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-        }
-    }, [modeloFormData, editingModelo, fetchModelos]);
-
-    const handleDeleteModeloClick = useCallback((modelo) => {
-        setModeloToDelete(modelo);
-
-        setShowDeleteModeloModal(true);
-    }, []);
-
-    const handleDeleteModeloConfirm = useCallback(async () => {
-        if (!modeloToDelete) return;
-
-        try {
-            const res = await fetch(
-                `${API_BASE}/modelos-molde/${modeloToDelete.id_modelo}`,
-
-                { method: "DELETE" }
-            );
-
-            const result = await res.json();
-
-            if (res.ok && result.success) {
-                setMessage({
-                    type: "success",
-
-                    text: "Modelo eliminado exitosamente",
-                });
-
-                fetchModelos();
-            } else {
-                setMessage({
-                    type: "error",
-
-                    text: result.message || "Error al eliminar",
-                });
-            }
-        } catch {
-            setMessage({ type: "error", text: "Error de conexión" });
-        } finally {
-            setShowDeleteModeloModal(false);
-
-            setModeloToDelete(null);
-
-            setTimeout(() => setMessage({ type: "", text: "" }), 5000);
-        }
-    }, [modeloToDelete, fetchModelos]);
-
-    // Filtered data
-
-    const filteredMolds = useMemo(() => {
-        return molds.filter((m) => {
-            const matchSearch =
-                !searchTerm ||
-                (m.id_molde || "")
-
-                    .toLowerCase()
-
-                    .includes(searchTerm.toLowerCase()) ||
-                (m.nombre || "")
-
-                    .toLowerCase()
-
-                    .includes(searchTerm.toLowerCase()) ||
-                (m.modelo || "")
-
-                    .toLowerCase()
-
-                    .includes(searchTerm.toLowerCase()) ||
-                (m.material_inyeccion || "")
-
-                    .toLowerCase()
-
-                    .includes(searchTerm.toLowerCase());
-
-            const matchYear = !filterYear || String(m.año) === filterYear;
-
-            const matchStatus = !filterStatus || m.estado === filterStatus;
-
-            return matchSearch && matchYear && matchStatus;
+          text: result.message || "Error al guardar máquina",
         });
-    }, [molds, searchTerm, filterYear, filterStatus]);
+      }
+    } catch {
+      setMessage({ type: "error", text: "Error de conexión" });
+    } finally {
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
+  }, [maquinaFormData, editingMaquina, fetchMaquinas, fetchOptions]);
 
-    const filteredMaquinas = useMemo(() => {
-        return maquinas.filter((m) => {
-            const matchSearch =
-                !maquinaSearchTerm ||
-                (m.identificador_maquina || "")
+  const resetMaquinaForm = useCallback(() => {
+    setMaquinaFormData({
+      identificador_maquina: "",
 
-                    .toLowerCase()
+      nombre: "",
 
-                    .includes(maquinaSearchTerm.toLowerCase()) ||
-                (m.nombre || "")
+      estado: "activa",
 
-                    .toLowerCase()
+      tonelaje_cierre: "",
 
-                    .includes(maquinaSearchTerm.toLowerCase());
+      marca: "",
 
-            const matchStatus = !maquinaFilterStatus || m.estado === maquinaFilterStatus;
+      modelo: "",
 
-            return matchSearch && matchStatus;
+      capacidad_inyeccion_g: "",
+
+      diametro_husillo_mm: "",
+
+      ubicacion: "",
+
+      notas: "",
+    });
+
+    setEditingMaquina(null);
+  }, []);
+
+  const handleEditMaquina = useCallback((maq) => {
+    setMaquinaFormData({
+      identificador_maquina: maq.identificador_maquina || "",
+
+      nombre: maq.nombre || "",
+
+      estado: maq.estado || "activa",
+
+      tonelaje_cierre: maq.tonelaje_cierre || "",
+
+      marca: maq.marca || "",
+
+      modelo: maq.modelo || "",
+
+      capacidad_inyeccion_g: maq.capacidad_inyeccion_g || "",
+
+      diametro_husillo_mm: maq.diametro_husillo_mm || "",
+
+      ubicacion: maq.ubicacion || "",
+
+      notas: maq.notas || "",
+    });
+
+    setEditingMaquina(maq);
+
+    setMaquinaExpandedSections({
+      basicInfo: true,
+
+      technical: true,
+
+      notes: true,
+    });
+  }, []);
+
+  const handleDeleteMaquinaClick = useCallback((maq) => {
+    setMaquinaToDelete(maq);
+
+    setShowDeleteMaquinaModal(true);
+  }, []);
+
+  const handleDeleteMaquinaConfirm = useCallback(async () => {
+    if (!maquinaToDelete) return;
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/maquinas/crud?id=${maquinaToDelete.id_maquina}`,
+
+        { method: "DELETE" },
+      );
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        setMessage({
+          type: "success",
+
+          text: "Máquina eliminada exitosamente",
         });
-    }, [maquinas, maquinaSearchTerm, maquinaFilterStatus]);
 
-    const filteredModelos = useMemo(() => {
-        return modelos.filter((m) => {
-            const matchSearch =
-                !modeloSearchTerm ||
-                (m.nombre_modelo || "")
+        fetchMaquinas();
 
-                    .toLowerCase()
+        fetchOptions(); // Refresh dropdown options
+      } else {
+        setMessage({
+          type: "error",
 
-                    .includes(modeloSearchTerm.toLowerCase()) ||
-                (m.molde_id || "")
-
-                    .toLowerCase()
-
-                    .includes(modeloSearchTerm.toLowerCase());
-
-            const matchMolde = !modeloFilterMolde || m.molde_id === modeloFilterMolde;
-
-            return matchSearch && matchMolde;
+          text: result.message || "Error al eliminar",
         });
-    }, [modelos, modeloSearchTerm, modeloFilterMolde]);
+      }
+    } catch {
+      setMessage({ type: "error", text: "Error de conexión" });
+    } finally {
+      setShowDeleteMaquinaModal(false);
 
-    // Estilos para controles de sección
+      setMaquinaToDelete(null);
 
-    const sectionControlStyles = {
-        container: {
-            display: "flex",
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
+  }, [maquinaToDelete, fetchMaquinas, fetchOptions]);
 
-            gap: "12px",
+  // Modelo CRUD handlers
 
-            marginBottom: "20px",
+  const handleModeloSubmit = useCallback(async () => {
+    if (
+      !modeloFormData.nombre_modelo.trim() ||
+      !modeloFormData.molde_id.trim()
+    ) {
+      setMessage({
+        type: "error",
 
-            justifyContent: "flex-end",
-        },
+        text: "Nombre del modelo y Molde son requeridos",
+      });
 
-        button: {
-            background: "transparent",
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
 
-            border: "1px solid rgba(0, 255, 136, 0.3)",
+      return;
+    }
 
-            color: "#00ff88",
+    try {
+      const isEditing = !!editingModelo;
 
-            padding: "8px 16px",
+      const url = `${API_BASE}/modelos-molde`;
 
-            borderRadius: "8px",
+      const method = isEditing ? "PUT" : "POST";
 
-            fontSize: "12px",
+      const body = isEditing
+        ? { ...modeloFormData, id_modelo: editingModelo.id_modelo }
+        : modeloFormData;
 
-            cursor: "pointer",
+      const res = await fetch(url, {
+        method,
 
-            transition: "all 0.2s ease",
+        headers: { "Content-Type": "application/json" },
 
-            display: "flex",
+        body: JSON.stringify(body),
+      });
 
-            alignItems: "center",
+      const result = await res.json();
 
-            gap: "6px",
-        },
-    };
+      if (res.ok && (result.success || result.id_modelo)) {
+        setMessage({
+          type: "success",
 
-    //renderizar
+          text: isEditing ? "Modelo actualizado" : "Modelo creado",
+        });
 
-    return (
-        <div style={hideChrome ? {} : styles.container}>
-            {/* Header - solo cuando es página independiente */}
+        setModeloFormData({
+          nombre_modelo: "",
 
-            {!hideChrome && (
-                <header style={styles.header}>
-                    <div style={styles.headerLeft}>
-                        <button style={styles.backBtn} onClick={onNavigateBack}>
-                            ← Volver
-                        </button>
+          molde_id: "",
 
-                        <div>
-                            <h1 style={styles.headerTitle}>Gestión de Moldes por Inyección</h1>
+          descripcion: "",
+        });
 
-                            <p style={styles.headerSubtitle}>Registro, edición y administración de moldes</p>
-                        </div>
-                    </div>
-                </header>
-            )}
+        setEditingModelo(null);
 
-            {/*alerta de error o exito*/}
+        fetchModelos();
+      } else {
+        setMessage({
+          type: "error",
 
-            {message.type === "success" && (
-                <div style={styles.successMessage}>
-                    <div
-                        style={{
-                            ...styles.messageIcon,
+          text: result.message || "Error al guardar modelo",
+        });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Error de conexión" });
+    } finally {
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
+  }, [modeloFormData, editingModelo, fetchModelos]);
 
-                            background: "rgba(0, 255, 136, 0.15)",
-                        }}
-                    >
-                        ✓
-                    </div>
+  const handleDeleteModeloClick = useCallback((modelo) => {
+    setModeloToDelete(modelo);
 
-                    <div>
-                        <strong style={{ color: "#00ff88", fontSize: "14px" }}>{message.text}</strong>
-                    </div>
+    setShowDeleteModeloModal(true);
+  }, []);
+
+  const handleDeleteModeloConfirm = useCallback(async () => {
+    if (!modeloToDelete) return;
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/modelos-molde/${modeloToDelete.id_modelo}`,
+
+        { method: "DELETE" },
+      );
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        setMessage({
+          type: "success",
+
+          text: "Modelo eliminado exitosamente",
+        });
+
+        fetchModelos();
+      } else {
+        setMessage({
+          type: "error",
+
+          text: result.message || "Error al eliminar",
+        });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Error de conexión" });
+    } finally {
+      setShowDeleteModeloModal(false);
+
+      setModeloToDelete(null);
+
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    }
+  }, [modeloToDelete, fetchModelos]);
+
+  // Filtered data
+
+  const filteredMolds = useMemo(() => {
+    return molds.filter((m) => {
+      const matchSearch =
+        !searchTerm ||
+        (m.id_molde || "")
+
+          .toLowerCase()
+
+          .includes(searchTerm.toLowerCase()) ||
+        (m.nombre || "")
+
+          .toLowerCase()
+
+          .includes(searchTerm.toLowerCase()) ||
+        (m.modelo || "")
+
+          .toLowerCase()
+
+          .includes(searchTerm.toLowerCase()) ||
+        (m.material_inyeccion || "")
+
+          .toLowerCase()
+
+          .includes(searchTerm.toLowerCase());
+
+      const matchYear = !filterYear || String(m.año) === filterYear;
+
+      const matchStatus = !filterStatus || m.estado === filterStatus;
+
+      return matchSearch && matchYear && matchStatus;
+    });
+  }, [molds, searchTerm, filterYear, filterStatus]);
+
+  const filteredMaquinas = useMemo(() => {
+    return maquinas.filter((m) => {
+      const matchSearch =
+        !maquinaSearchTerm ||
+        (m.identificador_maquina || "")
+
+          .toLowerCase()
+
+          .includes(maquinaSearchTerm.toLowerCase()) ||
+        (m.nombre || "")
+
+          .toLowerCase()
+
+          .includes(maquinaSearchTerm.toLowerCase());
+
+      const matchStatus =
+        !maquinaFilterStatus || m.estado === maquinaFilterStatus;
+
+      return matchSearch && matchStatus;
+    });
+  }, [maquinas, maquinaSearchTerm, maquinaFilterStatus]);
+
+  const filteredModelos = useMemo(() => {
+    return modelos.filter((m) => {
+      const matchSearch =
+        !modeloSearchTerm ||
+        (m.nombre_modelo || "")
+
+          .toLowerCase()
+
+          .includes(modeloSearchTerm.toLowerCase()) ||
+        (m.molde_id || "")
+
+          .toLowerCase()
+
+          .includes(modeloSearchTerm.toLowerCase());
+
+      const matchMolde = !modeloFilterMolde || m.molde_id === modeloFilterMolde;
+
+      return matchSearch && matchMolde;
+    });
+  }, [modelos, modeloSearchTerm, modeloFilterMolde]);
+
+  // Estilos para controles de sección
+
+  const sectionControlStyles = {
+    container: {
+      display: "flex",
+
+      gap: "12px",
+
+      marginBottom: "20px",
+
+      justifyContent: "flex-end",
+    },
+
+    button: {
+      background: "transparent",
+
+      border: "1px solid rgba(0, 255, 136, 0.3)",
+
+      color: "#00ff88",
+
+      padding: "8px 16px",
+
+      borderRadius: "8px",
+
+      fontSize: "12px",
+
+      cursor: "pointer",
+
+      transition: "all 0.2s ease",
+
+      display: "flex",
+
+      alignItems: "center",
+
+      gap: "6px",
+    },
+  };
+
+  //renderizar
+
+  return (
+    <div style={hideChrome ? {} : styles.container}>
+      {/* Header - solo cuando es página independiente */}
+
+      {!hideChrome && (
+        <header style={styles.header}>
+          <div style={styles.headerLeft}>
+            <button style={styles.backBtn} onClick={onNavigateBack}>
+              ← Volver
+            </button>
+
+            <div>
+              <h1 style={styles.headerTitle}>
+                Gestión de Moldes por Inyección
+              </h1>
+
+              <p style={styles.headerSubtitle}>
+                Registro, edición y administración de moldes
+              </p>
+            </div>
+          </div>
+        </header>
+      )}
+
+      {/*alerta de error o exito*/}
+
+      {message.type === "success" && (
+        <div style={styles.successMessage}>
+          <div
+            style={{
+              ...styles.messageIcon,
+
+              background: "rgba(0, 255, 136, 0.15)",
+            }}
+          >
+            ✓
+          </div>
+
+          <div>
+            <strong style={{ color: "#00ff88", fontSize: "14px" }}>
+              {message.text}
+            </strong>
+          </div>
+        </div>
+      )}
+
+      {message.type === "error" && (
+        <div style={styles.errorMessage}>
+          <div
+            style={{
+              ...styles.messageIcon,
+
+              background: "rgba(255, 107, 107, 0.15)",
+            }}
+          >
+            ✕
+          </div>
+
+          <div>
+            <strong style={{ color: "#ff6b6b", fontSize: "14px" }}>
+              {message.text}
+            </strong>
+          </div>
+        </div>
+      )}
+
+      {/*contenido principal*/}
+
+      <main
+        style={
+          styles.main || {
+            position: "relative",
+
+            zIndex: 5,
+
+            padding: "30px 40px 60px",
+
+            maxWidth: "1600px",
+
+            margin: "0 auto",
+
+            flex: 1,
+
+            width: "100%",
+
+            boxSizing: "border-box",
+          }
+        }
+      >
+        {/* pestania de registro o actualizacion*/}
+
+        {activeTab === "register" && (
+          <form onSubmit={handleSubmit}>
+            <div style={styles.formContainer}>
+              {editingMold && (
+                <div
+                  style={{
+                    marginBottom: "20px",
+
+                    display: "flex",
+
+                    justifyContent: "space-between",
+
+                    alignItems: "center",
+
+                    background: "rgba(0, 255, 136, 0.08)",
+
+                    padding: "14px 20px",
+
+                    borderRadius: "10px",
+
+                    border: "1px solid rgba(0, 255, 136, 0.2)",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#00ff88",
+
+                      fontWeight: 600,
+
+                      fontSize: "14px",
+                    }}
+                  >
+                    Editando molde: {editingMold.id_molde || editingMold.id}
+                  </span>
+
+                  <button
+                    type="button"
+                    style={styles.btnSecondary}
+                    onClick={resetForm}
+                  >
+                    Cancelar Edición
+                  </button>
                 </div>
-            )}
+              )}
 
-            {message.type === "error" && (
-                <div style={styles.errorMessage}>
-                    <div
-                        style={{
-                            ...styles.messageIcon,
+              {/*controles de secciones*/}
 
-                            background: "rgba(255, 107, 107, 0.15)",
-                        }}
+              <div style={sectionControlStyles.container}>
+                <button
+                  type="button"
+                  style={sectionControlStyles.button}
+                  onClick={expandAllSections}
+                >
+                  ▼ Expandir Todo
+                </button>
+
+                <button
+                  type="button"
+                  style={sectionControlStyles.button}
+                  onClick={collapseAllSections}
+                >
+                  ▲ Colapsar Todo
+                </button>
+              </div>
+
+              {/* Información Básica */}
+
+              <CollapsibleSection
+                title="Información Básica"
+                icon=""
+                isExpanded={expandedSections.basicInfo}
+                onToggle={() => toggleSection("basicInfo")}
+                isRequired
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      ID del Molde <span style={styles.requiredStar}>*</span>
+                    </label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("id")}
+                      value={formData.id}
+                      onChange={(e) => handleInputChange("id", e.target.value)}
+                      onFocus={() => handleFocus("id")}
+                      onBlur={handleBlur}
+                      placeholder="Ej: M001"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      Nombre <span style={styles.requiredStar}>*</span>
+                    </label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("name")}
+                      value={formData.name}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      onFocus={() => handleFocus("name")}
+                      onBlur={handleBlur}
+                      placeholder="Nombre del molde"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Estado</label>
+
+                    <select
+                      style={getSelectStyle("status")}
+                      value={formData.status}
+                      onChange={(e) =>
+                        handleInputChange("status", e.target.value)
+                      }
+                      onFocus={() => handleFocus("status")}
+                      onBlur={handleBlur}
                     >
-                        ✕
-                    </div>
+                      {statusOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <div>
-                        <strong style={{ color: "#ff6b6b", fontSize: "14px" }}>{message.text}</strong>
-                    </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      Año <span style={styles.requiredStar}>*</span>
+                    </label>
+
+                    <input
+                      type="number"
+                      style={getInputStyle("year")}
+                      value={formData.year}
+                      onChange={(e) =>
+                        handleInputChange("year", e.target.value)
+                      }
+                      onFocus={() => handleFocus("year")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Modelo Producción</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("model")}
+                      value={formData.model}
+                      onChange={(e) =>
+                        handleInputChange("model", e.target.value)
+                      }
+                      onFocus={() => handleFocus("model")}
+                      onBlur={handleBlur}
+                      placeholder="Modelo actual"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tipo de Molde</label>
+
+                    <select
+                      style={getSelectStyle("tipo_molde")}
+                      value={formData.tipo_molde}
+                      onChange={(e) =>
+                        handleInputChange("tipo_molde", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tipo_molde")}
+                      onBlur={handleBlur}
+                      disabled={optionsLoading}
+                    >
+                      {moldTypeOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Máquina Asignada</label>
+
+                    <select
+                      style={getSelectStyle("maquina_asignada")}
+                      value={formData.maquina_asignada}
+                      onChange={(e) =>
+                        handleInputChange("maquina_asignada", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maquina_asignada")}
+                      onBlur={handleBlur}
+                      disabled={optionsLoading}
+                    >
+                      {machineOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Ubicación</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("ubicacion")}
+                      value={formData.ubicacion}
+                      onChange={(e) =>
+                        handleInputChange("ubicacion", e.target.value)
+                      }
+                      onFocus={() => handleFocus("ubicacion")}
+                      onBlur={handleBlur}
+                      placeholder="Rack, almacén, etc."
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>No. Serie</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("numero_serie")}
+                      value={formData.numero_serie}
+                      onChange={(e) =>
+                        handleInputChange("numero_serie", e.target.value)
+                      }
+                      onFocus={() => handleFocus("numero_serie")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Proveedor</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("proveedor")}
+                      value={formData.proveedor}
+                      onChange={(e) =>
+                        handleInputChange("proveedor", e.target.value)
+                      }
+                      onFocus={() => handleFocus("proveedor")}
+                      onBlur={handleBlur}
+                      placeholder="Fabricante del molde"
+                    />
+                  </div>
                 </div>
-            )}
+              </CollapsibleSection>
 
-            {/*contenido principal*/}
+              {/* Producción / Ciclos */}
 
-            <main
-                style={
-                    styles.main || {
-                        position: "relative",
+              <CollapsibleSection
+                title="Producción / Ciclos"
+                icon=""
+                isExpanded={expandedSections.production}
+                onToggle={() => toggleSection("production")}
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Ciclos Inyección</label>
 
-                        zIndex: 5,
+                    <input
+                      type="text"
+                      style={getInputStyle("ciclos_inyeccion")}
+                      value={formData.ciclos_inyeccion}
+                      onChange={(e) =>
+                        handleInputChange("ciclos_inyeccion", e.target.value)
+                      }
+                      onFocus={() => handleFocus("ciclos_inyeccion")}
+                      onBlur={handleBlur}
+                      placeholder="Ciclos del periodo"
+                    />
+                  </div>
 
-                        padding: "30px 40px 60px",
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Ciclos Acumulados</label>
 
-                        maxWidth: "1600px",
+                    <input
+                      type="text"
+                      style={getInputStyle("ciclos_acumulados")}
+                      value={formData.ciclos_acumulados}
+                      onChange={(e) =>
+                        handleInputChange("ciclos_acumulados", e.target.value)
+                      }
+                      onFocus={() => handleFocus("ciclos_acumulados")}
+                      onBlur={handleBlur}
+                      placeholder="Total acumulado"
+                    />
+                  </div>
 
-                        margin: "0 auto",
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Capacidad Ciclos</label>
 
-                        flex: 1,
+                    <input
+                      type="text"
+                      style={getInputStyle("capacidad_ciclos")}
+                      value={formData.capacidad_ciclos}
+                      onChange={(e) =>
+                        handleInputChange("capacidad_ciclos", e.target.value)
+                      }
+                      onFocus={() => handleFocus("capacidad_ciclos")}
+                      onBlur={handleBlur}
+                      placeholder="Máximo de ciclos"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Mant. Preventivos</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("mantenimientos_preventivos")}
+                      value={formData.mantenimientos_preventivos}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "mantenimientos_preventivos",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("mantenimientos_preventivos")}
+                      onBlur={handleBlur}
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Inyección */}
+
+              <CollapsibleSection
+                title="Parámetros de Inyección"
+                icon=""
+                isExpanded={expandedSections.injection}
+                onToggle={() => toggleSection("injection")}
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Num. Cavidades</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("num_cavidades")}
+                      value={formData.num_cavidades}
+                      onChange={(e) =>
+                        handleInputChange("num_cavidades", e.target.value)
+                      }
+                      onFocus={() => handleFocus("num_cavidades")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Material Inyección</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("material_inyeccion")}
+                      value={formData.material_inyeccion}
+                      onChange={(e) =>
+                        handleInputChange("material_inyeccion", e.target.value)
+                      }
+                      onFocus={() => handleFocus("material_inyeccion")}
+                      onBlur={handleBlur}
+                      placeholder="PP, ABS, Nylon..."
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Peso Pieza (g)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("peso_pieza_g")}
+                      value={formData.peso_pieza_g}
+                      onChange={(e) =>
+                        handleInputChange("peso_pieza_g", e.target.value)
+                      }
+                      onFocus={() => handleFocus("peso_pieza_g")}
+                      onBlur={handleBlur}
+                      placeholder="Gramos"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Peso Colada (g)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("peso_colada_g")}
+                      value={formData.peso_colada_g}
+                      onChange={(e) =>
+                        handleInputChange("peso_colada_g", e.target.value)
+                      }
+                      onFocus={() => handleFocus("peso_colada_g")}
+                      onBlur={handleBlur}
+                      placeholder="Gramos"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tiempo Ciclo (seg)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("tiempo_ciclo_seg")}
+                      value={formData.tiempo_ciclo_seg}
+                      onChange={(e) =>
+                        handleInputChange("tiempo_ciclo_seg", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tiempo_ciclo_seg")}
+                      onBlur={handleBlur}
+                      placeholder="Segundos"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Temp. Molde (°C)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("temperatura_molde_c")}
+                      value={formData.temperatura_molde_c}
+                      onChange={(e) =>
+                        handleInputChange("temperatura_molde_c", e.target.value)
+                      }
+                      onFocus={() => handleFocus("temperatura_molde_c")}
+                      onBlur={handleBlur}
+                      placeholder="°C"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Presión Iny. (bar)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("presion_inyeccion_bar")}
+                      value={formData.presion_inyeccion_bar}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "presion_inyeccion_bar",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("presion_inyeccion_bar")}
+                      onBlur={handleBlur}
+                      placeholder="bar"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tonelaje Requerido</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("tonelaje_requerido")}
+                      value={formData.tonelaje_requerido}
+                      onChange={(e) =>
+                        handleInputChange("tonelaje_requerido", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tonelaje_requerido")}
+                      onBlur={handleBlur}
+                      placeholder="Toneladas"
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Sistema de Colada / Enfriamiento / Expulsión */}
+
+              <CollapsibleSection
+                title="Sistema de Colada / Enfriamiento / Expulsión"
+                icon=""
+                isExpanded={expandedSections.colada}
+                onToggle={() => toggleSection("colada")}
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tipo de Colada</label>
+
+                    <select
+                      style={getSelectStyle("tipo_colada")}
+                      value={formData.tipo_colada}
+                      onChange={(e) =>
+                        handleInputChange("tipo_colada", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tipo_colada")}
+                      onBlur={handleBlur}
+                    >
+                      {COLADA_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Puntos de Inyección</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("num_puntos_inyeccion")}
+                      value={formData.num_puntos_inyeccion}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "num_puntos_inyeccion",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("num_puntos_inyeccion")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Marca Hot Runner</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("marca_colada_caliente")}
+                      value={formData.marca_colada_caliente}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "marca_colada_caliente",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("marca_colada_caliente")}
+                      onBlur={handleBlur}
+                      placeholder="Si aplica"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tipo Enfriamiento</label>
+
+                    <select
+                      style={getSelectStyle("tipo_enfriamiento")}
+                      value={formData.tipo_enfriamiento}
+                      onChange={(e) =>
+                        handleInputChange("tipo_enfriamiento", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tipo_enfriamiento")}
+                      onBlur={handleBlur}
+                    >
+                      {ENFRIAMIENTO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      Circuitos de Enfriamiento
+                    </label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("circuitos_enfriamiento")}
+                      value={formData.circuitos_enfriamiento}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "circuitos_enfriamiento",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("circuitos_enfriamiento")}
+                      onBlur={handleBlur}
+                      placeholder="Cantidad"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tipo Expulsión</label>
+
+                    <select
+                      style={getSelectStyle("tipo_expulsion")}
+                      value={formData.tipo_expulsion}
+                      onChange={(e) =>
+                        handleInputChange("tipo_expulsion", e.target.value)
+                      }
+                      onFocus={() => handleFocus("tipo_expulsion")}
+                      onBlur={handleBlur}
+                    >
+                      {EXPULSION_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Carrera Expulsión (mm)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("carrera_expulsion_mm")}
+                      value={formData.carrera_expulsion_mm}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "carrera_expulsion_mm",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("carrera_expulsion_mm")}
+                      onBlur={handleBlur}
+                      placeholder="mm"
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Especificaciones Físicas */}
+
+              <CollapsibleSection
+                title="Especificaciones Físicas"
+                icon=""
+                isExpanded={expandedSections.technical}
+                onToggle={() => toggleSection("technical")}
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Peso (kg)</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("peso_kg")}
+                      value={formData.peso_kg}
+                      onChange={(e) =>
+                        handleInputChange("peso_kg", e.target.value)
+                      }
+                      onFocus={() => handleFocus("peso_kg")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Dimensiones</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("dimensiones")}
+                      value={formData.dimensiones}
+                      onChange={(e) =>
+                        handleInputChange("dimensiones", e.target.value)
+                      }
+                      onFocus={() => handleFocus("dimensiones")}
+                      onBlur={handleBlur}
+                      placeholder="LxAxH mm"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Material Base</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("material_base")}
+                      value={formData.material_base}
+                      onChange={(e) =>
+                        handleInputChange("material_base", e.target.value)
+                      }
+                      onFocus={() => handleFocus("material_base")}
+                      onBlur={handleBlur}
+                      placeholder="P20, H13, etc."
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Color Pieza</label>
+
+                    <input
+                      type="text"
+                      style={getInputStyle("color")}
+                      value={formData.color}
+                      onChange={(e) =>
+                        handleInputChange("color", e.target.value)
+                      }
+                      onFocus={() => handleFocus("color")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* Números de Parte */}
+
+              <CollapsibleSection
+                title="Números de Parte"
+                icon=""
+                isExpanded={expandedSections.partNumbers}
+                onToggle={() => toggleSection("partNumbers")}
+              >
+                <div style={styles.formGrid}>
+                  {[
+                    "n_parte_1",
+                    "n_parte_2",
+                    "n_parte_3",
+                    "n_parte_4",
+                    "n_parte_5",
+                    "n_parte_6",
+                  ].map((field, idx) => (
+                    <div key={field} style={styles.inputGroup}>
+                      <label style={styles.label}>N° Parte {idx + 1}</label>
+
+                      <input
+                        type="text"
+                        style={getInputStyle(field)}
+                        value={formData[field]}
+                        onChange={(e) =>
+                          handleInputChange(field, e.target.value)
+                        }
+                        onFocus={() => handleFocus(field)}
+                        onBlur={handleBlur}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleSection>
+
+              {/* Imagen */}
+
+              <CollapsibleSection
+                title="Imagen del Molde"
+                icon=""
+                isExpanded={expandedSections.image}
+                onToggle={() => toggleSection("image")}
+              >
+                {imagePreview ? (
+                  <div style={styles.imagePreview}>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={styles.imagePreviewImg}
+                    />
+
+                    <button
+                      type="button"
+                      style={styles.imageRemoveBtn}
+                      onClick={() => {
+                        setImagePreview(null);
+
+                        handleInputChange("image_url", "");
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      ...styles.imageUploadArea,
+
+                      position: "relative",
+
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div style={styles.imageUploadText}>
+                      Haz clic para subir una imagen
+                    </div>
+
+                    <div style={styles.imageUploadHint}>
+                      JPG, PNG — máx. 5MB
+                    </div>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      style={{
+                        position: "absolute",
+
+                        top: 0,
+
+                        left: 0,
 
                         width: "100%",
 
-                        boxSizing: "border-box",
-                    }
-                }
-            >
-                {/* pestania de registro o actualizacion*/}
+                        height: "100%",
 
-                {activeTab === "register" && (
-                    <form onSubmit={handleSubmit}>
-                        <div style={styles.formContainer}>
-                            {editingMold && (
-                                <div
-                                    style={{
-                                        marginBottom: "20px",
+                        opacity: 0,
 
-                                        display: "flex",
-
-                                        justifyContent: "space-between",
-
-                                        alignItems: "center",
-
-                                        background: "rgba(0, 255, 136, 0.08)",
-
-                                        padding: "14px 20px",
-
-                                        borderRadius: "10px",
-
-                                        border: "1px solid rgba(0, 255, 136, 0.2)",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            color: "#00ff88",
-
-                                            fontWeight: 600,
-
-                                            fontSize: "14px",
-                                        }}
-                                    >
-                                        Editando molde: {editingMold.id_molde || editingMold.id}
-                                    </span>
-
-                                    <button type="button" style={styles.btnSecondary} onClick={resetForm}>
-                                        Cancelar Edición
-                                    </button>
-                                </div>
-                            )}
-
-                            {/*controles de secciones*/}
-
-                            <div style={sectionControlStyles.container}>
-                                <button type="button" style={sectionControlStyles.button} onClick={expandAllSections}>
-                                    ▼ Expandir Todo
-                                </button>
-
-                                <button type="button" style={sectionControlStyles.button} onClick={collapseAllSections}>
-                                    ▲ Colapsar Todo
-                                </button>
-                            </div>
-
-                            {/* Información Básica */}
-
-                            <CollapsibleSection
-                                title="Información Básica"
-                                icon=""
-                                isExpanded={expandedSections.basicInfo}
-                                onToggle={() => toggleSection("basicInfo")}
-                                isRequired
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>
-                                            ID del Molde <span style={styles.requiredStar}>*</span>
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("id")}
-                                            value={formData.id}
-                                            onChange={(e) => handleInputChange("id", e.target.value)}
-                                            onFocus={() => handleFocus("id")}
-                                            onBlur={handleBlur}
-                                            placeholder="Ej: M001"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>
-                                            Nombre <span style={styles.requiredStar}>*</span>
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("name")}
-                                            value={formData.name}
-                                            onChange={(e) => handleInputChange("name", e.target.value)}
-                                            onFocus={() => handleFocus("name")}
-                                            onBlur={handleBlur}
-                                            placeholder="Nombre del molde"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Estado</label>
-
-                                        <select
-                                            style={getSelectStyle("status")}
-                                            value={formData.status}
-                                            onChange={(e) => handleInputChange("status", e.target.value)}
-                                            onFocus={() => handleFocus("status")}
-                                            onBlur={handleBlur}
-                                        >
-                                            {statusOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>
-                                            Año <span style={styles.requiredStar}>*</span>
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            style={getInputStyle("year")}
-                                            value={formData.year}
-                                            onChange={(e) => handleInputChange("year", e.target.value)}
-                                            onFocus={() => handleFocus("year")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Modelo Producción</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("model")}
-                                            value={formData.model}
-                                            onChange={(e) => handleInputChange("model", e.target.value)}
-                                            onFocus={() => handleFocus("model")}
-                                            onBlur={handleBlur}
-                                            placeholder="Modelo actual"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tipo de Molde</label>
-
-                                        <select
-                                            style={getSelectStyle("tipo_molde")}
-                                            value={formData.tipo_molde}
-                                            onChange={(e) => handleInputChange("tipo_molde", e.target.value)}
-                                            onFocus={() => handleFocus("tipo_molde")}
-                                            onBlur={handleBlur}
-                                            disabled={optionsLoading}
-                                        >
-                                            {moldTypeOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Máquina Asignada</label>
-
-                                        <select
-                                            style={getSelectStyle("maquina_asignada")}
-                                            value={formData.maquina_asignada}
-                                            onChange={(e) => handleInputChange("maquina_asignada", e.target.value)}
-                                            onFocus={() => handleFocus("maquina_asignada")}
-                                            onBlur={handleBlur}
-                                            disabled={optionsLoading}
-                                        >
-                                            {machineOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Ubicación</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("ubicacion")}
-                                            value={formData.ubicacion}
-                                            onChange={(e) => handleInputChange("ubicacion", e.target.value)}
-                                            onFocus={() => handleFocus("ubicacion")}
-                                            onBlur={handleBlur}
-                                            placeholder="Rack, almacén, etc."
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>No. Serie</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("numero_serie")}
-                                            value={formData.numero_serie}
-                                            onChange={(e) => handleInputChange("numero_serie", e.target.value)}
-                                            onFocus={() => handleFocus("numero_serie")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Proveedor</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("proveedor")}
-                                            value={formData.proveedor}
-                                            onChange={(e) => handleInputChange("proveedor", e.target.value)}
-                                            onFocus={() => handleFocus("proveedor")}
-                                            onBlur={handleBlur}
-                                            placeholder="Fabricante del molde"
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Producción / Ciclos */}
-
-                            <CollapsibleSection
-                                title="Producción / Ciclos"
-                                icon=""
-                                isExpanded={expandedSections.production}
-                                onToggle={() => toggleSection("production")}
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Ciclos Inyección</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("ciclos_inyeccion")}
-                                            value={formData.ciclos_inyeccion}
-                                            onChange={(e) => handleInputChange("ciclos_inyeccion", e.target.value)}
-                                            onFocus={() => handleFocus("ciclos_inyeccion")}
-                                            onBlur={handleBlur}
-                                            placeholder="Ciclos del periodo"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Ciclos Acumulados</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("ciclos_acumulados")}
-                                            value={formData.ciclos_acumulados}
-                                            onChange={(e) => handleInputChange("ciclos_acumulados", e.target.value)}
-                                            onFocus={() => handleFocus("ciclos_acumulados")}
-                                            onBlur={handleBlur}
-                                            placeholder="Total acumulado"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Capacidad Ciclos</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("capacidad_ciclos")}
-                                            value={formData.capacidad_ciclos}
-                                            onChange={(e) => handleInputChange("capacidad_ciclos", e.target.value)}
-                                            onFocus={() => handleFocus("capacidad_ciclos")}
-                                            onBlur={handleBlur}
-                                            placeholder="Máximo de ciclos"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Mant. Preventivos</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("mantenimientos_preventivos")}
-                                            value={formData.mantenimientos_preventivos}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "mantenimientos_preventivos",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("mantenimientos_preventivos")}
-                                            onBlur={handleBlur}
-                                            placeholder="0"
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Inyección */}
-
-                            <CollapsibleSection
-                                title="Parámetros de Inyección"
-                                icon=""
-                                isExpanded={expandedSections.injection}
-                                onToggle={() => toggleSection("injection")}
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Num. Cavidades</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("num_cavidades")}
-                                            value={formData.num_cavidades}
-                                            onChange={(e) => handleInputChange("num_cavidades", e.target.value)}
-                                            onFocus={() => handleFocus("num_cavidades")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Material Inyección</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("material_inyeccion")}
-                                            value={formData.material_inyeccion}
-                                            onChange={(e) => handleInputChange("material_inyeccion", e.target.value)}
-                                            onFocus={() => handleFocus("material_inyeccion")}
-                                            onBlur={handleBlur}
-                                            placeholder="PP, ABS, Nylon..."
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Peso Pieza (g)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("peso_pieza_g")}
-                                            value={formData.peso_pieza_g}
-                                            onChange={(e) => handleInputChange("peso_pieza_g", e.target.value)}
-                                            onFocus={() => handleFocus("peso_pieza_g")}
-                                            onBlur={handleBlur}
-                                            placeholder="Gramos"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Peso Colada (g)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("peso_colada_g")}
-                                            value={formData.peso_colada_g}
-                                            onChange={(e) => handleInputChange("peso_colada_g", e.target.value)}
-                                            onFocus={() => handleFocus("peso_colada_g")}
-                                            onBlur={handleBlur}
-                                            placeholder="Gramos"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tiempo Ciclo (seg)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("tiempo_ciclo_seg")}
-                                            value={formData.tiempo_ciclo_seg}
-                                            onChange={(e) => handleInputChange("tiempo_ciclo_seg", e.target.value)}
-                                            onFocus={() => handleFocus("tiempo_ciclo_seg")}
-                                            onBlur={handleBlur}
-                                            placeholder="Segundos"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Temp. Molde (°C)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("temperatura_molde_c")}
-                                            value={formData.temperatura_molde_c}
-                                            onChange={(e) => handleInputChange("temperatura_molde_c", e.target.value)}
-                                            onFocus={() => handleFocus("temperatura_molde_c")}
-                                            onBlur={handleBlur}
-                                            placeholder="°C"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Presión Iny. (bar)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("presion_inyeccion_bar")}
-                                            value={formData.presion_inyeccion_bar}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "presion_inyeccion_bar",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("presion_inyeccion_bar")}
-                                            onBlur={handleBlur}
-                                            placeholder="bar"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tonelaje Requerido</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("tonelaje_requerido")}
-                                            value={formData.tonelaje_requerido}
-                                            onChange={(e) => handleInputChange("tonelaje_requerido", e.target.value)}
-                                            onFocus={() => handleFocus("tonelaje_requerido")}
-                                            onBlur={handleBlur}
-                                            placeholder="Toneladas"
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Sistema de Colada / Enfriamiento / Expulsión */}
-
-                            <CollapsibleSection
-                                title="Sistema de Colada / Enfriamiento / Expulsión"
-                                icon=""
-                                isExpanded={expandedSections.colada}
-                                onToggle={() => toggleSection("colada")}
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tipo de Colada</label>
-
-                                        <select
-                                            style={getSelectStyle("tipo_colada")}
-                                            value={formData.tipo_colada}
-                                            onChange={(e) => handleInputChange("tipo_colada", e.target.value)}
-                                            onFocus={() => handleFocus("tipo_colada")}
-                                            onBlur={handleBlur}
-                                        >
-                                            {COLADA_OPTIONS.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Puntos de Inyección</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("num_puntos_inyeccion")}
-                                            value={formData.num_puntos_inyeccion}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "num_puntos_inyeccion",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("num_puntos_inyeccion")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Marca Hot Runner</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("marca_colada_caliente")}
-                                            value={formData.marca_colada_caliente}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "marca_colada_caliente",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("marca_colada_caliente")}
-                                            onBlur={handleBlur}
-                                            placeholder="Si aplica"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tipo Enfriamiento</label>
-
-                                        <select
-                                            style={getSelectStyle("tipo_enfriamiento")}
-                                            value={formData.tipo_enfriamiento}
-                                            onChange={(e) => handleInputChange("tipo_enfriamiento", e.target.value)}
-                                            onFocus={() => handleFocus("tipo_enfriamiento")}
-                                            onBlur={handleBlur}
-                                        >
-                                            {ENFRIAMIENTO_OPTIONS.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Circuitos de Enfriamiento</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("circuitos_enfriamiento")}
-                                            value={formData.circuitos_enfriamiento}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "circuitos_enfriamiento",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("circuitos_enfriamiento")}
-                                            onBlur={handleBlur}
-                                            placeholder="Cantidad"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tipo Expulsión</label>
-
-                                        <select
-                                            style={getSelectStyle("tipo_expulsion")}
-                                            value={formData.tipo_expulsion}
-                                            onChange={(e) => handleInputChange("tipo_expulsion", e.target.value)}
-                                            onFocus={() => handleFocus("tipo_expulsion")}
-                                            onBlur={handleBlur}
-                                        >
-                                            {EXPULSION_OPTIONS.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Carrera Expulsión (mm)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("carrera_expulsion_mm")}
-                                            value={formData.carrera_expulsion_mm}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    "carrera_expulsion_mm",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("carrera_expulsion_mm")}
-                                            onBlur={handleBlur}
-                                            placeholder="mm"
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Especificaciones Físicas */}
-
-                            <CollapsibleSection
-                                title="Especificaciones Físicas"
-                                icon=""
-                                isExpanded={expandedSections.technical}
-                                onToggle={() => toggleSection("technical")}
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Peso (kg)</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("peso_kg")}
-                                            value={formData.peso_kg}
-                                            onChange={(e) => handleInputChange("peso_kg", e.target.value)}
-                                            onFocus={() => handleFocus("peso_kg")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Dimensiones</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("dimensiones")}
-                                            value={formData.dimensiones}
-                                            onChange={(e) => handleInputChange("dimensiones", e.target.value)}
-                                            onFocus={() => handleFocus("dimensiones")}
-                                            onBlur={handleBlur}
-                                            placeholder="LxAxH mm"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Material Base</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("material_base")}
-                                            value={formData.material_base}
-                                            onChange={(e) => handleInputChange("material_base", e.target.value)}
-                                            onFocus={() => handleFocus("material_base")}
-                                            onBlur={handleBlur}
-                                            placeholder="P20, H13, etc."
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Color Pieza</label>
-
-                                        <input
-                                            type="text"
-                                            style={getInputStyle("color")}
-                                            value={formData.color}
-                                            onChange={(e) => handleInputChange("color", e.target.value)}
-                                            onFocus={() => handleFocus("color")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Números de Parte */}
-
-                            <CollapsibleSection
-                                title="Números de Parte"
-                                icon=""
-                                isExpanded={expandedSections.partNumbers}
-                                onToggle={() => toggleSection("partNumbers")}
-                            >
-                                <div style={styles.formGrid}>
-                                    {["n_parte_1", "n_parte_2", "n_parte_3", "n_parte_4", "n_parte_5", "n_parte_6"].map(
-                                        (field, idx) => (
-                                            <div key={field} style={styles.inputGroup}>
-                                                <label style={styles.label}>N° Parte {idx + 1}</label>
-
-                                                <input
-                                                    type="text"
-                                                    style={getInputStyle(field)}
-                                                    value={formData[field]}
-                                                    onChange={(e) => handleInputChange(field, e.target.value)}
-                                                    onFocus={() => handleFocus(field)}
-                                                    onBlur={handleBlur}
-                                                />
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            </CollapsibleSection>
-
-                            {/* Imagen */}
-
-                            <CollapsibleSection
-                                title="Imagen del Molde"
-                                icon=""
-                                isExpanded={expandedSections.image}
-                                onToggle={() => toggleSection("image")}
-                            >
-                                {imagePreview ? (
-                                    <div style={styles.imagePreview}>
-                                        <img src={imagePreview} alt="Preview" style={styles.imagePreviewImg} />
-
-                                        <button
-                                            type="button"
-                                            style={styles.imageRemoveBtn}
-                                            onClick={() => {
-                                                setImagePreview(null);
-
-                                                handleInputChange("image_url", "");
-                                            }}
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div
-                                        style={{
-                                            ...styles.imageUploadArea,
-
-                                            position: "relative",
-
-                                            overflow: "hidden",
-                                        }}
-                                    >
-                                        <div style={styles.imageUploadText}>Haz clic para subir una imagen</div>
-
-                                        <div style={styles.imageUploadHint}>JPG, PNG — máx. 5MB</div>
-
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                            style={{
-                                                position: "absolute",
-
-                                                top: 0,
-
-                                                left: 0,
-
-                                                width: "100%",
-
-                                                height: "100%",
-
-                                                opacity: 0,
-
-                                                cursor: "pointer",
-                                            }}
-                                        />
-                                    </div>
-                                )}
-
-                                {isCompressing && (
-                                    <p
-                                        style={{
-                                            color: "#ffc800",
-
-                                            marginTop: "12px",
-
-                                            fontSize: "13px",
-                                        }}
-                                    >
-                                        Comprimiendo imagen...
-                                    </p>
-                                )}
-                            </CollapsibleSection>
-
-                            {/* Notas */}
-
-                            <CollapsibleSection
-                                title="Notas y Comentarios"
-                                icon=""
-                                isExpanded={expandedSections.notes}
-                                onToggle={() => toggleSection("notes")}
-                            >
-                                <div style={styles.inputGroup}>
-                                    <label style={styles.label}>Comentarios</label>
-
-                                    <textarea
-                                        style={{
-                                            ...styles.textarea,
-
-                                            width: "100%",
-
-                                            boxSizing: "border-box",
-
-                                            borderColor:
-                                                focusedField === "notes" ? "#00ff88" : "rgba(255, 255, 255, 0.08)",
-
-                                            boxShadow:
-                                                focusedField === "notes" ? "0 0 15px rgba(0, 255, 136, 0.2)" : "none",
-                                        }}
-                                        value={formData.notes}
-                                        onChange={(e) => handleInputChange("notes", e.target.value)}
-                                        onFocus={() => handleFocus("notes")}
-                                        onBlur={handleBlur}
-                                        placeholder="Notas adicionales sobre el molde..."
-                                    />
-                                </div>
-                            </CollapsibleSection>
-
-                            {/*botones para subir */}
-
-                            <div style={styles.buttonGroup}>
-                                <button type="button" style={styles.btnSecondary} onClick={resetForm}>
-                                    Limpiar
-                                </button>
-
-                                <button type="submit" style={styles.btnPrimary} disabled={isSubmitting}>
-                                    {isSubmitting && <span style={styles.loadingSpinner} />}
-
-                                    {isSubmitting
-                                        ? "Guardando..."
-                                        : editingMold
-                                          ? "Actualizar Molde"
-                                          : "Registrar Molde"}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                        cursor: "pointer",
+                      }}
+                    />
+                  </div>
                 )}
 
-                {/*pestania de lista */}
+                {isCompressing && (
+                  <p
+                    style={{
+                      color: "#ffc800",
 
-                {activeTab === "list" && (
-                    <div>
-                        {/*estadisticas */}
+                      marginTop: "12px",
 
-                        <div style={styles.statsRow}>
-                            {[
-                                {
-                                    label: "Total Moldes",
+                      fontSize: "13px",
+                    }}
+                  >
+                    Comprimiendo imagen...
+                  </p>
+                )}
+              </CollapsibleSection>
 
-                                    value: stats.total,
+              {/* Notas */}
 
-                                    color: "#00ff88",
+              <CollapsibleSection
+                title="Notas y Comentarios"
+                icon=""
+                isExpanded={expandedSections.notes}
+                onToggle={() => toggleSection("notes")}
+              >
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Comentarios</label>
 
-                                    icon: "",
-                                },
+                  <textarea
+                    style={{
+                      ...styles.textarea,
 
-                                {
-                                    label: "Activos",
+                      width: "100%",
 
-                                    value: stats.activos,
+                      boxSizing: "border-box",
 
-                                    color: "#64ff64",
+                      borderColor:
+                        focusedField === "notes"
+                          ? "#00ff88"
+                          : "rgba(255, 255, 255, 0.08)",
 
-                                    icon: "",
-                                },
+                      boxShadow:
+                        focusedField === "notes"
+                          ? "0 0 15px rgba(0, 255, 136, 0.2)"
+                          : "none",
+                    }}
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange("notes", e.target.value)}
+                    onFocus={() => handleFocus("notes")}
+                    onBlur={handleBlur}
+                    placeholder="Notas adicionales sobre el molde..."
+                  />
+                </div>
+              </CollapsibleSection>
 
-                                {
-                                    label: "Reparando",
+              {/*botones para subir */}
 
-                                    value: stats.reparando,
+              <div style={styles.buttonGroup}>
+                <button
+                  type="button"
+                  style={styles.btnSecondary}
+                  onClick={resetForm}
+                >
+                  Limpiar
+                </button>
 
-                                    color: "#ffc800",
+                <button
+                  type="submit"
+                  style={styles.btnPrimary}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && <span style={styles.loadingSpinner} />}
 
-                                    icon: "",
-                                },
+                  {isSubmitting
+                    ? "Guardando..."
+                    : editingMold
+                      ? "Actualizar Molde"
+                      : "Registrar Molde"}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
 
-                                {
-                                    label: "Pendientes",
+        {/*pestania de lista */}
 
-                                    value: stats.pendientes,
+        {activeTab === "list" && (
+          <div>
+            {/*estadisticas */}
 
-                                    color: "#ff6b6b",
+            <div style={styles.statsRow}>
+              {[
+                {
+                  label: "Total Moldes",
 
-                                    icon: "",
-                                },
-                            ].map((s) => (
-                                <div key={s.label} style={styles.statCard}>
-                                    <div
-                                        style={{
-                                            ...styles.statIcon,
+                  value: stats.total,
 
-                                            background: `${s.color}20`,
-                                        }}
-                                    >
-                                        <div style={{ ...styles.statValue, color: s.color }}>{s.value}</div>
-                                    </div>
+                  color: "#00ff88",
 
-                                    <div>
-                                        <div style={styles.statLabel}>{s.label}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                  icon: "",
+                },
 
-                        {/*contenedor de tabla*/}
+                {
+                  label: "Activos",
 
-                        <div style={styles.tableContainer}>
-                            <div style={styles.tableHeader}>
-                                <div style={styles.tableTitle}>Moldes Registrados ({filteredMolds.length})</div>
+                  value: stats.activos,
 
-                                <div style={styles.tableControls}>
-                                    <input
-                                        style={styles.tableSearch}
-                                        placeholder="Buscar por ID, nombre, modelo..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                  color: "#64ff64",
 
-                                    <select
-                                        style={styles.tableFilter}
-                                        value={filterYear}
-                                        onChange={(e) => setFilterYear(e.target.value)}
-                                    >
-                                        <option value="">Todos los años</option>
+                  icon: "",
+                },
 
-                                        {years.map((y) => (
-                                            <option key={y} value={y}>
-                                                {y}
-                                            </option>
-                                        ))}
-                                    </select>
+                {
+                  label: "Reparando",
 
-                                    <select
-                                        style={styles.tableFilter}
-                                        value={filterStatus}
-                                        onChange={(e) => setFilterStatus(e.target.value)}
-                                    >
-                                        <option value="">Todos los estados</option>
+                  value: stats.reparando,
 
-                                        {statusOptions.map((s) => (
-                                            <option key={s.value} value={s.value}>
-                                                {s.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
+                  color: "#ffc800",
 
-                            {isLoading ? (
-                                <div style={{ textAlign: "center", padding: "40px" }}>
-                                    <span style={styles.loadingSpinner} />
+                  icon: "",
+                },
 
-                                    <p style={{ color: "#888", marginTop: "12px" }}>Cargando moldes...</p>
-                                </div>
-                            ) : filteredMolds.length === 0 ? (
-                                <div style={styles.emptyState}>
+                {
+                  label: "Pendientes",
 
-                                    <div style={styles.emptyText}>No se encontraron moldes</div>
-                                </div>
-                            ) : (
-                                <>
-                                    <div style={{ overflowX: "auto" }}>
-                                        <table style={styles.table}>
-                                            <thead>
-                                                <tr>
-                                                    {[
-                                                        "ID",
+                  value: stats.pendientes,
 
-                                                        "Nombre",
+                  color: "#ff6b6b",
 
-                                                        "Estado",
+                  icon: "",
+                },
+              ].map((s) => (
+                <div key={s.label} style={styles.statCard}>
+                  <div
+                    style={{
+                      ...styles.statIcon,
 
-                                                        "Año",
-
-                                                        "Modelo",
-
-                                                        "Tipo",
-
-                                                        "Material Iny.",
-
-                                                        "Cavidades",
-
-                                                        "Máquina",
-
-                                                        "Acciones",
-                                                    ].map((h) => (
-                                                        <th key={h} style={styles.th}>
-                                                            {h}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {filteredMolds.map((mold) => (
-                                                    <tr key={mold.id_molde} style={styles.tableRow}>
-                                                        <td
-                                                            style={{
-                                                                ...styles.td,
-
-                                                                fontWeight: 600,
-
-                                                                color: "#00ff88",
-                                                            }}
-                                                        >
-                                                            {mold.id_molde}
-                                                        </td>
-
-                                                        <td style={styles.td}>{mold.nombre}</td>
-
-                                                        <td style={styles.td}>
-                                                            <span
-                                                                style={{
-                                                                    ...getStatusStyle(mold.estado),
-
-                                                                    ...styles.statusBadge,
-                                                                }}
-                                                            >
-                                                                {mold.estado}
-                                                            </span>
-                                                        </td>
-
-                                                        <td style={styles.td}>{mold.año}</td>
-
-                                                        <td style={styles.td}>{mold.modelo || "-"}</td>
-
-                                                        <td style={styles.td}>{mold.tipo_molde || "-"}</td>
-
-                                                        <td style={styles.td}>{mold.material_inyeccion || "-"}</td>
-
-                                                        <td style={styles.td}>{mold.num_cavidades || "-"}</td>
-
-                                                        <td style={styles.td}>{mold.maquina_asignada || "-"}</td>
-
-                                                        <td style={styles.td}>
-                                                            <button
-                                                                style={styles.actionBtn}
-                                                                onClick={() => handleEdit(mold)}
-                                                            >
-                                                                Editar
-                                                            </button>
-
-                                                            <button
-                                                                style={{
-                                                                    ...styles.actionBtn,
-
-                                                                    color: "#ff6b6b",
-
-                                                                    borderColor: "rgba(255,107,107,0.3)",
-                                                                }}
-                                                                onClick={() => handleDeleteClick(mold)}
-                                                            >
-                                                                Eliminar
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <div style={styles.pagination}>
-                                        <span style={styles.pageInfo}>
-                                            Mostrando {filteredMolds.length} de {molds.length} moldes
-                                        </span>
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                      background: `${s.color}20`,
+                    }}
+                  >
+                    <div style={{ ...styles.statValue, color: s.color }}>
+                      {s.value}
                     </div>
-                )}
+                  </div>
 
-                {/*pestania de maquinas*/}
+                  <div>
+                    <div style={styles.statLabel}>{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-                {activeTab === "maquinas" && (
-                    <div
-                        style={{
-                            display: "grid",
+            {/*contenedor de tabla*/}
 
-                            gridTemplateColumns: "1fr 1fr",
+            <div style={styles.tableContainer}>
+              <div style={styles.tableHeader}>
+                <div style={styles.tableTitle}>
+                  Moldes Registrados ({filteredMolds.length})
+                </div>
 
-                            gap: "24px",
-                        }}
-                    >
-                        {/*tarjeta del form*/}
+                <div style={styles.tableControls}>
+                  <input
+                    style={styles.tableSearch}
+                    placeholder="Buscar por ID, nombre, modelo..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
 
-                        <div style={styles.formContainer}>
-                            <div style={{ ...styles.sectionTitle, marginTop: 0 }}>
-                                {editingMaquina ? "Editar Máquina" : "Nueva Máquina"}
-                            </div>
+                  <select
+                    style={styles.tableFilter}
+                    value={filterYear}
+                    onChange={(e) => setFilterYear(e.target.value)}
+                  >
+                    <option value="">Todos los años</option>
 
-                            <CollapsibleSection
-                                title="Información Básica"
-                                icon=""
-                                isExpanded={maquinaExpandedSections.basicInfo}
-                                onToggle={() =>
-                                    setMaquinaExpandedSections((p) => ({
-                                        ...p,
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
 
-                                        basicInfo: !p.basicInfo,
-                                    }))
-                                }
-                                isRequired
+                  <select
+                    style={styles.tableFilter}
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="">Todos los estados</option>
+
+                    {statusOptions.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {isLoading ? (
+                <div style={{ textAlign: "center", padding: "40px" }}>
+                  <span style={styles.loadingSpinner} />
+
+                  <p style={{ color: "#888", marginTop: "12px" }}>
+                    Cargando moldes...
+                  </p>
+                </div>
+              ) : filteredMolds.length === 0 ? (
+                <div style={styles.emptyState}>
+                  <div style={styles.emptyText}>No se encontraron moldes</div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={styles.table}>
+                      <thead>
+                        <tr>
+                          {[
+                            "ID",
+
+                            "Nombre",
+
+                            "Estado",
+
+                            "Año",
+
+                            "Modelo",
+
+                            "Tipo",
+
+                            "Material Iny.",
+
+                            "Cavidades",
+
+                            "Máquina",
+
+                            "Acciones",
+                          ].map((h) => (
+                            <th key={h} style={styles.th}>
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {filteredMolds.map((mold) => (
+                          <tr key={mold.id_molde} style={styles.tableRow}>
+                            <td
+                              style={{
+                                ...styles.td,
+
+                                fontWeight: 600,
+
+                                color: "#00ff88",
+                              }}
                             >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>
-                                            Identificador <span style={styles.requiredStar}>*</span>
-                                        </label>
+                              {mold.id_molde}
+                            </td>
 
-                                        <input
-                                            style={getInputStyle(
-                                                "identificador_maquina",
+                            <td style={styles.td}>{mold.nombre}</td>
 
-                                                !!editingMaquina
-                                            )}
-                                            value={maquinaFormData.identificador_maquina}
-                                            onChange={(e) =>
-                                                handleMaquinaInputChange(
-                                                    "identificador_maquina",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("identificador_maquina")}
-                                            onBlur={handleBlur}
-                                            placeholder="Ej: INY-01"
-                                            disabled={!!editingMaquina}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>
-                                            Nombre <span style={styles.requiredStar}>*</span>
-                                        </label>
-
-                                        <input
-                                            style={getInputStyle("maq_nombre")}
-                                            value={maquinaFormData.nombre}
-                                            onChange={(e) => handleMaquinaInputChange("nombre", e.target.value)}
-                                            onFocus={() => handleFocus("maq_nombre")}
-                                            onBlur={handleBlur}
-                                            placeholder="Nombre de la máquina"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Estado</label>
-
-                                        <select
-                                            style={getSelectStyle("maq_estado")}
-                                            value={maquinaFormData.estado}
-                                            onChange={(e) => handleMaquinaInputChange("estado", e.target.value)}
-                                            onFocus={() => handleFocus("maq_estado")}
-                                            onBlur={handleBlur}
-                                        >
-                                            {DEFAULT_MACHINE_STATUS_OPTIONS.map((o) => (
-                                                <option key={o.value} value={o.value}>
-                                                    {o.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Marca</label>
-
-                                        <input
-                                            style={getInputStyle("maq_marca")}
-                                            value={maquinaFormData.marca}
-                                            onChange={(e) => handleMaquinaInputChange("marca", e.target.value)}
-                                            onFocus={() => handleFocus("maq_marca")}
-                                            onBlur={handleBlur}
-                                            placeholder="Fabricante"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Modelo</label>
-
-                                        <input
-                                            style={getInputStyle("maq_modelo")}
-                                            value={maquinaFormData.modelo}
-                                            onChange={(e) => handleMaquinaInputChange("modelo", e.target.value)}
-                                            onFocus={() => handleFocus("maq_modelo")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Ubicación</label>
-
-                                        <input
-                                            style={getInputStyle("maq_ubicacion")}
-                                            value={maquinaFormData.ubicacion}
-                                            onChange={(e) => handleMaquinaInputChange("ubicacion", e.target.value)}
-                                            onFocus={() => handleFocus("maq_ubicacion")}
-                                            onBlur={handleBlur}
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            <CollapsibleSection
-                                title="Especificaciones Técnicas"
-                                icon=""
-                                isExpanded={maquinaExpandedSections.technical}
-                                onToggle={() =>
-                                    setMaquinaExpandedSections((p) => ({
-                                        ...p,
-
-                                        technical: !p.technical,
-                                    }))
-                                }
-                            >
-                                <div style={styles.formGrid}>
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Tonelaje Cierre</label>
-
-                                        <input
-                                            style={getInputStyle("maq_tonelaje")}
-                                            value={maquinaFormData.tonelaje_cierre}
-                                            onChange={(e) =>
-                                                handleMaquinaInputChange(
-                                                    "tonelaje_cierre",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("maq_tonelaje")}
-                                            onBlur={handleBlur}
-                                            placeholder="Toneladas"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Capacidad Inyección (g)</label>
-
-                                        <input
-                                            style={getInputStyle("maq_capacidad")}
-                                            value={maquinaFormData.capacidad_inyeccion_g}
-                                            onChange={(e) =>
-                                                handleMaquinaInputChange(
-                                                    "capacidad_inyeccion_g",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("maq_capacidad")}
-                                            onBlur={handleBlur}
-                                            placeholder="Gramos"
-                                        />
-                                    </div>
-
-                                    <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Diámetro Husillo (mm)</label>
-
-                                        <input
-                                            style={getInputStyle("maq_husillo")}
-                                            value={maquinaFormData.diametro_husillo_mm}
-                                            onChange={(e) =>
-                                                handleMaquinaInputChange(
-                                                    "diametro_husillo_mm",
-
-                                                    e.target.value
-                                                )
-                                            }
-                                            onFocus={() => handleFocus("maq_husillo")}
-                                            onBlur={handleBlur}
-                                            placeholder="mm"
-                                        />
-                                    </div>
-                                </div>
-                            </CollapsibleSection>
-
-                            <div style={styles.buttonGroup}>
-                                {editingMaquina && (
-                                    <button style={styles.btnSecondary} onClick={resetMaquinaForm}>
-                                        Cancelar
-                                    </button>
-                                )}
-
-                                <button style={styles.btnPrimary} onClick={handleMaquinaSubmit}>
-                                    {editingMaquina ? "Actualizar Máquina" : "Registrar Máquina"}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/*tarjeta de tabla*/}
-
-                        <div style={styles.tableContainer}>
-                            <div style={styles.tableHeader}>
-                                <div style={styles.tableTitle}>Máquinas Registradas ({maquinas.length})</div>
-                            </div>
-
-                            <div style={{ padding: "16px 24px 8px" }}>
-                                <div style={{ display: "flex", gap: "8px" }}>
-                                    <input
-                                        style={{ ...styles.tableSearch, flex: 1, width: "auto" }}
-                                        placeholder="Buscar..."
-                                        value={maquinaSearchTerm}
-                                        onChange={(e) => setMaquinaSearchTerm(e.target.value)}
-                                    />
-
-                                    <select
-                                        style={styles.tableFilter}
-                                        value={maquinaFilterStatus}
-                                        onChange={(e) => setMaquinaFilterStatus(e.target.value)}
-                                    >
-                                        <option value="">Todos</option>
-
-                                        {DEFAULT_MACHINE_STATUS_OPTIONS.map((o) => (
-                                            <option key={o.value} value={o.value}>
-                                                {o.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {maquinasLoading ? (
-                                <div style={{ textAlign: "center", padding: "40px" }}>
-                                    <p style={{ color: "#888" }}>Cargando...</p>
-                                </div>
-                            ) : filteredMaquinas.length === 0 ? (
-                                <div style={styles.emptyState}>
-                                    <div style={styles.emptyText}>No hay máquinas registradas</div>
-                                </div>
-                            ) : (
-                                <div style={{ overflowX: "auto" }}>
-                                    <table style={styles.table}>
-                                        <thead>
-                                            <tr>
-                                                {["ID", "Nombre", "Marca", "Tonelaje", "Estado", "Acciones"].map(
-                                                    (h) => (
-                                                        <th key={h} style={styles.th}>
-                                                            {h}
-                                                        </th>
-                                                    )
-                                                )}
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            {filteredMaquinas.map((maq) => (
-                                                <tr key={maq.id_maquina} style={styles.tableRow}>
-                                                    <td
-                                                        style={{
-                                                            ...styles.td,
-
-                                                            fontWeight: 600,
-
-                                                            color: "#00ff88",
-                                                        }}
-                                                    >
-                                                        {maq.identificador_maquina}
-                                                    </td>
-
-                                                    <td style={styles.td}>{maq.nombre}</td>
-
-                                                    <td style={styles.td}>{maq.marca || "-"}</td>
-
-                                                    <td style={styles.td}>{maq.tonelaje_cierre || "-"}</td>
-
-                                                    <td style={styles.td}>
-                                                        <span
-                                                            style={{
-                                                                ...getMaquinaStatusStyle(maq.estado),
-
-                                                                ...styles.statusBadge,
-                                                            }}
-                                                        >
-                                                            {maq.estado}
-                                                        </span>
-                                                    </td>
-
-                                                    <td style={styles.td}>
-                                                        <button
-                                                            style={styles.actionBtn}
-                                                            onClick={() => handleEditMaquina(maq)}
-                                                        >
-                                                            Editar
-                                                        </button>
-
-                                                        <button
-                                                            style={{
-                                                                ...styles.actionBtn,
-
-                                                                color: "#ff6b6b",
-
-                                                                borderColor: "rgba(255,107,107,0.3)",
-                                                            }}
-                                                            onClick={() => handleDeleteMaquinaClick(maq)}
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/*pestania de modelos*/}
-
-                {activeTab === "modelos" && (
-                    <div
-                        style={{
-                            display: "grid",
-
-                            gridTemplateColumns: "1fr 1fr",
-
-                            gap: "24px",
-                        }}
-                    >
-                        {/*tarjeta de form*/}
-
-                        <div style={styles.formContainer}>
-                            <div style={{ ...styles.sectionTitle, marginTop: 0 }}>
-                                {editingModelo ? "Editar Modelo" : "Nuevo Modelo"}
-                            </div>
-
-                            <div
+                            <td style={styles.td}>
+                              <span
                                 style={{
-                                    display: "flex",
+                                  ...getStatusStyle(mold.estado),
 
-                                    flexDirection: "column",
-
-                                    gap: "20px",
+                                  ...styles.statusBadge,
                                 }}
-                            >
-                                <div style={styles.inputGroup}>
-                                    <label style={styles.label}>
-                                        Nombre del Modelo <span style={styles.requiredStar}>*</span>
-                                    </label>
+                              >
+                                {mold.estado}
+                              </span>
+                            </td>
 
-                                    <input
-                                        style={getInputStyle("modelo_nombre")}
-                                        value={modeloFormData.nombre_modelo}
-                                        onChange={(e) => handleModeloInputChange("nombre_modelo", e.target.value)}
-                                        onFocus={() => handleFocus("modelo_nombre")}
-                                        onBlur={handleBlur}
-                                        placeholder="Nombre del modelo"
-                                    />
-                                </div>
+                            <td style={styles.td}>{mold.año}</td>
 
-                                <div style={styles.inputGroup}>
-                                    <label style={styles.label}>
-                                        Molde Asignado <span style={styles.requiredStar}>*</span>
-                                    </label>
+                            <td style={styles.td}>{mold.modelo || "-"}</td>
 
-                                    <select
-                                        style={getSelectStyle("modelo_molde")}
-                                        value={modeloFormData.molde_id}
-                                        onChange={(e) => handleModeloInputChange("molde_id", e.target.value)}
-                                        onFocus={() => handleFocus("modelo_molde")}
-                                        onBlur={handleBlur}
-                                    >
-                                        <option value="">Seleccionar molde...</option>
+                            <td style={styles.td}>
+                              {formatTipoDisplay(mold.tipo_molde)}
+                            </td>
 
-                                        {molds.map((m) => (
-                                            <option key={m.id_molde} value={m.id_molde}>
-                                                {m.id_molde} - {m.nombre}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <td style={styles.td}>
+                              {mold.material_inyeccion || "-"}
+                            </td>
 
-                                <div style={styles.inputGroup}>
-                                    <label style={styles.label}>Descripción</label>
+                            <td style={styles.td}>
+                              {mold.num_cavidades || "-"}
+                            </td>
 
-                                    <textarea
-                                        style={{
-                                            ...styles.textarea,
+                            <td style={styles.td}>
+                              {mold.maquina_asignada || "-"}
+                            </td>
 
-                                            width: "100%",
+                            <td style={styles.td}>
+                              <button
+                                style={styles.actionBtn}
+                                onClick={() => handleEdit(mold)}
+                              >
+                                Editar
+                              </button>
 
-                                            boxSizing: "border-box",
+                              <button
+                                style={{
+                                  ...styles.actionBtn,
 
-                                            borderColor:
-                                                focusedField === "modelo_desc"
-                                                    ? "#00ff88"
-                                                    : "rgba(255, 255, 255, 0.08)",
+                                  color: "#ff6b6b",
 
-                                            boxShadow:
-                                                focusedField === "modelo_desc"
-                                                    ? "0 0 15px rgba(0, 255, 136, 0.2)"
-                                                    : "none",
-                                        }}
-                                        value={modeloFormData.descripcion}
-                                        onChange={(e) => handleModeloInputChange("descripcion", e.target.value)}
-                                        onFocus={() => handleFocus("modelo_desc")}
-                                        onBlur={handleBlur}
-                                        placeholder="Descripción opcional"
-                                    />
-                                </div>
-                            </div>
+                                  borderColor: "rgba(255,107,107,0.3)",
+                                }}
+                                onClick={() => handleDeleteClick(mold)}
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                            <div style={styles.buttonGroup}>
-                                {editingModelo && (
-                                    <button
-                                        style={styles.btnSecondary}
-                                        onClick={() => {
-                                            setEditingModelo(null);
+                  <div style={styles.pagination}>
+                    <span style={styles.pageInfo}>
+                      Mostrando {filteredMolds.length} de {molds.length} moldes
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
-                                            setModeloFormData({
-                                                nombre_modelo: "",
+        {/*pestania de maquinas*/}
 
-                                                molde_id: "",
+        {activeTab === "maquinas" && (
+          <div
+            style={{
+              display: "grid",
 
-                                                descripcion: "",
-                                            });
-                                        }}
-                                    >
-                                        Cancelar
-                                    </button>
-                                )}
+              gridTemplateColumns: "1fr 1fr",
 
-                                <button style={styles.btnPrimary} onClick={handleModeloSubmit}>
-                                    {editingModelo ? "Actualizar Modelo" : "Crear Modelo"}
-                                </button>
-                            </div>
-                        </div>
+              gap: "24px",
+            }}
+          >
+            {/*tarjeta del form*/}
 
-                        {/* tarjeta de tabla*/}
+            <div style={styles.formContainer}>
+              <div style={{ ...styles.sectionTitle, marginTop: 0 }}>
+                {editingMaquina ? "Editar Máquina" : "Nueva Máquina"}
+              </div>
 
-                        <div style={styles.tableContainer}>
-                            <div style={styles.tableHeader}>
-                                <div style={styles.tableTitle}>Modelos ({modelos.length})</div>
-                            </div>
+              <CollapsibleSection
+                title="Información Básica"
+                icon=""
+                isExpanded={maquinaExpandedSections.basicInfo}
+                onToggle={() =>
+                  setMaquinaExpandedSections((p) => ({
+                    ...p,
 
-                            <div style={{ padding: "16px 24px 8px" }}>
-                                <input
-                                    style={{
-                                        ...styles.tableSearch,
+                    basicInfo: !p.basicInfo,
+                  }))
+                }
+                isRequired
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      Identificador <span style={styles.requiredStar}>*</span>
+                    </label>
 
-                                        width: "100%",
+                    <input
+                      style={getInputStyle(
+                        "identificador_maquina",
 
-                                        boxSizing: "border-box",
-                                    }}
-                                    placeholder="Buscar modelo o molde..."
-                                    value={modeloSearchTerm}
-                                    onChange={(e) => setModeloSearchTerm(e.target.value)}
-                                />
-                            </div>
+                        !!editingMaquina,
+                      )}
+                      value={maquinaFormData.identificador_maquina}
+                      onChange={(e) =>
+                        handleMaquinaInputChange(
+                          "identificador_maquina",
 
-                            {modelosLoading ? (
-                                <div style={{ textAlign: "center", padding: "40px" }}>
-                                    <p style={{ color: "#888" }}>Cargando...</p>
-                                </div>
-                            ) : filteredModelos.length === 0 ? (
-                                <div style={styles.emptyState}>
-                                    <div style={styles.emptyIcon}>📦</div>
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("identificador_maquina")}
+                      onBlur={handleBlur}
+                      placeholder="Ej: INY-01"
+                      disabled={!!editingMaquina}
+                    />
+                  </div>
 
-                                    <div style={styles.emptyText}>No hay modelos registrados</div>
-                                </div>
-                            ) : (
-                                <div style={{ overflowX: "auto" }}>
-                                    <table style={styles.table}>
-                                        <thead>
-                                            <tr>
-                                                {["Modelo", "Molde", "Descripción", "Acciones"].map((h) => (
-                                                    <th key={h} style={styles.th}>
-                                                        {h}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>
+                      Nombre <span style={styles.requiredStar}>*</span>
+                    </label>
 
-                                        <tbody>
-                                            {filteredModelos.map((mod) => (
-                                                <tr key={mod.id_modelo} style={styles.tableRow}>
-                                                    <td style={{ ...styles.td, fontWeight: 600 }}>
-                                                        {mod.nombre_modelo}
-                                                    </td>
+                    <input
+                      style={getInputStyle("maq_nombre")}
+                      value={maquinaFormData.nombre}
+                      onChange={(e) =>
+                        handleMaquinaInputChange("nombre", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maq_nombre")}
+                      onBlur={handleBlur}
+                      placeholder="Nombre de la máquina"
+                    />
+                  </div>
 
-                                                    <td style={{ ...styles.td, color: "#00ff88" }}>{mod.molde_id}</td>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Estado</label>
 
-                                                    <td style={styles.td}>{mod.descripcion || "-"}</td>
+                    <select
+                      style={getSelectStyle("maq_estado")}
+                      value={maquinaFormData.estado}
+                      onChange={(e) =>
+                        handleMaquinaInputChange("estado", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maq_estado")}
+                      onBlur={handleBlur}
+                    >
+                      {DEFAULT_MACHINE_STATUS_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                                                    <td style={styles.td}>
-                                                        <button
-                                                            style={styles.actionBtn}
-                                                            onClick={() => {
-                                                                setEditingModelo(mod);
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Marca</label>
 
-                                                                setModeloFormData({
-                                                                    nombre_modelo: mod.nombre_modelo,
+                    <input
+                      style={getInputStyle("maq_marca")}
+                      value={maquinaFormData.marca}
+                      onChange={(e) =>
+                        handleMaquinaInputChange("marca", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maq_marca")}
+                      onBlur={handleBlur}
+                      placeholder="Fabricante"
+                    />
+                  </div>
 
-                                                                    molde_id: mod.molde_id,
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Modelo</label>
 
-                                                                    descripcion: mod.descripcion || "",
-                                                                });
-                                                            }}
-                                                        >
-                                                            Editar
-                                                        </button>
+                    <input
+                      style={getInputStyle("maq_modelo")}
+                      value={maquinaFormData.modelo}
+                      onChange={(e) =>
+                        handleMaquinaInputChange("modelo", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maq_modelo")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
 
-                                                        <button
-                                                            style={{
-                                                                ...styles.actionBtn,
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Ubicación</label>
 
-                                                                color: "#ff6b6b",
+                    <input
+                      style={getInputStyle("maq_ubicacion")}
+                      value={maquinaFormData.ubicacion}
+                      onChange={(e) =>
+                        handleMaquinaInputChange("ubicacion", e.target.value)
+                      }
+                      onFocus={() => handleFocus("maq_ubicacion")}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
 
-                                                                borderColor: "rgba(255,107,107,0.3)",
-                                                            }}
-                                                            onClick={() => handleDeleteModeloClick(mod)}
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+              <CollapsibleSection
+                title="Especificaciones Técnicas"
+                icon=""
+                isExpanded={maquinaExpandedSections.technical}
+                onToggle={() =>
+                  setMaquinaExpandedSections((p) => ({
+                    ...p,
+
+                    technical: !p.technical,
+                  }))
+                }
+              >
+                <div style={styles.formGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Tonelaje Cierre</label>
+
+                    <input
+                      style={getInputStyle("maq_tonelaje")}
+                      value={maquinaFormData.tonelaje_cierre}
+                      onChange={(e) =>
+                        handleMaquinaInputChange(
+                          "tonelaje_cierre",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("maq_tonelaje")}
+                      onBlur={handleBlur}
+                      placeholder="Toneladas"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Capacidad Inyección (g)</label>
+
+                    <input
+                      style={getInputStyle("maq_capacidad")}
+                      value={maquinaFormData.capacidad_inyeccion_g}
+                      onChange={(e) =>
+                        handleMaquinaInputChange(
+                          "capacidad_inyeccion_g",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("maq_capacidad")}
+                      onBlur={handleBlur}
+                      placeholder="Gramos"
+                    />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label style={styles.label}>Diámetro Husillo (mm)</label>
+
+                    <input
+                      style={getInputStyle("maq_husillo")}
+                      value={maquinaFormData.diametro_husillo_mm}
+                      onChange={(e) =>
+                        handleMaquinaInputChange(
+                          "diametro_husillo_mm",
+
+                          e.target.value,
+                        )
+                      }
+                      onFocus={() => handleFocus("maq_husillo")}
+                      onBlur={handleBlur}
+                      placeholder="mm"
+                    />
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              <div style={styles.buttonGroup}>
+                {editingMaquina && (
+                  <button
+                    style={styles.btnSecondary}
+                    onClick={resetMaquinaForm}
+                  >
+                    Cancelar
+                  </button>
                 )}
-            </main>
 
-            {/*modal para eliminar el molde */}
+                <button style={styles.btnPrimary} onClick={handleMaquinaSubmit}>
+                  {editingMaquina ? "Actualizar Máquina" : "Registrar Máquina"}
+                </button>
+              </div>
+            </div>
 
-            {showDeleteModal && (
-                <div style={styles.modalOverlay} onClick={() => setShowDeleteModal(false)}>
-                    <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                        <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+            {/*tarjeta de tabla*/}
 
-                        <p style={styles.modalText}>
-                            ¿Está seguro de que desea eliminar el molde{" "}
-                            <strong style={{ color: "#00ff88" }}>{moldToDelete?.id_molde || moldToDelete?.id}</strong> (
-                            {moldToDelete?.nombre || moldToDelete?.name})?
-                            <br />
-                            <br />
-                            Esta acción no se puede deshacer.
-                        </p>
-
-                        <div style={styles.modalButtons}>
-                            <button style={styles.btnSecondary} onClick={() => setShowDeleteModal(false)}>
-                                Cancelar
-                            </button>
-
-                            <button style={styles.btnDanger} onClick={handleDeleteConfirm}>
-                                Eliminar Molde
-                            </button>
-                        </div>
-                    </div>
+            <div style={styles.tableContainer}>
+              <div style={styles.tableHeader}>
+                <div style={styles.tableTitle}>
+                  Máquinas Registradas ({maquinas.length})
                 </div>
-            )}
+              </div>
 
-            {/*modal para eliminar una maquiuna */}
+              <div style={{ padding: "16px 24px 8px" }}>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <input
+                    style={{ ...styles.tableSearch, flex: 1, width: "auto" }}
+                    placeholder="Buscar..."
+                    value={maquinaSearchTerm}
+                    onChange={(e) => setMaquinaSearchTerm(e.target.value)}
+                  />
 
-            {showDeleteMaquinaModal && (
-                <div style={styles.modalOverlay} onClick={() => setShowDeleteMaquinaModal(false)}>
-                    <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                        <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+                  <select
+                    style={styles.tableFilter}
+                    value={maquinaFilterStatus}
+                    onChange={(e) => setMaquinaFilterStatus(e.target.value)}
+                  >
+                    <option value="">Todos</option>
 
-                        <p style={styles.modalText}>
-                            ¿Está seguro de que desea eliminar la máquina{" "}
-                            <strong style={{ color: "#00ff88" }}>{maquinaToDelete?.identificador_maquina}</strong> (
-                            {maquinaToDelete?.nombre})?
-                            <br />
-                            <br />
-                            Esta acción puede afectar los moldes asignados a esta máquina.
-                        </p>
-
-                        <div style={styles.modalButtons}>
-                            <button style={styles.btnSecondary} onClick={() => setShowDeleteMaquinaModal(false)}>
-                                Cancelar
-                            </button>
-
-                            <button style={styles.btnDanger} onClick={handleDeleteMaquinaConfirm}>
-                                Eliminar Máquina
-                            </button>
-                        </div>
-                    </div>
+                    {DEFAULT_MACHINE_STATUS_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-            )}
+              </div>
 
-            {/*Modal de borrar modelo*/}
-
-            {showDeleteModeloModal && (
-                <div style={styles.modalOverlay} onClick={() => setShowDeleteModeloModal(false)}>
-                    <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                        <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
-
-                        <p style={styles.modalText}>
-                            ¿Está seguro de que desea eliminar el modelo{" "}
-                            <strong style={{ color: "#00ff88" }}>{modeloToDelete?.nombre_modelo}</strong> del molde{" "}
-                            <strong style={{ color: "#00c8ff" }}>{modeloToDelete?.molde_id}</strong>
-                            ?
-                            <br />
-                            <br />
-                            Esta acción no se puede deshacer.
-                        </p>
-
-                        <div style={styles.modalButtons}>
-                            <button style={styles.btnSecondary} onClick={() => setShowDeleteModeloModal(false)}>
-                                Cancelar
-                            </button>
-
-                            <button style={styles.btnDanger} onClick={handleDeleteModeloConfirm}>
-                                Eliminar Modelo
-                            </button>
-                        </div>
-                    </div>
+              {maquinasLoading ? (
+                <div style={{ textAlign: "center", padding: "40px" }}>
+                  <p style={{ color: "#888" }}>Cargando...</p>
                 </div>
-            )}
+              ) : filteredMaquinas.length === 0 ? (
+                <div style={styles.emptyState}>
+                  <div style={styles.emptyText}>
+                    No hay máquinas registradas
+                  </div>
+                </div>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        {[
+                          "ID",
+                          "Nombre",
+                          "Marca",
+                          "Tonelaje",
+                          "Estado",
+                          "Acciones",
+                        ].map((h) => (
+                          <th key={h} style={styles.th}>
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
 
-            {/*animacion css*/}
+                    <tbody>
+                      {filteredMaquinas.map((maq) => (
+                        <tr key={maq.id_maquina} style={styles.tableRow}>
+                          <td
+                            style={{
+                              ...styles.td,
 
-            <style>{cssAnimations}</style>
+                              fontWeight: 600,
+
+                              color: "#00ff88",
+                            }}
+                          >
+                            {maq.identificador_maquina}
+                          </td>
+
+                          <td style={styles.td}>{maq.nombre}</td>
+
+                          <td style={styles.td}>{maq.marca || "-"}</td>
+
+                          <td style={styles.td}>
+                            {maq.tonelaje_cierre || "-"}
+                          </td>
+
+                          <td style={styles.td}>
+                            <span
+                              style={{
+                                ...getMaquinaStatusStyle(maq.estado),
+
+                                ...styles.statusBadge,
+                              }}
+                            >
+                              {maq.estado}
+                            </span>
+                          </td>
+
+                          <td style={styles.td}>
+                            <button
+                              style={styles.actionBtn}
+                              onClick={() => handleEditMaquina(maq)}
+                            >
+                              Editar
+                            </button>
+
+                            <button
+                              style={{
+                                ...styles.actionBtn,
+
+                                color: "#ff6b6b",
+
+                                borderColor: "rgba(255,107,107,0.3)",
+                              }}
+                              onClick={() => handleDeleteMaquinaClick(maq)}
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/*pestania de modelos*/}
+
+        {activeTab === "modelos" && (
+          <div
+            style={{
+              display: "grid",
+
+              gridTemplateColumns: "1fr 1fr",
+
+              gap: "24px",
+            }}
+          >
+            {/*tarjeta de form*/}
+
+            <div style={styles.formContainer}>
+              <div style={{ ...styles.sectionTitle, marginTop: 0 }}>
+                {editingModelo ? "Editar Modelo" : "Nuevo Modelo"}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+
+                  flexDirection: "column",
+
+                  gap: "20px",
+                }}
+              >
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>
+                    Nombre del Modelo <span style={styles.requiredStar}>*</span>
+                  </label>
+
+                  <input
+                    style={getInputStyle("modelo_nombre")}
+                    value={modeloFormData.nombre_modelo}
+                    onChange={(e) =>
+                      handleModeloInputChange("nombre_modelo", e.target.value)
+                    }
+                    onFocus={() => handleFocus("modelo_nombre")}
+                    onBlur={handleBlur}
+                    placeholder="Nombre del modelo"
+                  />
+                </div>
+
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>
+                    Molde Asignado <span style={styles.requiredStar}>*</span>
+                  </label>
+
+                  <select
+                    style={getSelectStyle("modelo_molde")}
+                    value={modeloFormData.molde_id}
+                    onChange={(e) =>
+                      handleModeloInputChange("molde_id", e.target.value)
+                    }
+                    onFocus={() => handleFocus("modelo_molde")}
+                    onBlur={handleBlur}
+                  >
+                    <option value="">Seleccionar molde...</option>
+
+                    {molds.map((m) => (
+                      <option key={m.id_molde} value={m.id_molde}>
+                        {m.id_molde} - {m.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={styles.inputGroup}>
+                  <label style={styles.label}>Descripción</label>
+
+                  <textarea
+                    style={{
+                      ...styles.textarea,
+
+                      width: "100%",
+
+                      boxSizing: "border-box",
+
+                      borderColor:
+                        focusedField === "modelo_desc"
+                          ? "#00ff88"
+                          : "rgba(255, 255, 255, 0.08)",
+
+                      boxShadow:
+                        focusedField === "modelo_desc"
+                          ? "0 0 15px rgba(0, 255, 136, 0.2)"
+                          : "none",
+                    }}
+                    value={modeloFormData.descripcion}
+                    onChange={(e) =>
+                      handleModeloInputChange("descripcion", e.target.value)
+                    }
+                    onFocus={() => handleFocus("modelo_desc")}
+                    onBlur={handleBlur}
+                    placeholder="Descripción opcional"
+                  />
+                </div>
+              </div>
+
+              <div style={styles.buttonGroup}>
+                {editingModelo && (
+                  <button
+                    style={styles.btnSecondary}
+                    onClick={() => {
+                      setEditingModelo(null);
+
+                      setModeloFormData({
+                        nombre_modelo: "",
+
+                        molde_id: "",
+
+                        descripcion: "",
+                      });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+
+                <button style={styles.btnPrimary} onClick={handleModeloSubmit}>
+                  {editingModelo ? "Actualizar Modelo" : "Crear Modelo"}
+                </button>
+              </div>
+            </div>
+
+            {/* tarjeta de tabla*/}
+
+            <div style={styles.tableContainer}>
+              <div style={styles.tableHeader}>
+                <div style={styles.tableTitle}>Modelos ({modelos.length})</div>
+              </div>
+
+              <div style={{ padding: "16px 24px 8px" }}>
+                <input
+                  style={{
+                    ...styles.tableSearch,
+
+                    width: "100%",
+
+                    boxSizing: "border-box",
+                  }}
+                  placeholder="Buscar modelo o molde..."
+                  value={modeloSearchTerm}
+                  onChange={(e) => setModeloSearchTerm(e.target.value)}
+                />
+              </div>
+
+              {modelosLoading ? (
+                <div style={{ textAlign: "center", padding: "40px" }}>
+                  <p style={{ color: "#888" }}>Cargando...</p>
+                </div>
+              ) : filteredModelos.length === 0 ? (
+                <div style={styles.emptyState}>
+                  <div style={styles.emptyIcon}>📦</div>
+
+                  <div style={styles.emptyText}>No hay modelos registrados</div>
+                </div>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        {["Modelo", "Molde", "Descripción", "Acciones"].map(
+                          (h) => (
+                            <th key={h} style={styles.th}>
+                              {h}
+                            </th>
+                          ),
+                        )}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {filteredModelos.map((mod) => (
+                        <tr key={mod.id_modelo} style={styles.tableRow}>
+                          <td style={{ ...styles.td, fontWeight: 600 }}>
+                            {mod.nombre_modelo}
+                          </td>
+
+                          <td style={{ ...styles.td, color: "#00ff88" }}>
+                            {mod.molde_id}
+                          </td>
+
+                          <td style={styles.td}>{mod.descripcion || "-"}</td>
+
+                          <td style={styles.td}>
+                            <button
+                              style={styles.actionBtn}
+                              onClick={() => {
+                                setEditingModelo(mod);
+
+                                setModeloFormData({
+                                  nombre_modelo: mod.nombre_modelo,
+
+                                  molde_id: mod.molde_id,
+
+                                  descripcion: mod.descripcion || "",
+                                });
+                              }}
+                            >
+                              Editar
+                            </button>
+
+                            <button
+                              style={{
+                                ...styles.actionBtn,
+
+                                color: "#ff6b6b",
+
+                                borderColor: "rgba(255,107,107,0.3)",
+                              }}
+                              onClick={() => handleDeleteModeloClick(mod)}
+                            >
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/*modal para eliminar el molde */}
+
+      {showDeleteModal && (
+        <div
+          style={styles.modalOverlay}
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+
+            <p style={styles.modalText}>
+              ¿Está seguro de que desea eliminar el molde{" "}
+              <strong style={{ color: "#00ff88" }}>
+                {moldToDelete?.id_molde || moldToDelete?.id}
+              </strong>{" "}
+              ({moldToDelete?.nombre || moldToDelete?.name})?
+              <br />
+              <br />
+              Esta acción no se puede deshacer.
+            </p>
+
+            <div style={styles.modalButtons}>
+              <button
+                style={styles.btnSecondary}
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancelar
+              </button>
+
+              <button style={styles.btnDanger} onClick={handleDeleteConfirm}>
+                Eliminar Molde
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      )}
+
+      {/*modal para eliminar una maquiuna */}
+
+      {showDeleteMaquinaModal && (
+        <div
+          style={styles.modalOverlay}
+          onClick={() => setShowDeleteMaquinaModal(false)}
+        >
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+
+            <p style={styles.modalText}>
+              ¿Está seguro de que desea eliminar la máquina{" "}
+              <strong style={{ color: "#00ff88" }}>
+                {maquinaToDelete?.identificador_maquina}
+              </strong>{" "}
+              ({maquinaToDelete?.nombre})?
+              <br />
+              <br />
+              Esta acción puede afectar los moldes asignados a esta máquina.
+            </p>
+
+            <div style={styles.modalButtons}>
+              <button
+                style={styles.btnSecondary}
+                onClick={() => setShowDeleteMaquinaModal(false)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                style={styles.btnDanger}
+                onClick={handleDeleteMaquinaConfirm}
+              >
+                Eliminar Máquina
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/*Modal de borrar modelo*/}
+
+      {showDeleteModeloModal && (
+        <div
+          style={styles.modalOverlay}
+          onClick={() => setShowDeleteModeloModal(false)}
+        >
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+
+            <p style={styles.modalText}>
+              ¿Está seguro de que desea eliminar el modelo{" "}
+              <strong style={{ color: "#00ff88" }}>
+                {modeloToDelete?.nombre_modelo}
+              </strong>{" "}
+              del molde{" "}
+              <strong style={{ color: "#00c8ff" }}>
+                {modeloToDelete?.molde_id}
+              </strong>
+              ?
+              <br />
+              <br />
+              Esta acción no se puede deshacer.
+            </p>
+
+            <div style={styles.modalButtons}>
+              <button
+                style={styles.btnSecondary}
+                onClick={() => setShowDeleteModeloModal(false)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                style={styles.btnDanger}
+                onClick={handleDeleteModeloConfirm}
+              >
+                Eliminar Modelo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/*animacion css*/}
+
+      <style>{cssAnimations}</style>
+    </div>
+  );
 };
 
 export default AdminMoldRegistration;
