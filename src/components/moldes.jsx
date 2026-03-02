@@ -637,7 +637,7 @@ const AdminMoldRegistration = ({
 
     maquina_asignada: "",
 
-    tipo_molde: "Null",
+    tipo_molde: "",
 
     ubicacion: "",
 
@@ -951,6 +951,7 @@ const AdminMoldRegistration = ({
       if (maquinasRes && Array.isArray(maquinasRes)) {
         setMachineOptions([
           { value: "", label: "Sin asignar" },
+
           ...maquinasRes,
         ]);
       }
@@ -958,6 +959,7 @@ const AdminMoldRegistration = ({
       if (tiposRes && Array.isArray(tiposRes)) {
         setMoldTypeOptions([
           { value: "Null", label: "Sin especificar" },
+
           ...tiposRes,
         ]);
       }
@@ -1056,10 +1058,15 @@ const AdminMoldRegistration = ({
     }
   }, [
     activeTab,
+
     fetchMolds,
+
     fetchStats,
+
     fetchMaquinas,
+
     fetchModelos,
+
     fetchOptions,
   ]);
 
@@ -1197,7 +1204,7 @@ const AdminMoldRegistration = ({
 
       maquina_asignada: "",
 
-      tipo_molde: "Null",
+      tipo_molde: "",
 
       ubicacion: "",
 
@@ -1997,22 +2004,17 @@ const AdminMoldRegistration = ({
                   <div style={styles.inputGroup}>
                     <label style={styles.label}>Tipo de Molde</label>
 
-                    <select
-                      style={getSelectStyle("tipo_molde")}
+                    <input
+                      type="text"
+                      style={getInputStyle("tipo_molde")}
                       value={formData.tipo_molde}
                       onChange={(e) =>
                         handleInputChange("tipo_molde", e.target.value)
                       }
                       onFocus={() => handleFocus("tipo_molde")}
                       onBlur={handleBlur}
-                      disabled={optionsLoading}
-                    >
-                      {moldTypeOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Ingrese tipo de molde"
+                    />
                   </div>
 
                   <div style={styles.inputGroup}>
@@ -2542,10 +2544,15 @@ const AdminMoldRegistration = ({
                 <div style={styles.formGrid}>
                   {[
                     "n_parte_1",
+
                     "n_parte_2",
+
                     "n_parte_3",
+
                     "n_parte_4",
+
                     "n_parte_5",
+
                     "n_parte_6",
                   ].map((field, idx) => (
                     <div key={field} style={styles.inputGroup}>
@@ -3244,10 +3251,15 @@ const AdminMoldRegistration = ({
                       <tr>
                         {[
                           "ID",
+
                           "Nombre",
+
                           "Marca",
+
                           "Tonelaje",
+
                           "Estado",
+
                           "Acciones",
                         ].map((h) => (
                           <th key={h} style={styles.th}>
@@ -3478,8 +3490,6 @@ const AdminMoldRegistration = ({
                 </div>
               ) : filteredModelos.length === 0 ? (
                 <div style={styles.emptyState}>
-                  <div style={styles.emptyIcon}>📦</div>
-
                   <div style={styles.emptyText}>No hay modelos registrados</div>
                 </div>
               ) : (
