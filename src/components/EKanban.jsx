@@ -1591,7 +1591,6 @@ const DetailModal = memo(
                           ))}
                         </div>
                       </div>
-
                       <button
                         onClick={handleSubmitBajaTroquel}
                         disabled={savingBaja}
@@ -2533,6 +2532,7 @@ const EKanbanInternal = ({ onLogoClick, user, onLogout }) => {
         <StatusLegend />
       </div>
 
+      <FooterBar />
       {/*modal condicional basado en estado*/}
       {selectedItem &&
         (() => {
@@ -2594,5 +2594,52 @@ const EKanban = (props) => {
     </NotificationProvider>
   );
 };
+
+const C = {
+  primary: "#1a6fc4",
+  primaryDark: "#14559a",
+  sidebarGrad: "linear-gradient(180deg, #1e78d0 0%, #14559a 100%)",
+  bg: "#f3f6fa",
+  white: "#fff",
+  border: "#e2e8f0",
+  text: "#1a1a1a",
+  muted: "#888",
+  green: "#22c55e",
+  red: "#e04545",
+  orange: "#e08a2b",
+  sel: "#eef5fc",
+  teal: "#16a198",
+  sBg: "rgba(255,255,255,0.1)",
+  sBorder: "rgba(255,255,255,0.15)",
+  sDim: "rgba(255,255,255,0.55)",
+  sDimmer: "rgba(255,255,255,0.45)",
+};
+const F = { d: "'Playfair Display', serif", b: "'DM Sans', sans-serif" };
+const COLS = "40px 1fr 140px 200px";
+
+const FooterBar = () => (
+  <footer
+    style={{
+      padding: "8px 16px",
+      textAlign: "center",
+      borderTop: "1px solid black",
+      backgroundColor: "black",
+      flexShrink: 0,
+    }}
+  >
+    <p
+      style={{
+        fontSize: "0.6rem",
+        color: "#fff",
+        margin: 0,
+        fontFamily: F.b,
+        opacity: 0.75,
+        letterSpacing: "0.02em",
+      }}
+    >
+      2026 ACIM - Todos los derechos reservados Motores Reynosa S.A. de C.V.
+    </p>
+  </footer>
+);
 
 export default EKanban;

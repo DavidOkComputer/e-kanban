@@ -1,71 +1,80 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import createStyles, { cssAnimations } from '../styles/Login.styles';
-import NidecLogo from '../assets/Nidec_Institutional_Logo_White_Version.png';
+import React, { useState, useMemo, useCallback } from "react";
+import createStyles, { cssAnimations } from "../styles/Login.styles";
+import NidecLogo from "../assets/Nidec_Institutional_Logo_White_Version.png";
 
-<link rel="icon" href="public/favicon.ico" type="image/x-icon"></link>
+<link rel="icon" href="public/favicon.ico" type="image/x-icon"></link>;
 
 const Login = ({ onLoginSuccess, onNavigateBack }) => {
   const styles = useMemo(() => createStyles(), []);
-  
+
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [focusedField, setFocusedField] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
   }, []);
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    
-    if (!formData.username.trim() || !formData.password.trim()) {
-        setError('Por favor ingrese usuario y contraseña');
-        return;
-    }
-    
-    setIsLoading(true);
-    setError('');
-    
-    try {
-        const response = await fetch('http://localhost/ekanban-toolroom/src/api/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                username: formData.username,
-                password: formData.password
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            localStorage.setItem('user', JSON.stringify(data.user));
-            onLoginSuccess && onLoginSuccess(data.user);
-        } else {
-            setError(data.message || 'Usuario o contraseña incorrectos');
-            setIsLoading(false);
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        setError('Error de conexión. Intente nuevamente');
-        setIsLoading(false);
-    }
-  }, [formData, onLoginSuccess]);
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
 
-  const getInputStyle = useCallback((fieldName) => ({
-    ...styles.input,
-    ...(focusedField === fieldName ? styles.inputFocus : {}),
-  }), [focusedField, styles]);
+      if (!formData.username.trim() || !formData.password.trim()) {
+        setError("Por favor ingrese usuario y contraseña");
+        return;
+      }
+
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch(
+          "http://localhost/ekanban-toolroom/src/api/login.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              username: formData.username,
+              password: formData.password,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          onLoginSuccess && onLoginSuccess(data.user);
+        } else {
+          setError(data.message || "Usuario o contraseña incorrectos");
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        setError("Error de conexión. Intente nuevamente");
+        setIsLoading(false);
+      }
+    },
+    [formData, onLoginSuccess],
+  );
+
+  const getInputStyle = useCallback(
+    (fieldName) => ({
+      ...styles.input,
+      ...(focusedField === fieldName ? styles.inputFocus : {}),
+    }),
+    [focusedField, styles],
+  );
 
   return (
     <div style={styles.container}>
@@ -92,12 +101,12 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
             style={styles.backButton}
             onClick={onNavigateBack}
             onMouseEnter={(e) => {
-              e.target.style.background = 'rgba(0, 255, 136, 0.1)';
-              e.target.style.borderColor = '#00ff88';
+              e.target.style.background = "rgba(0, 255, 136, 0.1)";
+              e.target.style.borderColor = "#00ff88";
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'transparent';
-              e.target.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+              e.target.style.background = "transparent";
+              e.target.style.borderColor = "rgba(0, 255, 136, 0.3)";
             }}
           >
             ← Volver al Dashboard
@@ -106,14 +115,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
 
         {/*tarjeta de login*/}
         <div style={styles.loginCard}>
-
           {/*logo dentro de la tarjeta*/}
           <div style={styles.logoRectangle}>
-            <img
-              src={NidecLogo}
-              alt="Nidec ACIM"
-              style={styles.logoImg}
-            />
+            <img src={NidecLogo} alt="Nidec ACIM" style={styles.logoImg} />
           </div>
 
           {/*seccion de texto E-KANBAN*/}
@@ -124,8 +128,10 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
 
           {/*titulo*/}
           <div style={styles.titleSection}>
-            <h1 style={styles.title}>Acceso Administrativo</h1>
-            <p style={styles.subtitle}>Ingrese sus credenciales para continuar</p>
+            <h1 style={styles.title}>MOTORES REYNOSA NIDEC</h1>
+            <p style={styles.subtitle}>
+              Ingrese sus credenciales para continuar
+            </p>
           </div>
 
           {error && (
@@ -143,9 +149,9 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
-                onFocus={() => setFocusedField('username')}
+                onFocus={() => setFocusedField("username")}
                 onBlur={() => setFocusedField(null)}
-                style={getInputStyle('username')}
+                style={getInputStyle("username")}
                 placeholder="Ingrese su usuario"
                 autoComplete="username"
                 disabled={isLoading}
@@ -156,13 +162,13 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
               <label style={styles.label}>Contraseña</label>
               <div style={styles.passwordWrapper}>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  onFocus={() => setFocusedField('password')}
+                  onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
-                  style={getInputStyle('password')}
+                  style={getInputStyle("password")}
                   placeholder="Ingrese su contraseña"
                   autoComplete="current-password"
                   disabled={isLoading}
@@ -173,7 +179,7 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
-                  {showPassword ? '' : ''}
+                  {showPassword ? "" : ""}
                 </button>
               </div>
             </div>
@@ -183,18 +189,19 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
               style={{
                 ...styles.submitButton,
                 opacity: isLoading ? 0.7 : 1,
-                cursor: isLoading ? 'not-allowed' : 'pointer',
+                cursor: isLoading ? "not-allowed" : "pointer",
               }}
               disabled={isLoading}
               onMouseEnter={(e) => {
                 if (!isLoading) {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 30px rgba(0, 255, 136, 0.5)';
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow =
+                    "0 8px 30px rgba(0, 255, 136, 0.5)";
                 }
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 20px rgba(0, 255, 136, 0.3)';
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 20px rgba(0, 255, 136, 0.3)";
               }}
             >
               {isLoading ? (
@@ -203,15 +210,11 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
                   Verificando...
                 </>
               ) : (
-                <>
-                  Iniciar Sesión
-                </>
+                <>Iniciar Sesión</>
               )}
             </button>
           </form>
-
         </div>
-
       </div>
 
       <style>{cssAnimations}</style>
