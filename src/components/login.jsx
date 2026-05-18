@@ -119,19 +119,14 @@ const Login = ({ onLoginSuccess, onNavigateBack }) => {
           <div style={styles.logoRectangle}>
             <img src={NidecLogo} alt="Nidec ACIM" style={styles.logoImg} />
           </div>
-
+          {/*titulo*/}
+          <div style={styles.titleSection}>
+            <h1 style={styles.title2}>MOTORES REYNOSA</h1>
+          </div>
           {/*seccion de texto E-KANBAN*/}
           <div style={styles.logoTextSection}>
             <span style={styles.logoTitle}>E-KANBAN</span>
             <span style={styles.logoSubtitle}>Administracion Tool Room</span>
-          </div>
-
-          {/*titulo*/}
-          <div style={styles.titleSection}>
-            <h1 style={styles.title}>MOTORES REYNOSA NIDEC</h1>
-            <p style={styles.subtitle}>
-              Ingrese sus credenciales para continuar
-            </p>
           </div>
 
           {error && (

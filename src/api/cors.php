@@ -1,5 +1,4 @@
 <?php
-// cors.php configuracion de cors para el uso de apis
 $allowed_origins = [
     'http://localhost:5173',
     'http://localhost:3000',

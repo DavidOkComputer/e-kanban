@@ -1,4 +1,3 @@
-
 <?php
 //troqueles.php la API para gestionar troqueles
 
