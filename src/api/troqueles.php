@@ -1,4 +1,4 @@
-<?php
+<?
 //troqueles.php la API para gestionar troqueles
 
 require_once "cors.php";

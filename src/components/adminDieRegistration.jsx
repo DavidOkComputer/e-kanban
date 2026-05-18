@@ -974,7 +974,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
       const processedData = handleResponse(data);
 
       setDies(processedData);
-
+      console.log("DIE KEYS:", Object.keys(processedData[0]));
       // Calcular estadísticas
 
       const total = processedData.length;
@@ -2397,7 +2397,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
                     handleEdit(dieToView);
                   }}
               >
-                Editar Troquel
+                ✏ Editar Troquel
               </button>
             </div>
           </div>
@@ -3709,13 +3709,14 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
 
                               const dieName = die.name || die.nombre;
 
-                              const dieYear = die.year || die.año;
+                              const dieYear = die.year || die.año || die.anio;
 
                               const dieModel = die.model || die.modelo || "-";
 
                               const dieStatus = die.status || die.estado;
 
-                              const dieGolpesAcum = die.golpes_acum || "-";
+                              const dieGolpesAcum =
+                                  die.golpes_acum || die.golpesAcum || "-";
 
                               return (
                                   <tr
