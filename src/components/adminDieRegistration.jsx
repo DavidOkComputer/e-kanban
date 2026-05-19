@@ -153,7 +153,7 @@ const mapApiToForm = (apiData) => {
   };
 };
 
-// Valores por defecto para las opciones (fallback)
+// Valores por defecto para las opciones
 
 const DEFAULT_PRESS_OPTIONS = [
   { value: "", label: "Sin asignar" },
@@ -252,7 +252,7 @@ const compressImage = (
 
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Convertir a JPEG comprimido (o PNG si tiene transparencia)
+      // Convertir a JPEG comprimid
 
       const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";
 
@@ -292,7 +292,7 @@ const compressImage = (
 
       let result = canvas.toDataURL(mimeType, outputQuality);
 
-      // Si aún es muy grande (> 500KB base64), reducir calidad progresivamente
+      // Si aún es muy grande reducir calidad progresivamente
 
       while (result.length > 500 * 1024 && outputQuality > 0.2) {
         outputQuality -= 0.1;
@@ -531,7 +531,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
     notes: false,
   });
 
-  // Estado para opciones de dropdowns (cargadas desde la base de datos)
+  // Estado para opciones de dropdowns
 
   const [pressOptions, setPressOptions] = useState(DEFAULT_PRESS_OPTIONS);
 
@@ -817,7 +817,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
     });
   }, []);
 
-  // Cargar opciones de dropdowns desde la base de datos (extracted as useCallback for re-use after CRUD)
+  // Cargar opciones de dropdowns desde la base de datos
 
   const fetchDropdownOptions = useCallback(async () => {
     setOptionsLoading(true);
@@ -1045,8 +1045,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
         setPrensas([]);
       }
 
-      // Also refresh the dropdown options from the dedicated endpoint
-
+        //refrescar las opciones del dropdown desde el endpoint dedicado
       fetchDropdownOptions();
     } catch (error) {
       console.error("Error fetching prensas:", error);
@@ -1569,7 +1568,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
         return;
       }
 
-      // Límite generoso de 50MB para el archivo original (se comprimirá)
+      // Límite generoso de 50MB para el archivo original
 
       if (file.size > 50 * 1024 * 1024) {
         setMessage({
@@ -2083,7 +2082,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
 
     const imageUrl = dieToView.image_url || dieToView.imageUrl;
 
-    // Helper: pick first non-null/undefined value across possible key names
+      //seleccionar el primero que no sea nulo o vacio entre todas las posibles llaves de nombres
     const pick = (...keys) => {
       for (const key of keys) {
         const val = dieToView[key];

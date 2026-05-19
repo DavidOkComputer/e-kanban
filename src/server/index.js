@@ -310,7 +310,7 @@ app.put("/api/modelos", async (req, res) => {
   }
 });
 
-//actualizar modelo (ID en URL)
+//actualizar modelo
 app.put("/api/modelos/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -543,7 +543,6 @@ app.post("/api/prensas/crud", async (req, res) => {
 });
 
 //actualizar prensa
-//actualizar prensa (ID en body - compatibilidad con frontend)
 app.put("/api/prensas/crud", async (req, res) => {
   try {
     const data = req.body;
@@ -681,7 +680,7 @@ app.put("/api/prensas/crud/:id", async (req, res) => {
   }
 });
 
-//eliminar prensa (ID en query param - compatibilidad con frontend)
+//eliminar prensa
 app.delete("/api/prensas/crud", async (req, res) => {
   try {
     const id = req.query.id;
@@ -740,7 +739,7 @@ app.delete("/api/prensas/crud", async (req, res) => {
   }
 });
 
-//eliminar prensa (ID en URL)
+//eliminar prensa
 app.delete("/api/prensas/crud/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -1026,7 +1025,6 @@ app.get("/api/troqueles/:id", async (req, res) => {
   }
 });
 
-//enpoints de ciclos de reparacion
 //obtener ciclo activo para el troquel
 app.get("/api/troqueles/:id/ciclo-activo", async (req, res) => {
   try {
@@ -1383,10 +1381,8 @@ app.post("/api/ciclos/:id/tecnicos", async (req, res) => {
     );
 
     //obtener tecnico insertado
-
     const [tecnico] = await pool.query(
         `SELECT * FROM tbl_tecnicos_ciclo WHERE id_tecnicos_ciclos = ?`,
-
         [result.insertId],
     );
 
@@ -1405,16 +1401,12 @@ app.post("/api/ciclos/:id/tecnicos", async (req, res) => {
 });
 
 //quitar tecnico del ciclo de reparacion
-
 app.delete("/api/tecnicos/:id", async (req, res) => {
   try {
     await pool.query(
         `
-
           UPDATE tbl_tecnicos_ciclo SET fecha_fin = NOW() WHERE id_tecnicos_ciclos = ? AND fecha_fin IS NULL
-
         `,
-
         [req.params.id],
     );
 
@@ -1718,8 +1710,6 @@ app.post("/api/ciclos/:id/cerrar", async (req, res) => {
   }
 });
 
-//acciones de troquel e historial
-
 //registrar accion y empezar un nuevo ciclo
 
 app.post("/api/troqueles/:id/action", async (req, res) => {
@@ -1751,22 +1741,16 @@ app.post("/api/troqueles/:id/action", async (req, res) => {
     } = req.body;
 
     //obtener info de troquel
-
     const [troquelInfo] = await connection.query(
         `
-
           SELECT id_troquel as troquel_id, nombre, modelo, estado as status, prensa_asignada as prensa_actual
-
           FROM tbl_troqueles WHERE id_troquel = ?
-
         `,
-
         [req.params.id],
     );
 
     if (troquelInfo.length === 0) {
       await connection.rollback();
-
       return res.status(404).json({
         error: "Troquel not found",
       });
@@ -1775,15 +1759,11 @@ app.post("/api/troqueles/:id/action", async (req, res) => {
     const troquel = troquelInfo[0];
 
     //obtener descripcion de falla si aplica
-
     let falla_descripcion = null;
-
     if (falla_id) {
       const [falla] = await connection.query(
           `
-
             SELECT descripcion FROM tbl_fallas_catalogo WHERE id_fallas_catalogo = ?
-
           `,
 
           [falla_id],
@@ -4037,8 +4017,6 @@ app.patch("/api/usuarios/crud/:id/toggle-active", async (req, res) => {
   }
 });
 
-//fin de apis para crud de usuarios
-
 //inicio de apis para crud de modelos
 
 app.get("/api/maquinas", async (req, res) => {
@@ -4321,7 +4299,7 @@ app.post("/api/maquinas/crud", async (req, res) => {
   }
 });
 
-// Actualizar máquina (ID en body)
+// Actualizar máquina
 
 app.put("/api/maquinas/crud", async (req, res) => {
   try {
@@ -4437,7 +4415,7 @@ app.put("/api/maquinas/crud", async (req, res) => {
   }
 });
 
-// Actualizar máquina (ID en URL)
+// Actualizar máquina
 
 app.put("/api/maquinas/crud/:id", async (req, res) => {
   try {
@@ -4541,7 +4519,7 @@ app.put("/api/maquinas/crud/:id", async (req, res) => {
   }
 });
 
-// Eliminar máquina (ID en query parametro)
+// Eliminar máquina
 
 app.delete("/api/maquinas/crud", async (req, res) => {
   try {
@@ -4619,7 +4597,7 @@ app.delete("/api/maquinas/crud", async (req, res) => {
   }
 });
 
-// Eliminar máquina (ID en URL)
+// Eliminar máquina
 
 app.delete("/api/maquinas/crud/:id", async (req, res) => {
   try {

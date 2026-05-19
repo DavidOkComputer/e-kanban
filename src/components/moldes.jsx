@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
+import ReactDOM from "react-dom";
 
 import createStyles, {
   getStatusStyle,
@@ -1907,7 +1908,7 @@ const AdminMoldRegistration = ({
       },
     ];
 
-    return (
+    return ReactDOM.createPortal(
         <div
             style={{
               position: "fixed",
@@ -1919,7 +1920,7 @@ const AdminMoldRegistration = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              zIndex: 1000,
+              zIndex: 9999,
               backdropFilter: "blur(4px)",
               padding: "20px",
             }}
@@ -2124,11 +2125,12 @@ const AdminMoldRegistration = ({
                     handleEdit(moldToView);
                   }}
               >
-                Editar Molde
+                ✏ Editar Molde
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
     );
   };
 
