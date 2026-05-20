@@ -2125,7 +2125,7 @@ const AdminMoldRegistration = ({
                     handleEdit(moldToView);
                   }}
               >
-                ✏ Editar Molde
+                Editar Molde
               </button>
             </div>
           </div>

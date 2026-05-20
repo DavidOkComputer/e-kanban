@@ -2396,7 +2396,7 @@ const AdminDieRegistration = ({ onNavigateBack, onNavigateToUsers, user }) => {
                     handleEdit(dieToView);
                   }}
               >
-                ✏ Editar Troquel
+                Editar Troquel
               </button>
             </div>
           </div>
